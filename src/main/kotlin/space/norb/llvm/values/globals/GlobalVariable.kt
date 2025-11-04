@@ -13,6 +13,6 @@ class GlobalVariable(
     override val type: PointerType,
     val module: Module,
     val initializer: Constant? = null,
-    val isConstant: Boolean = false,
+    val isConstantValue: Boolean = false,
     val linkage: LinkageType = LinkageType.EXTERNAL
 ) : Constant(name, type)

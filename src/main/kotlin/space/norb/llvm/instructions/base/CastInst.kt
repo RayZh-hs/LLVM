@@ -4,9 +4,9 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 
 /**
- * Sealed class for cast instructions.
+ * Abstract class for cast instructions.
  */
-sealed class CastInst(
+abstract class CastInst(
     name: String,
     override val type: Type,
     val value: Value

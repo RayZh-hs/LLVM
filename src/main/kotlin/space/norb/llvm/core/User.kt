@@ -51,7 +51,8 @@ abstract class User(
      *
      * @return An immutable list of all operands
      */
-    fun getOperands(): List<Value> = operands.toList()
+    fun getOperandsList(): List<Value> = operands.toList()
+    
     
     /**
      * Sets the operand at the specified index to a new value.

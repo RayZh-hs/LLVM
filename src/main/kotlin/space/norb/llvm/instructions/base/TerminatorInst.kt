@@ -4,9 +4,9 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 
 /**
- * Sealed class for terminator instructions.
+ * Abstract class for terminator instructions.
  */
-sealed class TerminatorInst(
+abstract class TerminatorInst(
     name: String,
     type: Type,
     operands: List<Value>

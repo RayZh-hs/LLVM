@@ -4,9 +4,9 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 
 /**
- * Sealed class for binary instructions.
+ * Abstract class for binary instructions.
  */
-sealed class BinaryInst(
+abstract class BinaryInst(
     name: String,
     type: Type,
     val lhs: Value,

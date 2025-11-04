@@ -4,9 +4,9 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 
 /**
- * Sealed class for other instructions.
+ * Abstract class for other instructions.
  */
-sealed class OtherInst(
+abstract class OtherInst(
     name: String,
     type: Type,
     operands: List<Value>

@@ -3,6 +3,7 @@ package space.norb.llvm.structure
 import space.norb.llvm.core.Type
 import space.norb.llvm.core.Value
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.visitors.IRVisitor
 
 /**
  * Function in LLVM IR.
@@ -18,4 +19,6 @@ class Function(
     }
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null
+    
+    override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitFunction(this)
 }

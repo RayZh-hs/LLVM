@@ -11,31 +11,20 @@ import space.norb.llvm.types.*
  *
  * ## LLVM IR Compliance Notice
  *
- * **LEGACY TYPED POINTER IMPLEMENTATION**: These tests validate the current typed pointer
- * implementation which follows the older LLVM IR model where pointers contain explicit
- * pointee type information (e.g., "i32*", "float*").
+ * **UN-TYPED POINTER IMPLEMENTATION**: These tests validate the new un-typed pointer
+ * implementation which follows the latest LLVM IR model where all pointers are of a single
+ * type (similar to `void*` in C) and type information is conveyed through other mechanisms.
  *
- * This implementation is **NOT compliant** with the latest LLVM IR standard, which has
- * moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single
- * type and type information is conveyed through other mechanisms.
- *
- * ## Migration Impact
- *
- * When migrating to un-typed pointers, these tests will need significant updates:
- * - Pointer string representations will change from "i32*" to "ptr"
- * - Pointee type information will no longer be stored in the pointer type
- * - Type checking and validation will need to be updated
- * - Pointer operations will require explicit type information where needed
- *
- * See migration documentation: [`docs/ptr-migration-todo.md`](../../docs/ptr-migration-todo.md)
+ * This implementation is **compliant** with the latest LLVM IR standard, which has
+ * moved to un-typed pointers where all pointers are of a single type regardless of
+ * the pointee type.
  *
  * ## Current Test Coverage
  *
- * This covers Phase 2 requirements for testing nested pointer types,
- * complex function types, multi-dimensional arrays, nested structs,
- * and mixed compositions using the legacy typed pointer model.
+ * This covers testing nested pointer types, complex function types, multi-dimensional arrays,
+ * nested structs, and mixed compositions using the un-typed pointer model.
  */
-@DisplayName("Type Composition Tests (Legacy Typed Pointer Implementation)")
+@DisplayName("Type Composition Tests (Un-typed Pointer Implementation)")
 class TypeCompositionTest {
 
     @Nested
@@ -45,11 +34,9 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to pointer types should work correctly")
         fun testPointerToPointer() {
-            // Test with un-typed pointers (default mode)
-            val i32Type = TypeUtils.I32
-            val i32Ptr = Type.getPointerType(i32Type)
-            val i32PtrPtr = Type.getPointerType(i32Type) // All pointers are un-typed, so nested is same
-            val i32PtrPtrPtr = Type.getPointerType(i32Type)
+            val i32Ptr = Type.getPointerType()
+            val i32PtrPtr = Type.getPointerType() // All pointers are un-typed, so nested is same
+            val i32PtrPtrPtr = Type.getPointerType()
             
             assertEquals("ptr", i32Ptr.toString(), "Simple pointer should have correct representation")
             assertEquals("ptr", i32PtrPtr.toString(), "Pointer to pointer should have correct representation")
@@ -69,8 +56,7 @@ class TypeCompositionTest {
         fun testPointerToArray() {
             val i32Array = ArrayType(10, TypeUtils.I32)
             
-            // Test with un-typed pointers (default mode)
-            val arrayPtr = Type.getPointerType(i32Array)
+            val arrayPtr = Type.getPointerType()
             assertEquals("ptr", arrayPtr.toString(), "Pointer to array should have correct representation")
             assertTrue(arrayPtr.isPointerType(), "Pointer to array should be pointer type")
             assertFalse(arrayPtr.isArrayType(), "Pointer to array should not be array type")
@@ -81,8 +67,7 @@ class TypeCompositionTest {
         fun testPointerToStruct() {
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.I64))
             
-            // Test with un-typed pointers (default mode)
-            val structPtr = Type.getPointerType(structType)
+            val structPtr = Type.getPointerType()
             assertEquals("ptr", structPtr.toString(), "Pointer to struct should have correct representation")
             assertTrue(structPtr.isPointerType(), "Pointer to struct should be pointer type")
             assertFalse(structPtr.isStructType(), "Pointer to struct should not be struct type")
@@ -93,8 +78,7 @@ class TypeCompositionTest {
         fun testPointerToFunction() {
             val funcType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I32, TypeUtils.I64))
             
-            // Test with un-typed pointers (default mode)
-            val funcPtr = Type.getPointerType(funcType)
+            val funcPtr = Type.getPointerType()
             assertEquals("ptr", funcPtr.toString(), "Pointer to function should have correct representation")
             assertTrue(funcPtr.isPointerType(), "Pointer to function should be pointer type")
             assertFalse(funcPtr.isFunctionType(), "Pointer to function should not be function type")
@@ -125,10 +109,9 @@ class TypeCompositionTest {
             val i32Array = ArrayType(10, TypeUtils.I32)
             val structType = StructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
             
-            // Test with un-typed pointers (default mode)
-            val i32Ptr = Type.getPointerType(TypeUtils.I32)
-            val funcPtrType = Type.getPointerType(FunctionType(TypeUtils.I64, emptyList()))
-            val structPtr = Type.getPointerType(structType)
+            val i32Ptr = Type.getPointerType()
+            val funcPtrType = Type.getPointerType()
+            val structPtr = Type.getPointerType()
             
             val params = listOf(i32Array, structType, i32Ptr, funcPtrType)
             val funcType = FunctionType(structPtr, params)
@@ -147,8 +130,7 @@ class TypeCompositionTest {
         fun testComplexReturnFunction() {
             val arrayType = ArrayType(5, ArrayType(10, TypeUtils.I32))
             
-            // Test with un-typed pointers (default mode)
-            val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+            val floatPtr = Type.getPointerType()
             val structType = StructType(listOf(TypeUtils.I32, floatPtr))
             val funcType = FunctionType(arrayType, listOf(structType))
             
@@ -228,8 +210,7 @@ class TypeCompositionTest {
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I32))
             val funcArray = ArrayType(5, funcType)
             
-            // Test with un-typed pointers (default mode)
-            val ptrType = Type.getPointerType(TypeUtils.DOUBLE)
+            val ptrType = Type.getPointerType()
             val ptrArray = ArrayType(7, ptrType)
             
             assertEquals("[3 x { i32, i64 }]", structArray.toString())
@@ -328,8 +309,7 @@ class TypeCompositionTest {
         fun testFunctionReturningPointerToStruct() {
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
             
-            // Test with un-typed pointers (default mode)
-            val structPtr = Type.getPointerType(structType)
+            val structPtr = Type.getPointerType()
             val funcType = FunctionType(structPtr, listOf(TypeUtils.I8, TypeUtils.I16))
             
             assertEquals("ptr (i8, i16)", funcType.toString())
@@ -342,8 +322,7 @@ class TypeCompositionTest {
         fun testArrayOfFunctionPointers() {
             val funcType = FunctionType(TypeUtils.I64, listOf(TypeUtils.I32))
             
-            // Test with un-typed pointers (default mode)
-            val funcPtr = Type.getPointerType(funcType)
+            val funcPtr = Type.getPointerType()
             val funcPtrArray = ArrayType(5, funcPtr)
             
             assertEquals("ptr", funcPtr.toString())
@@ -359,9 +338,8 @@ class TypeCompositionTest {
             val funcType2 = FunctionType(TypeUtils.FLOAT, listOf(TypeUtils.DOUBLE))
             val i32Array = ArrayType(10, TypeUtils.I32)
             
-            // Test with un-typed pointers (default mode)
-            val funcPtr1 = Type.getPointerType(funcType1)
-            val funcPtr2 = Type.getPointerType(funcType2)
+            val funcPtr1 = Type.getPointerType()
+            val funcPtr2 = Type.getPointerType()
             val structType = StructType(listOf(funcPtr1, i32Array, funcPtr2))
             
             assertEquals("{ ptr, [10 x i32], ptr }", structType.toString())
@@ -376,12 +354,12 @@ class TypeCompositionTest {
         fun testComplexNestedComposition() {
             // Create a complex type: pointer to array of structs containing function pointers
             val innerFuncType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I8))
-            val innerStruct = StructType(listOf(TypeUtils.I64, Type.getPointerType(innerFuncType)))
+            val innerStruct = StructType(listOf(TypeUtils.I64, Type.getPointerType()))
             val structArray = ArrayType(3, innerStruct)
             
             // Test with un-typed pointers (default mode)
-            val innerFuncPtr = Type.getPointerType(innerFuncType)
-            val complexType = Type.getPointerType(structArray)
+            val innerFuncPtr = Type.getPointerType()
+            val complexType = Type.getPointerType()
             
             assertEquals("ptr", innerFuncPtr.toString())
             assertEquals("{ i64, ptr }", innerStruct.toString())
@@ -404,14 +382,13 @@ class TypeCompositionTest {
             val structArray = ArrayType(5, structType)
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I8))
             
-            // Test with un-typed pointers (default mode)
-            val structArrayPtr = Type.getPointerType(structArray)
-            val funcPtr = Type.getPointerType(funcType)
+            val structArrayPtr = Type.getPointerType()
+            val funcPtr = Type.getPointerType()
             val complexStruct = StructType(listOf(TypeUtils.I64, structArrayPtr, funcPtr))
             
             // Create function with complex parameters and return type
             val complexFuncType = FunctionType(
-                Type.getPointerType(complexStruct),
+                Type.getPointerType(),
                 listOf(complexStruct, structArrayPtr, funcPtr)
             )
             

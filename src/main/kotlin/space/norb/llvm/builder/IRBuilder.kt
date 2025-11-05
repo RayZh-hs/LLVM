@@ -8,7 +8,6 @@ import space.norb.llvm.core.Type
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.types.VoidType
 import space.norb.llvm.types.IntegerType
-import space.norb.llvm.types.PointerType
 import space.norb.llvm.instructions.base.Instruction
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
@@ -88,33 +87,13 @@ class IRBuilder(val module: Module) {
         return GetElementPtrInst(if (name.isEmpty()) "gep" else name, elementType, address, indices)
     }
     
-    // Convenience methods for backward compatibility
-    fun buildLoad(address: Value, name: String = ""): LoadInst {
-        // Try to infer the loaded type from the pointer type (legacy mode)
-        val loadedType = when {
-            Type.useTypedPointers && address.type is PointerType -> {
-                (address.type as PointerType).pointeeType
-            }
-            else -> {
-                // In un-typed mode, we can't infer the type, so caller must use buildLoad(loadedType, address)
-                throw IllegalArgumentException("In un-typed pointer mode, loaded type must be explicitly specified. Use buildLoad(loadedType, address) instead.")
-            }
-        }
-        return buildLoad(loadedType, address, name)
+    // Simplified methods for untyped pointer usage
+    fun buildLoad(address: Value, loadedType: Type, name: String = ""): LoadInst {
+        return LoadInst(if (name.isEmpty()) "load" else name, loadedType, address)
     }
     
-    fun buildGep(address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
-        // Try to infer the element type from the pointer type (legacy mode)
-        val elementType = when {
-            Type.useTypedPointers && address.type is PointerType -> {
-                (address.type as PointerType).pointeeType
-            }
-            else -> {
-                // In un-typed mode, we can't infer the type, so caller must use buildGep(elementType, address, indices)
-                throw IllegalArgumentException("In un-typed pointer mode, element type must be explicitly specified. Use buildGep(elementType, address, indices) instead.")
-            }
-        }
-        return buildGep(elementType, address, indices, name)
+    fun buildGep(address: Value, elementType: Type, indices: List<Value>, name: String = ""): GetElementPtrInst {
+        return GetElementPtrInst(if (name.isEmpty()) "gep" else name, elementType, address, indices)
     }
     
     // Other operations

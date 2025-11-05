@@ -3,50 +3,24 @@ package space.norb.llvm.values.constants
 import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
 import space.norb.llvm.types.PointerType
-import space.norb.llvm.types.UntypedPointerType
 
 /**
  * Null pointer constant in LLVM IR.
  *
- * ## LLVM IR Compliance Notice
- *
- * This implementation supports both legacy typed pointers and new un-typed pointers
- * based on the migration flag. The latest LLVM IR standard has moved to un-typed pointers
- * (similar to `void*` in C) where all pointers are of a single type.
- *
- * ### Current Implementation (Migration Support)
- *
- * This NullPointerConstant can represent null values for both typed and un-typed pointer types
- * based on the migration flag in Type.useTypedPointers.
+ * This implementation uses un-typed pointers in compliance with the latest LLVM IR standard.
+ * All pointers are of a single type (similar to `void*` in C).
  *
  * IR output examples:
  * ```
- * ; Legacy mode (useTypedPointers = true):
- * i32* null        ; Null pointer for i32* type
- * float* null      ; Null pointer for float* type
- * %struct.MyType* null ; Null pointer for struct pointer type
- *
- * ; New mode (useTypedPointers = false):
  * ptr null         ; Null pointer for un-typed pointer type
  * ptr null         ; Same null pointer for all pointer types
  * ptr null         ; Same null pointer for all pointer types
  * ```
  *
  * Key characteristics:
- * - In legacy mode: Creates typed null pointers with explicit pointee type information
- * - In new mode: Creates un-typed null pointers that work with any pointer type
- * - Type information is preserved through context in new mode
- * - Maintains backward compatibility during migration
- *
- * ### Migration Path
- *
- * For migration details and implementation plan, see:
- * @see docs/ptr-migration-todo.md
- *
- * The migration provides:
- * - Seamless transition from typed to un-typed null pointers
- * - Backward compatibility for existing code
- * - LLVM IR compliant output in new mode
+ * - Creates un-typed null pointers that work with any pointer type
+ * - Type information is preserved through context
+ * - LLVM IR compliant output
  */
 class NullPointerConstant private constructor(
     override val type: Type
@@ -64,27 +38,20 @@ class NullPointerConstant private constructor(
         /**
          * Creates a null pointer constant for the specified element type.
          *
-         * This method supports both legacy typed pointers and new un-typed pointers
-         * based on the migration flag Type.useTypedPointers.
+         * This method creates an un-typed null pointer.
          *
          * @param elementType The element type this pointer points to (ignored in un-typed mode)
-         * @return A null pointer constant of the appropriate type
+         * @return A null pointer constant of the un-typed pointer type
          */
         fun create(elementType: Type): NullPointerConstant {
-            return if (Type.useTypedPointers) {
-                // Legacy mode: create typed null pointer
-                NullPointerConstant(PointerType(elementType))
-            } else {
-                // New mode: create un-typed null pointer
-                NullPointerConstant(UntypedPointerType)
-            }
+            // Create un-typed null pointer
+            return NullPointerConstant(PointerType)
         }
         
         /**
          * Creates a null pointer constant with the specified pointer type.
          *
-         * This method creates a null pointer with the exact pointer type provided,
-         * regardless of the migration flag. Use this for explicit type control.
+         * This method creates a null pointer with the exact pointer type provided.
          *
          * @param pointerType The exact pointer type to use
          * @return A null pointer constant with the specified type
@@ -95,30 +62,14 @@ class NullPointerConstant private constructor(
         }
         
         /**
-         * Creates a legacy typed null pointer constant.
-         *
-         * This method always creates a typed null pointer regardless of the migration flag.
-         * It's provided for backward compatibility and should only be used during migration.
-         *
-         * @param elementType The element type this pointer points to
-         * @return A typed null pointer constant
-         * @deprecated Use create() with Type.useTypedPointers=true or migrate to un-typed pointers
-         */
-        @Deprecated("Use create() with Type.useTypedPointers=true or migrate to un-typed pointers")
-        fun createTyped(elementType: Type): NullPointerConstant {
-            return NullPointerConstant(PointerType(elementType))
-        }
-        
-        /**
          * Creates an un-typed null pointer constant.
          *
-         * This method always creates an un-typed null pointer regardless of the migration flag.
-         * It's provided for explicit un-typed pointer creation.
+         * This method creates an un-typed null pointer.
          *
          * @return An un-typed null pointer constant
          */
         fun createUntyped(): NullPointerConstant {
-            return NullPointerConstant(UntypedPointerType)
+            return NullPointerConstant(PointerType)
         }
     }
 }

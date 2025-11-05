@@ -33,49 +33,21 @@ import space.norb.llvm.values.Metadata
 /**
  * Visitor for printing LLVM IR to string format.
  *
- * ## LLVM IR Compliance Notice
+ * This IR printer generates LLVM IR using un-typed pointers, complying with the
+ * latest LLVM IR standard. All pointers are represented as "ptr" regardless of
+ * the element type they point to.
  *
- * **IMPORTANT**: This IR printer generates LLVM IR using the legacy typed pointer model
- * which does NOT comply with the latest LLVM IR standard. The current LLVM IR standard
- * has moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single type.
- *
- * ### Current Implementation (Legacy Model)
- *
- * This IR printer generates typed pointer syntax where each pointer includes pointee type
- * information in the IR output (e.g., "i32*", "float*", "%struct.MyType*"). This is the
- * legacy LLVM IR model that has been deprecated.
- *
- * Examples of current IR output:
- * ```
- * %ptr = alloca i32
- * %val = load i32, i32* %ptr
- * %gep = getelementptr [10 x i32], [10 x i32]* %array, i64 0, i64 5
- * ```
- *
- * ### Target Implementation (LLVM IR Compliant)
- *
- * The target implementation should generate un-typed pointer syntax:
+ * Examples of IR output:
  * ```
  * %ptr = alloca i32
  * %val = load i32, ptr %ptr
  * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5
  * ```
  *
- * Key differences in target IR output:
+ * Key characteristics:
  * - All pointer types are represented as "ptr" instead of "elementType*"
- * - Type information is conveyed through other mechanisms (e.g., metadata, type casts)
+ * - Type information is conveyed through other mechanisms (e.g., explicit types in instructions)
  * - Pointer operations require explicit type information where needed
- *
- * ### Migration Path
- *
- * For migration details and implementation plan, see:
- * @see docs/ptr-migration-todo.md
- *
- * The migration will:
- * - Update all pointer type printing to use "ptr" syntax
- * - Modify memory instruction printing to handle un-typed pointers
- * - Update GEP instruction printing for un-typed pointer context
- * - Ensure all generated IR complies with latest LLVM IR standard
  */
 class IRPrinter : IRVisitor<Unit> {
     private val output = StringBuilder()
@@ -112,7 +84,7 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitArgument(argument: Argument) {
-        val typeStr = if (argument.type.isPointerType() && !Type.useTypedPointers) {
+        val typeStr = if (argument.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
         } else {
             argument.type.toString()
@@ -121,7 +93,7 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable) {
-        val typeStr = if (globalVariable.type.isPointerType() && !Type.useTypedPointers) {
+        val typeStr = if (globalVariable.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
         } else {
             globalVariable.type.toString()
@@ -190,43 +162,39 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitAllocaInst(inst: AllocaInst) {
-        // Generate compliant IR based on pointer mode
         output.appendLine("${indent()}${inst.name} = alloca ${inst.allocatedType}")
         // Note: alloca result type is implicit and handled by the instruction's type property
         // The instruction's type will be printed as "ptr" when accessed through other methods
     }
     
     override fun visitLoadInst(inst: LoadInst) {
-        // Generate compliant IR based on pointer mode
         val pointer = inst.pointer
-        val pointerTypeStr = if (Type.useTypedPointers) {
-            pointer.type.toString()
-        } else {
+        val pointerTypeStr = if (pointer.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
+        } else {
+            pointer.type.toString()
         }
         output.appendLine("${indent()}${inst.name} = load ${inst.loadedType}, $pointerTypeStr ${pointer.name}")
     }
     
     override fun visitStoreInst(inst: StoreInst) {
-        // Generate compliant IR based on pointer mode
         val value = inst.value
         val pointer = inst.pointer
-        val pointerTypeStr = if (Type.useTypedPointers) {
-            pointer.type.toString()
-        } else {
+        val pointerTypeStr = if (pointer.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
+        } else {
+            pointer.type.toString()
         }
         output.appendLine("${indent()}store ${value.type} ${value.name}, $pointerTypeStr ${pointer.name}")
     }
     
     override fun visitGetElementPtrInst(inst: GetElementPtrInst) {
-        // Generate compliant IR based on pointer mode
         val pointer = inst.pointer
         val indices = inst.indices
-        val pointerTypeStr = if (Type.useTypedPointers) {
-            pointer.type.toString()
-        } else {
+        val pointerTypeStr = if (pointer.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
+        } else {
+            pointer.type.toString()
         }
         val indicesStr = indices.joinToString(", ") { "${it.type} ${it.name}" }
         output.appendLine("${indent()}${inst.name} = getelementptr ${inst.elementType}, $pointerTypeStr ${pointer.name}, $indicesStr")
@@ -245,7 +213,7 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitBitcastInst(inst: BitcastInst) {
-        val targetTypeStr = if (inst.type.isPointerType() && !Type.useTypedPointers) {
+        val targetTypeStr = if (inst.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
         } else {
             inst.type.toString()
@@ -255,7 +223,7 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitCallInst(inst: CallInst) {
         val operands = inst.getOperandsList()
-        val calleeTypeStr = if (operands.first().type.isPointerType() && !Type.useTypedPointers) {
+        val calleeTypeStr = if (operands.first().type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
         } else {
             operands.first().type.toString()

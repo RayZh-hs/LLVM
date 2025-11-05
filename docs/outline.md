@@ -2,11 +2,11 @@ This document outlines a comprehensive design for an LLVM IR generation system i
 
 ### LLVM IR Compliance Status
 
-**⚠️ Important Notice:** This implementation follows the **legacy LLVM IR typed pointer model** and does **NOT** comply with the latest LLVM IR standard which uses untyped pointers.
+**✅ Migration Completed:** This implementation now follows the **latest LLVM IR untyped pointer model** and complies with the current LLVM IR standard.
 
-- **Current Implementation:** Typed pointers (e.g., `i32*`, `i8*`) where each pointer carries its pointee type information
-- **LLVM IR Standard (Latest):** Untyped pointers where all pointers are simply `ptr` regardless of pointee type
-- **Migration Path:** See the roadmap document for planned migration phases to untyped pointers
+- **Current Implementation:** Untyped pointers where all pointers are simply `ptr` regardless of pointee type
+- **Migration Status:** Migration from typed pointers to untyped pointers has been completed
+- **Compatibility:** Generated LLVM IR is compatible with modern LLVM toolchains
 
 ### Core Design Philosophy
 
@@ -41,15 +41,15 @@ sealed class FloatingPointType : Type() {
     object DoubleType : FloatingPointType()
 }
 
-// Derived Types (Legacy Typed Pointer Model)
-data class PointerType(val pointeeType: Type) : Type()  // ⚠️ Legacy: Typed pointers
+// Derived Types (Current Untyped Pointer Model)
+data class PointerType(val addressSpace: Int = 0) : Type()  // ✅ Current: Untyped pointers
 data class FunctionType(val returnType: Type, val paramTypes: List<Type>, val isVarArg: Boolean = false) : Type()
 data class ArrayType(val numElements: Int, val elementType: Type) : Type()
 data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = false) : Type()
 
-// Note: The PointerType implementation above follows the legacy LLVM IR model
-// where pointers carry their pointee type. The latest LLVM IR standard uses
-// untyped pointers (simply "ptr") regardless of the pointee type.
+// Note: The PointerType implementation now follows the current LLVM IR model
+// with untyped pointers (simply "ptr") regardless of the pointee type.
+// Migration from typed pointers has been completed.
 ```
 
 #### 2. The `Value` Hierarchy

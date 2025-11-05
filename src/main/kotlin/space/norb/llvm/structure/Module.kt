@@ -12,4 +12,18 @@ class Module(val name: String) {
     val namedMetadata: MutableMap<String, Metadata> = mutableMapOf()
     var targetTriple: String? = null
     var dataLayout: String? = null
+    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Module) return false
+        return name == other.name
+    }
+    
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+    
+    override fun toString(): String {
+        return "Module(name=$name)"
+    }
 }

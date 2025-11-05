@@ -21,4 +21,18 @@ class Function(
     var entryBlock: BasicBlock? = null
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitFunction(this)
+    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Function) return false
+        return name == other.name && type == other.type && module == other.module
+    }
+    
+    override fun hashCode(): Int {
+        return 31 * name.hashCode() + type.hashCode() + module.hashCode()
+    }
+    
+    override fun toString(): String {
+        return "Function(name=$name, type=$type, module=${module.name})"
+    }
 }

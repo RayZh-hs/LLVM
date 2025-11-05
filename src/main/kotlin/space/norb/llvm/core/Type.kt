@@ -104,6 +104,16 @@ abstract class Type {
     
     companion object {
         /**
+         * Migration flag to control pointer type behavior.
+         *
+         * When true, uses the legacy typed pointer model (deprecated).
+         * When false, uses the new un-typed pointer model (LLVM IR compliant).
+         *
+         * Default is false for new code compliance.
+         */
+        var useTypedPointers: Boolean = false
+        
+        /**
          * Creates a void type instance.
          *
          * @return The void type
@@ -153,10 +163,61 @@ abstract class Type {
         /**
          * Creates a pointer type pointing to the specified element type.
          *
-         * @param elementType The type this pointer points to
-         * @return A pointer type
+         * ## LLVM IR Compliance Notice
+         *
+         * This method supports both legacy typed pointers and new un-typed pointers
+         * based on the migration flag `useTypedPointers`.
+         *
+         * ### New Implementation (LLVM IR Compliant)
+         *
+         * When `useTypedPointers` is false (default), returns un-typed pointers
+         * regardless of element type, complying with the latest LLVM IR standard.
+         *
+         * ### Legacy Implementation (Deprecated)
+         *
+         * When `useTypedPointers` is true, creates typed pointers where each pointer
+         * contains explicit pointee type information. This is the legacy LLVM IR model.
+         *
+         * ### Migration Path
+         *
+         * For migration details and implementation plan, see:
+         * @see docs/ptr-migration-todo.md
+         *
+         * @param elementType The type this pointer points to (ignored in un-typed mode)
+         * @return An un-typed pointer type (default) or typed pointer type (legacy mode)
          */
-        fun getPointerType(elementType: Type): Type = PointerType(elementType)
+        fun getPointerType(elementType: Type): Type {
+            return if (useTypedPointers) {
+                // Legacy mode: return typed pointer
+                PointerType(elementType)
+            } else {
+                // New mode: return un-typed pointer
+                UntypedPointerType
+            }
+        }
+        
+        /**
+         * Creates a legacy typed pointer type pointing to the specified element type.
+         *
+         * This method always returns a typed pointer regardless of the migration flag.
+         * It's provided for backward compatibility and should only be used during migration.
+         *
+         * @param elementType The type this pointer points to
+         * @return A typed pointer type
+         * @deprecated Use getPointerType() with useTypedPointers=true or migrate to un-typed pointers
+         */
+        @Deprecated("Use getPointerType() with useTypedPointers=true or migrate to un-typed pointers")
+        fun getTypedPointerType(elementType: Type): Type = PointerType(elementType)
+        
+        /**
+         * Creates an un-typed pointer type.
+         *
+         * This method always returns an un-typed pointer regardless of the migration flag.
+         * It's provided for explicit un-typed pointer creation.
+         *
+         * @return An un-typed pointer type
+         */
+        fun getUntypedPointerType(): Type = UntypedPointerType
         
         /**
          * Creates a function type with the specified return type and parameters.

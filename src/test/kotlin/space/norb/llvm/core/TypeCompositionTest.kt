@@ -8,11 +8,34 @@ import space.norb.llvm.types.*
 
 /**
  * Comprehensive tests for complex type compositions and nested types.
+ *
+ * ## LLVM IR Compliance Notice
+ *
+ * **LEGACY TYPED POINTER IMPLEMENTATION**: These tests validate the current typed pointer
+ * implementation which follows the older LLVM IR model where pointers contain explicit
+ * pointee type information (e.g., "i32*", "float*").
+ *
+ * This implementation is **NOT compliant** with the latest LLVM IR standard, which has
+ * moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single
+ * type and type information is conveyed through other mechanisms.
+ *
+ * ## Migration Impact
+ *
+ * When migrating to un-typed pointers, these tests will need significant updates:
+ * - Pointer string representations will change from "i32*" to "ptr"
+ * - Pointee type information will no longer be stored in the pointer type
+ * - Type checking and validation will need to be updated
+ * - Pointer operations will require explicit type information where needed
+ *
+ * See migration documentation: [`docs/ptr-migration-todo.md`](../../docs/ptr-migration-todo.md)
+ *
+ * ## Current Test Coverage
+ *
  * This covers Phase 2 requirements for testing nested pointer types,
  * complex function types, multi-dimensional arrays, nested structs,
- * and mixed compositions.
+ * and mixed compositions using the legacy typed pointer model.
  */
-@DisplayName("Type Composition Tests")
+@DisplayName("Type Composition Tests (Legacy Typed Pointer Implementation)")
 class TypeCompositionTest {
 
     @Nested
@@ -22,6 +45,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to pointer types should work correctly")
         fun testPointerToPointer() {
+            // MIGRATION NOTE: This test validates legacy typed pointer behavior
+            // After migration to un-typed pointers:
+            // - All pointer types will be "ptr" instead of "i32*", "i32**", etc.
+            // - pointeeType property will no longer exist
+            // - Type checking will need to be updated for un-typed pointers
             val i32Type = TypeUtils.I32
             val i32Ptr = PointerType(i32Type)
             val i32PtrPtr = PointerType(i32Ptr)
@@ -43,6 +71,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to array types should work correctly")
         fun testPointerToArray() {
+            // MIGRATION NOTE: This test validates legacy typed pointer behavior
+            // After migration to un-typed pointers:
+            // - String representation will change from "[10 x i32]*" to "ptr"
+            // - pointeeType property will no longer exist
+            // - Array type information will need to be conveyed through other means
             val i32Array = ArrayType(10, TypeUtils.I32)
             val arrayPtr = PointerType(i32Array)
             
@@ -55,6 +88,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to struct types should work correctly")
         fun testPointerToStruct() {
+            // MIGRATION NOTE: This test validates legacy typed pointer behavior
+            // After migration to un-typed pointers:
+            // - String representation will change from "{ i32, i64 }*" to "ptr"
+            // - pointeeType property will no longer exist
+            // - Struct type information will need to be conveyed through other means
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.I64))
             val structPtr = PointerType(structType)
             
@@ -67,6 +105,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to function types should work correctly")
         fun testPointerToFunction() {
+            // MIGRATION NOTE: This test validates legacy typed pointer behavior
+            // After migration to un-typed pointers:
+            // - String representation will change from "i32 (i32, i64)*" to "ptr"
+            // - pointeeType property will no longer exist
+            // - Function type information will need to be conveyed through other means
             val funcType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I32, TypeUtils.I64))
             val funcPtr = PointerType(funcType)
             

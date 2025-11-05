@@ -4,6 +4,14 @@
 
 This document provides a comprehensive class layout map for the LLVM IR generation system in Kotlin. It defines the folder structure, inheritance hierarchy, and placement of all classes based on the design philosophy outlined in the base document.
 
+## LLVM IR Compliance Status
+
+**⚠️ Important Notice:** This implementation follows the **legacy LLVM IR typed pointer model** and does **NOT** comply with the latest LLVM IR standard which uses untyped pointers.
+
+- **Current Implementation:** Typed pointers (e.g., `i32*`, `i8*`) where each pointer carries its pointee type information
+- **LLVM IR Standard (Latest):** Untyped pointers where all pointers are simply `ptr` regardless of pointee type
+- **Migration Path:** See the roadmap document for planned migration phases to untyped pointers
+
 ## Folder Structure
 
 ```
@@ -220,14 +228,27 @@ sealed class FloatingPointType : Type() {
 
 #### DerivedTypes.kt
 ```kotlin
-data class PointerType(val pointeeType: Type) : Type()
+// Legacy Typed Pointer Implementation (⚠️ Not compliant with latest LLVM IR standard)
+data class PointerType(val pointeeType: Type) : Type() {
+    override fun toString(): String = "${pointeeType.toString()}*"
+    // Type checking methods...
+}
+
 data class FunctionType(
-    val returnType: Type, 
-    val paramTypes: List<Type>, 
+    val returnType: Type,
+    val paramTypes: List<Type>,
     val isVarArg: Boolean = false
 ) : Type()
 data class ArrayType(val numElements: Int, val elementType: Type) : Type()
 data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = false) : Type()
+
+/*
+Note on PointerType Implementation:
+- Current implementation uses typed pointers (legacy LLVM IR model)
+- Latest LLVM IR standard uses untyped pointers (simply "ptr")
+- Migration to untyped pointers is planned (see roadmap)
+- Example: Current "i32*" will become "ptr" in future implementation
+*/
 ```
 
 ### Values Package: `space.norb.llvm.values`
@@ -251,8 +272,15 @@ data class FloatConstant(
 #### constants/NullPointerConstant.kt
 ```kotlin
 class NullPointerConstant(
-    override val type: PointerType
+    override val type: PointerType  // Legacy typed pointer
 ) : Constant("null", type)
+
+/*
+Note on NullPointerConstant:
+- Currently requires a specific PointerType (e.g., i32*, i8*)
+- In untyped pointer model, this will simplify to a single null pointer type
+- Migration will affect how null pointers are created and type-checked
+*/
 ```
 
 #### globals/GlobalVariable.kt
@@ -519,6 +547,7 @@ enum class IcmpPredicate {
 - All LLVM types are represented as sealed classes with specific properties
 - Type safety is enforced through Kotlin's type system
 - No implicit conversions between types
+- **⚠️ Pointer Type Limitation:** Current implementation uses legacy typed pointers which are more restrictive than the latest LLVM IR standard
 
 ### 2. Immutability
 - IR objects are immutable after construction

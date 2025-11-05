@@ -4,6 +4,15 @@
 
 This roadmap outlines a phased approach to implementing the LLVM IR System in Kotlin. Each phase builds upon the previous one and includes testing to ensure functionality before proceeding. The implementation follows the detailed class layout specified in `docs/detailed-outline.md`.
 
+## LLVM IR Compliance Notice
+
+**⚠️ Important:** The current implementation uses the legacy LLVM IR typed pointer model and does not comply with the latest LLVM IR standard which uses untyped pointers. A migration plan is included at the end of this roadmap.
+
+### Current vs. Latest LLVM IR Pointer Models
+- **Current Implementation:** Typed pointers (e.g., `i32*`, `i8*`) where each pointer carries its pointee type
+- **Latest LLVM IR Standard:** Untyped pointers where all pointers are simply `ptr` regardless of pointee type
+- **Impact:** Current implementation will generate LLVM IR that is incompatible with newer LLVM toolchains
+
 ## Phase 1: Foundation Setup
 
 ### 1.1 Project Structure and Build Configuration
@@ -270,3 +279,121 @@ This roadmap outlines a phased approach to implementing the LLVM IR System in Ko
 - **Milestone 3:** Complete Phase 7-9 (Memory, Casts, Other Instructions)
 - **Milestone 4:** Complete Phase 10-12 (Supporting Components, Builder, Visitors)
 - **Milestone 5:** Complete Phase 13-14 (Testing, Documentation)
+
+## Phase 15: Migration to Untyped Pointers (Future)
+
+### 15.1 Planning and Preparation
+- **Tasks:**
+  - Research latest LLVM IR untyped pointer specification
+  - Design migration strategy for existing codebase
+  - Create compatibility layer for transition period
+  - Update documentation to reflect untyped pointer model
+- **Deliverables:**
+  - Migration strategy document
+  - Compatibility layer design
+  - Updated type system specifications
+- **Testing:**
+  - Verify migration plan covers all use cases
+  - Test compatibility layer functionality
+
+### 15.2 Type System Migration
+- **Tasks:**
+  - Modify `PointerType` to use untyped pointer model
+  - Update `NullPointerConstant` to work with untyped pointers
+  - Implement type checking for pointer operations without pointee types
+  - Add address space support if required
+- **Deliverables:**
+  - Updated `PointerType` implementation
+  - Modified pointer-related constants
+  - New type checking logic for untyped pointers
+- **Testing:**
+  - Unit tests for untyped pointer operations
+  - Verify backward compatibility during transition
+  - Test pointer arithmetic and casting operations
+
+### 15.3 Instruction System Updates
+- **Tasks:**
+  - Update memory instructions (`LoadInst`, `StoreInst`, `AllocaInst`)
+  - Modify `GetElementPtrInst` for untyped pointers
+  - Update cast instructions involving pointers
+  - Ensure all pointer-related instructions work with untyped model
+- **Deliverables:**
+  - Updated memory instruction implementations
+  - Modified pointer arithmetic operations
+  - Updated IR builder methods for pointer operations
+- **Testing:**
+  - Test all memory operations with untyped pointers
+  - Verify pointer arithmetic correctness
+  - Test complex pointer casting scenarios
+
+### 15.4 IR Builder and Visitor Updates
+- **Tasks:**
+  - Update `IRBuilder` methods for pointer operations
+  - Modify `IRPrinter` to generate correct untyped pointer syntax
+  - Update `IRValidator` for untyped pointer validation
+  - Ensure all builder APIs work with new pointer model
+- **Deliverables:**
+  - Updated IR builder implementation
+  - Modified IR printer for untyped pointer syntax
+  - Updated validation rules
+- **Testing:**
+  - Test IR generation with untyped pointers
+  - Verify generated LLVM IR compliance
+  - Test validation of untyped pointer operations
+
+### 15.5 Test Suite Migration
+- **Tasks:**
+  - Update all existing tests to use untyped pointers
+  - Add specific tests for untyped pointer behavior
+  - Create migration tests to verify compatibility
+  - Update performance benchmarks for untyped pointers
+- **Deliverables:**
+  - Complete test suite for untyped pointers
+  - Migration verification tests
+  - Updated performance benchmarks
+- **Testing:**
+  - Verify all tests pass with untyped pointers
+  - Test migration scenarios
+  - Validate performance characteristics
+
+### 15.6 Documentation and Examples
+- **Tasks:**
+  - Update all documentation to reflect untyped pointer model
+  - Create migration guide for existing users
+  - Update examples and tutorials
+  - Document compatibility considerations
+- **Deliverables:**
+  - Updated documentation set
+  - Migration guide
+  - Updated examples and tutorials
+- **Testing:**
+  - Verify documentation accuracy
+  - Test migration guide instructions
+  - Validate example code
+
+## Migration Timeline and Considerations
+
+### Migration Strategy
+1. **Phase 1:** Implement untyped pointers alongside typed pointers (dual support)
+2. **Phase 2:** Gradually migrate existing code to use untyped pointers
+3. **Phase 3:** Deprecate typed pointer APIs
+4. **Phase 4:** Remove typed pointer support (future major version)
+
+### Compatibility Considerations
+- Maintain backward compatibility during transition period
+- Provide clear migration path for existing users
+- Ensure generated LLVM IR works with both old and new toolchains during transition
+- Consider version-specific features and address spaces
+
+### Risk Mitigation
+- Comprehensive testing of migration scenarios
+- Gradual rollout with feature flags if needed
+- Fallback mechanisms for critical use cases
+- Community feedback integration during migration process
+
+## Updated Milestones
+
+- **Milestone 5:** Complete Phase 13-14 (Testing, Documentation)
+- **Milestone 6:** Complete Phase 15.1-15.2 (Migration Planning and Type System)
+- **Milestone 7:** Complete Phase 15.3-15.4 (Instructions and Builder Updates)
+- **Milestone 8:** Complete Phase 15.5-15.6 (Testing and Documentation)

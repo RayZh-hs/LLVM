@@ -7,8 +7,33 @@ import space.norb.llvm.types.*
 
 /**
  * Unit tests for the Type companion object methods.
+ *
+ * ## LLVM IR Compliance Notice
+ *
+ * **LEGACY TYPED POINTER IMPLEMENTATION**: These tests validate the current typed pointer
+ * implementation which follows the older LLVM IR model where pointers contain explicit
+ * pointee type information (e.g., "i32*", "float*").
+ *
+ * This implementation is **NOT compliant** with the latest LLVM IR standard, which has
+ * moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single
+ * type and type information is conveyed through other mechanisms.
+ *
+ * ## Migration Impact
+ *
+ * When migrating to un-typed pointers, these tests will need significant updates:
+ * - The `getPointerType()` method will return the same un-typed pointer type for all element types
+ * - String representation will change from "i32*" to "ptr"
+ * - The pointee type property will no longer exist
+ * - Type equality checks will need updating (all pointers will be equal)
+ *
+ * See migration documentation: [`docs/ptr-migration-todo.md`](../../docs/ptr-migration-todo.md)
+ *
+ * ## Current Test Coverage
+ *
+ * These tests validate the legacy typed pointer creation through the Type companion object,
+ * including pointer type creation and validation of the typed pointer model.
  */
-@DisplayName("Type Companion Object Tests")
+@DisplayName("Type Companion Object Tests (Legacy Typed Pointer Implementation)")
 class TypeCompanionTest {
 
     @Test
@@ -79,11 +104,38 @@ class TypeCompanionTest {
     @Test
     @DisplayName("getPointerType should return PointerType for given element type")
     fun testGetPointerType() {
-        val i32 = Type.getIntegerType(32)
-        val pointerType = Type.getPointerType(i32)
-        assertTrue(pointerType is PointerType, "getPointerType should return PointerType")
-        assertEquals("i32*", pointerType.toString())
-        assertEquals(i32, (pointerType as PointerType).pointeeType)
+        // Test with legacy mode enabled for backward compatibility
+        val originalUseTypedPointers = Type.useTypedPointers
+        Type.useTypedPointers = true
+        
+        try {
+            val i32 = Type.getIntegerType(32)
+            val pointerType = Type.getPointerType(i32)
+            assertTrue(pointerType is PointerType, "getPointerType should return PointerType in legacy mode")
+            assertEquals("i32*", pointerType.toString())
+            assertEquals(i32, (pointerType as PointerType).pointeeType)
+        } finally {
+            // Restore original setting
+            Type.useTypedPointers = originalUseTypedPointers
+        }
+    }
+    
+    @Test
+    @DisplayName("getPointerType should return UntypedPointerType in new mode")
+    fun testGetPointerTypeNewMode() {
+        // Test with new un-typed pointer mode (default)
+        val originalUseTypedPointers = Type.useTypedPointers
+        Type.useTypedPointers = false
+        
+        try {
+            val i32 = Type.getIntegerType(32)
+            val pointerType = Type.getPointerType(i32)
+            assertTrue(pointerType === UntypedPointerType, "getPointerType should return UntypedPointerType in new mode")
+            assertEquals("ptr", pointerType.toString())
+        } finally {
+            // Restore original setting
+            Type.useTypedPointers = originalUseTypedPointers
+        }
     }
 
     @Test

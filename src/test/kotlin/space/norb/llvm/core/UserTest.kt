@@ -15,26 +15,30 @@ class UserTest {
     /**
      * Mock implementation of User for testing purposes.
      */
-    private class MockUser(
-        name: String,
-        type: Type,
-        operands: List<Value>
-    ) : User(name, type, operands) {
+    private data class MockUser(
+        private val userName: String,
+        private val userType: Type,
+        private val userOperands: List<Value>
+    ) : User(userName, userType, userOperands) {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
             TODO("Not implemented for mock")
         }
+        
+        override fun toString(): String = "MockUser(name='$userName', type=$userType, operands=${getOperandsList()})"
     }
 
     /**
      * Mock implementation of Value for testing purposes.
      */
-    private class MockValue(
+    private data class MockValue(
         override val name: String,
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
             TODO("Not implemented for mock")
         }
+        
+        override fun toString(): String = "MockValue(name='$name', type=$type)"
     }
 
     @Test

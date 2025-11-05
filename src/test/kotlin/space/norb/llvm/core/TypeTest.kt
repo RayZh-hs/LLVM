@@ -7,8 +7,37 @@ import space.norb.llvm.types.*
 
 /**
  * Unit tests for the Type sealed class.
+ *
+ * ## LLVM IR Compliance Notice
+ *
+ * **LEGACY TYPED POINTER IMPLEMENTATION**: These tests validate the current typed pointer
+ * implementation which follows the older LLVM IR model where pointers contain explicit
+ * pointee type information (e.g., "i32*", "float*").
+ *
+ * This implementation is **NOT compliant** with the latest LLVM IR standard, which has
+ * moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single
+ * type and type information is conveyed through other mechanisms.
+ *
+ * ## Migration Impact
+ *
+ * When migrating to un-typed pointers, these tests will need significant updates:
+ * - Pointer string representations will change from "i32*" to "ptr"
+ * - Pointee type information will no longer be stored in the pointer type
+ * - Type equality checks for pointers will change (all pointers will be equal)
+ * - Hash code implementations for pointers will need updating
+ * - Type classification methods will need updates for un-typed pointers
+ *
+ * See migration documentation: [`docs/ptr-migration-todo.md`](../../docs/ptr-migration-todo.md)
+ *
+ * ## Current Test Coverage
+ *
+ * These tests validate the legacy typed pointer type system including:
+ * - Pointer type creation and string representation
+ * - Pointer type equality and hash code consistency
+ * - Nested pointer types and complex type compositions
+ * - Type classification methods for pointers
  */
-@DisplayName("Type Sealed Class Tests")
+@DisplayName("Type Sealed Class Tests (Legacy Typed Pointer Implementation)")
 class TypeTest {
 
     @Test
@@ -91,6 +120,11 @@ class TypeTest {
     @Test
     @DisplayName("PointerType should have correct string representation")
     fun testPointerType() {
+        // MIGRATION NOTE: This test validates legacy typed pointer behavior
+        // After migration to un-typed pointers:
+        // - String representation will change from "i32*" to "ptr"
+        // - pointeeType property will no longer exist
+        // - All PointerType instances will be the same un-typed pointer type
         val i32Type = IntegerType(32)
         val pointerType = PointerType(i32Type)
         assertEquals("i32*", pointerType.toString())
@@ -161,6 +195,10 @@ class TypeTest {
         assertEquals(i32Type1, i32Type2, "Integer types with same bit width should be equal")
         assertNotEquals(i32Type1, i64Type, "Integer types with different bit widths should not be equal")
         
+        // MIGRATION NOTE: This test validates legacy typed pointer equality
+        // After migration to un-typed pointers:
+        // - All pointers will be equal regardless of pointee type
+        // - This assertion will need to be updated to expect equality for all pointers
         val pointerType1 = PointerType(i32Type1)
         val pointerType2 = PointerType(i32Type2)
         val pointerType3 = PointerType(i64Type)
@@ -206,6 +244,10 @@ class TypeTest {
     @Test
     @DisplayName("Nested type equality should work correctly")
     fun testNestedTypeEquality() {
+        // MIGRATION NOTE: This test validates legacy nested pointer equality
+        // After migration to un-typed pointers:
+        // - All nested pointers will be equal to each other
+        // - Pointee type chain will no longer exist for equality checking
         // Test pointer to pointer equality
         val i32Type = IntegerType(32)
         val i32Ptr1 = PointerType(i32Type)
@@ -243,6 +285,10 @@ class TypeTest {
         assertEquals(i32Type1.hashCode(), i32Type2.hashCode(), "Equal types should have equal hash codes")
         assertNotEquals(i32Type1.hashCode(), i64Type.hashCode(), "Different types should have different hash codes")
         
+        // MIGRATION NOTE: This test validates legacy typed pointer hash codes
+        // After migration to un-typed pointers:
+        // - All pointers will have the same hash code
+        // - The second assertion will need to be updated to expect equal hash codes
         // Test pointer types
         val i32Ptr1 = PointerType(i32Type1)
         val i32Ptr2 = PointerType(i32Type2)

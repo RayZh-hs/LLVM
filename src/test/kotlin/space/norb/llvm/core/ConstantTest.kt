@@ -14,9 +14,9 @@ class ConstantTest {
     /**
      * Mock implementation of Constant for testing purposes.
      */
-    private class MockConstant(
-        name: String,
-        type: Type,
+    private data class MockConstant(
+        override val name: String,
+        override val type: Type,
         private val isNull: Boolean = false,
         private val isZero: Boolean = false,
         private val isOne: Boolean = false,
@@ -30,6 +30,8 @@ class ConstantTest {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
             return visitor.visitConstant(this)
         }
+        
+        override fun toString(): String = "MockConstant(name='$name', type=$type)"
     }
 
     @Test

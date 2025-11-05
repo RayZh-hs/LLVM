@@ -31,6 +31,50 @@ import space.norb.llvm.values.Metadata
 
 /**
  * Visitor for printing LLVM IR to string format.
+ *
+ * ## LLVM IR Compliance Notice
+ *
+ * **IMPORTANT**: This IR printer generates LLVM IR using the legacy typed pointer model
+ * which does NOT comply with the latest LLVM IR standard. The current LLVM IR standard
+ * has moved to un-typed pointers (similar to `void*` in C) where all pointers are of a single type.
+ *
+ * ### Current Implementation (Legacy Model)
+ *
+ * This IR printer generates typed pointer syntax where each pointer includes pointee type
+ * information in the IR output (e.g., "i32*", "float*", "%struct.MyType*"). This is the
+ * legacy LLVM IR model that has been deprecated.
+ *
+ * Examples of current IR output:
+ * ```
+ * %ptr = alloca i32
+ * %val = load i32, i32* %ptr
+ * %gep = getelementptr [10 x i32], [10 x i32]* %array, i64 0, i64 5
+ * ```
+ *
+ * ### Target Implementation (LLVM IR Compliant)
+ *
+ * The target implementation should generate un-typed pointer syntax:
+ * ```
+ * %ptr = alloca i32
+ * %val = load i32, ptr %ptr
+ * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5
+ * ```
+ *
+ * Key differences in target IR output:
+ * - All pointer types are represented as "ptr" instead of "elementType*"
+ * - Type information is conveyed through other mechanisms (e.g., metadata, type casts)
+ * - Pointer operations require explicit type information where needed
+ *
+ * ### Migration Path
+ *
+ * For migration details and implementation plan, see:
+ * @see docs/ptr-migration-todo.md
+ *
+ * The migration will:
+ * - Update all pointer type printing to use "ptr" syntax
+ * - Modify memory instruction printing to handle un-typed pointers
+ * - Update GEP instruction printing for un-typed pointer context
+ * - Ensure all generated IR complies with latest LLVM IR standard
  */
 class IRPrinter : IRVisitor<Unit> {
     private val output = StringBuilder()
@@ -135,20 +179,32 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitAllocaInst(inst: AllocaInst) {
+        // TODO: Update for un-typed pointer compliance
+        // Current: allocates typed pointer (legacy model)
+        // Target: should allocate un-typed pointer "ptr" with element type info elsewhere
         output.appendLine("${indent()}${inst.name} = alloca ${inst.type}")
     }
     
     override fun visitLoadInst(inst: LoadInst) {
+        // TODO: Update for un-typed pointer compliance
+        // Current: loads from typed pointer (legacy model)
+        // Target: should load from un-typed pointer "ptr" with explicit result type
         val operands = inst.getOperandsList()
         output.appendLine("${indent()}${inst.name} = load ${operands.first().type}, ${operands.first().name}")
     }
     
     override fun visitStoreInst(inst: StoreInst) {
+        // TODO: Update for un-typed pointer compliance
+        // Current: stores to typed pointer (legacy model)
+        // Target: should store to un-typed pointer "ptr" with explicit value type
         val operands = inst.getOperandsList()
         output.appendLine("${indent()}store ${operands[0].type} ${operands[0].name}, ${operands[1].type} ${operands[1].name}")
     }
     
     override fun visitGetElementPtrInst(inst: GetElementPtrInst) {
+        // TODO: Update for un-typed pointer compliance
+        // Current: GEP with typed pointer (legacy model)
+        // Target: GEP with un-typed pointer "ptr" and explicit element type info
         val operands = inst.getOperandsList()
         output.appendLine("${indent()}${inst.name} = getelementptr ${operands.first().type}, ${operands.first().name}")
     }

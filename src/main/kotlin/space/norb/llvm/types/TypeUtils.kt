@@ -48,7 +48,7 @@ object TypeUtils {
      */
     fun isSingleValueType(type: Type): Boolean {
         return when (type) {
-            is IntegerType, is FloatingPointType, is PointerType -> true
+            is IntegerType, is FloatingPointType, is PointerType, UntypedPointerType -> true
             else -> false
         }
     }
@@ -113,6 +113,7 @@ object TypeUtils {
             is IntegerType -> type.bitWidth
             is FloatingPointType -> type.getPrimitiveSizeInBits()
             is PointerType -> 64 // Assume 64-bit pointers
+            UntypedPointerType -> 64 // Assume 64-bit pointers
             else -> null
         }
     }
@@ -129,6 +130,7 @@ object TypeUtils {
         return when (type) {
             is ArrayType -> type.elementType
             is PointerType -> type.pointeeType
+            UntypedPointerType -> null // Un-typed pointers don't have element type
             else -> null
         }
     }
@@ -178,25 +180,27 @@ object TypeUtils {
         if (typeA == typeB) return true
         
         // Pointers to pointers of any type can be bitcast
-        if (typeA is PointerType && typeB is PointerType) return true
+        if ((typeA is PointerType || typeA == UntypedPointerType) &&
+            (typeB is PointerType || typeB == UntypedPointerType)) return true
         
-        // Integer types of same size can be bitcast
         val sizeA = getPrimitiveSizeInBits(typeA)
         val sizeB = getPrimitiveSizeInBits(typeB)
-        if (sizeA != null && sizeB != null && sizeA == sizeB) {
-            return typeA.isIntegerType() && typeB.isIntegerType()
-        }
+        
+        // Both types must have a size to be bitcastable
+        if (sizeA == null || sizeB == null) return false
+        
+        // Types must have the same size to be bitcastable
+        if (sizeA != sizeB) return false
+        
+        // Integer types of same size can be bitcast
+        if (typeA.isIntegerType() && typeB.isIntegerType()) return true
         
         // Floating-point types of same size can be bitcast
-        if (sizeA != null && sizeB != null && sizeA == sizeB) {
-            return typeA.isFloatingPointType() && typeB.isFloatingPointType()
-        }
+        if (typeA.isFloatingPointType() && typeB.isFloatingPointType()) return true
         
         // Integer and floating-point types of same size can be bitcast
-        if (sizeA != null && sizeB != null && sizeA == sizeB) {
-            return (typeA.isIntegerType() && typeB.isFloatingPointType()) ||
-                   (typeA.isFloatingPointType() && typeB.isIntegerType())
-        }
+        if ((typeA.isIntegerType() && typeB.isFloatingPointType()) ||
+            (typeA.isFloatingPointType() && typeB.isIntegerType())) return true
         
         return false
     }
@@ -212,6 +216,17 @@ object TypeUtils {
     fun getCommonType(typeA: Type, typeB: Type): Type? {
         // If types are the same, return that type
         if (typeA == typeB) return typeA
+        
+        // For pointer types, check migration flag first
+        if (typeA.isPointerType() && typeB.isPointerType()) {
+            return if (Type.useTypedPointers) {
+                // Legacy mode: return i8*
+                PointerType(TypeUtils.I8)
+            } else {
+                // New mode: return un-typed pointer
+                UntypedPointerType
+            }
+        }
         
         // If one can be losslessly bitcast to the other, return the target
         if (canLosslesslyBitCastTo(typeA, typeB)) return typeB
@@ -229,11 +244,6 @@ object TypeUtils {
             val sizeA = getPrimitiveSizeInBits(typeA) ?: return null
             val sizeB = getPrimitiveSizeInBits(typeB) ?: return null
             return if (sizeA >= sizeB) typeA else typeB
-        }
-        
-        // For pointer types, return i8* (void pointer equivalent)
-        if (typeA.isPointerType() && typeB.isPointerType()) {
-            return PointerType(I8)
         }
         
         // No common type found

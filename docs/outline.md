@@ -1,5 +1,13 @@
 This document outlines a comprehensive design for an LLVM IR generation system in Kotlin.
 
+### LLVM IR Compliance Status
+
+**⚠️ Important Notice:** This implementation follows the **legacy LLVM IR typed pointer model** and does **NOT** comply with the latest LLVM IR standard which uses untyped pointers.
+
+- **Current Implementation:** Typed pointers (e.g., `i32*`, `i8*`) where each pointer carries its pointee type information
+- **LLVM IR Standard (Latest):** Untyped pointers where all pointers are simply `ptr` regardless of pointee type
+- **Migration Path:** See the roadmap document for planned migration phases to untyped pointers
+
 ### Core Design Philosophy
 
 The design is centered around a hierarchical and compositional structure that mirrors the LLVM IR itself. The core principles are:
@@ -33,11 +41,15 @@ sealed class FloatingPointType : Type() {
     object DoubleType : FloatingPointType()
 }
 
-// Derived Types
-data class PointerType(val pointeeType: Type) : Type()
+// Derived Types (Legacy Typed Pointer Model)
+data class PointerType(val pointeeType: Type) : Type()  // ⚠️ Legacy: Typed pointers
 data class FunctionType(val returnType: Type, val paramTypes: List<Type>, val isVarArg: Boolean = false) : Type()
 data class ArrayType(val numElements: Int, val elementType: Type) : Type()
 data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = false) : Type()
+
+// Note: The PointerType implementation above follows the legacy LLVM IR model
+// where pointers carry their pointee type. The latest LLVM IR standard uses
+// untyped pointers (simply "ptr") regardless of the pointee type.
 ```
 
 #### 2. The `Value` Hierarchy

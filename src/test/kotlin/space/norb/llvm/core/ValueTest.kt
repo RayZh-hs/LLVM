@@ -15,13 +15,15 @@ class ValueTest {
     /**
      * Mock implementation of Value for testing purposes.
      */
-    private class MockValue(
+    private data class MockValue(
         override val name: String,
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
             TODO("Not implemented for mock")
         }
+        
+        override fun toString(): String = "MockValue(name='$name', type=$type)"
     }
 
     @Test

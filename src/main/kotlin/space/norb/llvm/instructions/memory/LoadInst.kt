@@ -50,4 +50,10 @@ class LoadInst(
         get() = PointerType
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitLoadInst(this)
+    
+    override fun getPointerOperands(): List<Value> = listOf(pointer)
+    
+    override fun mayReadFromMemory(): Boolean = true
+    
+    override fun mayWriteToMemory(): Boolean = false
 }

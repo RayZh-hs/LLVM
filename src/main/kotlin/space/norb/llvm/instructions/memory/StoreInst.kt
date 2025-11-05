@@ -57,4 +57,10 @@ class StoreInst(
         get() = PointerType
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitStoreInst(this)
+    
+    override fun getPointerOperands(): List<Value> = listOf(pointer)
+    
+    override fun mayReadFromMemory(): Boolean = false
+    
+    override fun mayWriteToMemory(): Boolean = true
 }

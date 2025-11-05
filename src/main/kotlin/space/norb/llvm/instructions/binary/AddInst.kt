@@ -15,4 +15,6 @@ class AddInst(
     rhs: Value
 ) : BinaryInst(name, type, lhs, rhs) {
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitAddInst(this)
+    
+    override fun getOpcodeName(): String = "add"
 }

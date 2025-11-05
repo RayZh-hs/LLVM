@@ -46,4 +46,13 @@ class AllocaInst(
         get() = PointerType
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitAllocaInst(this)
+    
+    override fun getPointerOperands(): List<Value> {
+        // Alloca doesn't have a pointer operand - it allocates memory and returns a pointer
+        return emptyList()
+    }
+    
+    override fun mayReadFromMemory(): Boolean = false
+    
+    override fun mayWriteToMemory(): Boolean = true
 }

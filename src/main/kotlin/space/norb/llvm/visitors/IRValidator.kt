@@ -30,6 +30,11 @@ import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.values.Metadata
+import space.norb.llvm.instructions.base.TerminatorInst
+import space.norb.llvm.instructions.base.BinaryInst
+import space.norb.llvm.instructions.base.MemoryInst
+import space.norb.llvm.instructions.base.CastInst
+import space.norb.llvm.instructions.base.OtherInst
 
 /**
  * Visitor for validating LLVM IR structure and semantics.
@@ -248,5 +253,61 @@ class IRValidator : IRVisitor<Boolean> {
             addError("Phi node must have pairs of values and basic blocks")
         }
         return errors.isEmpty()
+    }
+    
+    override fun visitTerminatorInst(inst: TerminatorInst): Boolean = when (inst) {
+        is ReturnInst -> visitReturnInst(inst)
+        is BranchInst -> visitBranchInst(inst)
+        is SwitchInst -> visitSwitchInst(inst)
+        else -> {
+            addError("Unknown terminator instruction: ${inst::class.simpleName}")
+            false
+        }
+    }
+    
+    override fun visitBinaryInst(inst: BinaryInst): Boolean = when (inst) {
+        is AddInst -> visitAddInst(inst)
+        is SubInst -> visitSubInst(inst)
+        is MulInst -> visitMulInst(inst)
+        is SDivInst -> visitSDivInst(inst)
+        is AndInst -> visitAndInst(inst)
+        is OrInst -> visitOrInst(inst)
+        is XorInst -> visitXorInst(inst)
+        else -> {
+            addError("Unknown binary instruction: ${inst::class.simpleName}")
+            false
+        }
+    }
+    
+    override fun visitMemoryInst(inst: MemoryInst): Boolean = when (inst) {
+        is AllocaInst -> visitAllocaInst(inst)
+        is LoadInst -> visitLoadInst(inst)
+        is StoreInst -> visitStoreInst(inst)
+        is GetElementPtrInst -> visitGetElementPtrInst(inst)
+        else -> {
+            addError("Unknown memory instruction: ${inst::class.simpleName}")
+            false
+        }
+    }
+    
+    override fun visitCastInst(inst: CastInst): Boolean = when (inst) {
+        is TruncInst -> visitTruncInst(inst)
+        is ZExtInst -> visitZExtInst(inst)
+        is SExtInst -> visitSExtInst(inst)
+        is BitcastInst -> visitBitcastInst(inst)
+        else -> {
+            addError("Unknown cast instruction: ${inst::class.simpleName}")
+            false
+        }
+    }
+    
+    override fun visitOtherInst(inst: OtherInst): Boolean = when (inst) {
+        is CallInst -> visitCallInst(inst)
+        is ICmpInst -> visitICmpInst(inst)
+        is PhiNode -> visitPhiNode(inst)
+        else -> {
+            addError("Unknown other instruction: ${inst::class.simpleName}")
+            false
+        }
     }
 }

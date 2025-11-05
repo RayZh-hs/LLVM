@@ -287,6 +287,10 @@ class BasicBlockTest {
             override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
                 throw UnsupportedOperationException("Mock terminator")
             }
+            
+            override fun getSuccessors(): List<BasicBlock> {
+                return emptyList() // Mock terminator has no successors
+            }
         }
     }
 }

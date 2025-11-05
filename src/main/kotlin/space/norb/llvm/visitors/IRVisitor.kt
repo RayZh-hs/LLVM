@@ -28,6 +28,11 @@ import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.values.Metadata
+import space.norb.llvm.instructions.base.TerminatorInst
+import space.norb.llvm.instructions.base.BinaryInst
+import space.norb.llvm.instructions.base.MemoryInst
+import space.norb.llvm.instructions.base.CastInst
+import space.norb.llvm.instructions.base.OtherInst
 
 /**
  * Visitor interface for traversing LLVM IR.
@@ -65,4 +70,11 @@ interface IRVisitor<T> {
     fun visitCallInst(inst: CallInst): T
     fun visitICmpInst(inst: ICmpInst): T
     fun visitPhiNode(inst: PhiNode): T
+    
+    // Base instruction visitors for generic handling
+    fun visitTerminatorInst(inst: TerminatorInst): T
+    fun visitBinaryInst(inst: BinaryInst): T
+    fun visitMemoryInst(inst: MemoryInst): T
+    fun visitCastInst(inst: CastInst): T
+    fun visitOtherInst(inst: OtherInst): T
 }

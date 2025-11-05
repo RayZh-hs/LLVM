@@ -7,6 +7,7 @@ import space.norb.llvm.structure.Argument
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
+import space.norb.llvm.core.Value
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
@@ -72,7 +73,24 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitFunction(function: Function) {
         output.appendLine()
-        output.appendLine("define ${function.type} ${function.name} {")
+        
+        // Build function signature
+        val returnTypeStr = if (function.returnType.isPointerType()) {
+            "ptr" // Use un-typed pointer syntax
+        } else {
+            function.returnType.toString()
+        }
+        
+        val paramsStr = function.parameters.joinToString(", ") { param ->
+            val paramTypeStr = if (param.type.isPointerType()) {
+                "ptr" // Use un-typed pointer syntax
+            } else {
+                param.type.toString()
+            }
+            "$paramTypeStr %${param.name}"
+        }
+        
+        output.appendLine("define $returnTypeStr @${function.name}($paramsStr) {")
         indentLevel++
         function.basicBlocks.forEach { visitBasicBlock(it) }
         indentLevel--
@@ -84,7 +102,10 @@ class IRPrinter : IRVisitor<Unit> {
         output.appendLine("${indent()}${block.name}:")
         indentLevel++
         block.instructions.forEach { it.accept(this) }
-        block.terminator?.accept(this)
+        // Only print terminator if it's not already in the instructions list
+        if (block.terminator != null && !block.instructions.contains(block.terminator!!)) {
+            block.terminator?.accept(this)
+        }
         indentLevel--
     }
     
@@ -118,7 +139,7 @@ class IRPrinter : IRVisitor<Unit> {
         val operands = inst.getOperandsList()
         val value = operands.firstOrNull()
         if (value != null) {
-            output.appendLine("${indent()}ret ${value.type} ${value.name}")
+            output.appendLine("${indent()}ret ${value.type} %${value.name}")
         } else {
             output.appendLine("${indent()}ret void")
         }
@@ -126,48 +147,60 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitBranchInst(inst: BranchInst) {
         val operands = inst.getOperandsList()
-        output.appendLine("${indent()}br label ${operands.first().name}")
+        if (operands.size == 1) {
+            // Unconditional branch
+            output.appendLine("${indent()}br label ${formatBlockName(operands.first() as BasicBlock)}")
+        } else {
+            // Conditional branch
+            val condition = operands[0]
+            val trueBlock = operands[1] as BasicBlock
+            val falseBlock = operands[2] as BasicBlock
+            output.appendLine("${indent()}br ${condition.type} ${formatValueName(condition)}, label ${formatBlockName(trueBlock)}, label ${formatBlockName(falseBlock)}")
+        }
     }
     
     override fun visitSwitchInst(inst: SwitchInst) {
         val operands = inst.getOperandsList()
-        output.appendLine("${indent()}switch ${operands[0].type} ${operands[0].name}, label ${operands[1].name} [")
+        output.appendLine("${indent()}switch ${operands[0].type} ${formatValueName(operands[0])}, label ${formatBlockName(operands[1] as BasicBlock)} [")
         indentLevel++
-        // TODO: Handle cases
+        val cases = inst.getCases()
+        cases.forEach { (value, destination) ->
+            output.appendLine("${indent()}${value.type} ${formatValueName(value)}, label ${formatBlockName(destination as BasicBlock)}")
+        }
         indentLevel--
         output.appendLine("${indent()}]")
     }
     
     override fun visitAddInst(inst: AddInst) {
-        output.appendLine("${indent()}${inst.name} = add ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = add ${inst.lhs.type} %${inst.lhs.name}, %${inst.rhs.name}")
     }
     
     override fun visitSubInst(inst: SubInst) {
-        output.appendLine("${indent()}${inst.name} = sub ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = sub ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitMulInst(inst: MulInst) {
-        output.appendLine("${indent()}${inst.name} = mul ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = mul ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitSDivInst(inst: SDivInst) {
-        output.appendLine("${indent()}${inst.name} = sdiv ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = sdiv ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitAndInst(inst: AndInst) {
-        output.appendLine("${indent()}${inst.name} = and ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = and ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitOrInst(inst: OrInst) {
-        output.appendLine("${indent()}${inst.name} = or ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = or ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitXorInst(inst: XorInst) {
-        output.appendLine("${indent()}${inst.name} = xor ${inst.lhs.type} ${inst.lhs.name}, ${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = xor ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitAllocaInst(inst: AllocaInst) {
-        output.appendLine("${indent()}${inst.name} = alloca ${inst.allocatedType}")
+        output.appendLine("${indent()}%${inst.name} = alloca ${inst.allocatedType}")
         // Note: alloca result type is implicit and handled by the instruction's type property
         // The instruction's type will be printed as "ptr" when accessed through other methods
     }
@@ -179,7 +212,7 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             pointer.type.toString()
         }
-        output.appendLine("${indent()}${inst.name} = load ${inst.loadedType}, $pointerTypeStr ${pointer.name}")
+        output.appendLine("${indent()}%${inst.name} = load ${inst.loadedType}, $pointerTypeStr ${formatValueName(pointer)}")
     }
     
     override fun visitStoreInst(inst: StoreInst) {
@@ -190,7 +223,7 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             pointer.type.toString()
         }
-        output.appendLine("${indent()}store ${value.type} ${value.name}, $pointerTypeStr ${pointer.name}")
+        output.appendLine("${indent()}store ${value.type} ${formatValueName(value)}, $pointerTypeStr ${formatValueName(pointer)}")
     }
     
     override fun visitGetElementPtrInst(inst: GetElementPtrInst) {
@@ -201,20 +234,20 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             pointer.type.toString()
         }
-        val indicesStr = indices.joinToString(", ") { "${it.type} ${it.name}" }
-        output.appendLine("${indent()}${inst.name} = getelementptr ${inst.elementType}, $pointerTypeStr ${pointer.name}, $indicesStr")
+        val indicesStr = indices.joinToString(", ") { "${it.type} ${formatValueName(it)}" }
+        output.appendLine("${indent()}%${inst.name} = getelementptr ${inst.elementType}, $pointerTypeStr ${formatValueName(pointer)}, $indicesStr")
     }
     
     override fun visitTruncInst(inst: TruncInst) {
-        output.appendLine("${indent()}${inst.name} = trunc ${inst.value.type} ${inst.value.name} to ${inst.type}")
+        output.appendLine("${indent()}%${inst.name} = trunc ${inst.value.type} ${formatValueName(inst.value)} to ${inst.type}")
     }
     
     override fun visitZExtInst(inst: ZExtInst) {
-        output.appendLine("${indent()}${inst.name} = zext ${inst.value.type} ${inst.value.name} to ${inst.type}")
+        output.appendLine("${indent()}%${inst.name} = zext ${inst.value.type} ${formatValueName(inst.value)} to ${inst.type}")
     }
     
     override fun visitSExtInst(inst: SExtInst) {
-        output.appendLine("${indent()}${inst.name} = sext ${inst.value.type} ${inst.value.name} to ${inst.type}")
+        output.appendLine("${indent()}%${inst.name} = sext ${inst.value.type} ${formatValueName(inst.value)} to ${inst.type}")
     }
     
     override fun visitBitcastInst(inst: BitcastInst) {
@@ -223,7 +256,7 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             inst.type.toString()
         }
-        output.appendLine("${indent()}${inst.name} = bitcast ${inst.value.type} ${inst.value.name} to $targetTypeStr")
+        output.appendLine("${indent()}%${inst.name} = bitcast ${inst.value.type} ${formatValueName(inst.value)} to $targetTypeStr")
     }
     
     override fun visitCallInst(inst: CallInst) {
@@ -233,17 +266,19 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             operands.first().type.toString()
         }
-        output.appendLine("${indent()}${inst.name} = call $calleeTypeStr ${operands.first().name}()")
+        output.appendLine("${indent()}%${inst.name} = call $calleeTypeStr ${formatValueName(operands.first())}()")
     }
     
     override fun visitICmpInst(inst: ICmpInst) {
         val operands = inst.getOperandsList()
-        output.appendLine("${indent()}${inst.name} = icmp ${operands[0].type} ${operands[0].name}, ${operands[1].name}")
+        output.appendLine("${indent()}%${inst.name} = icmp ${inst.predicate.toString().lowercase()} ${operands[0].type} ${formatValueName(operands[0])}, ${formatValueName(operands[1])}")
     }
     
     override fun visitPhiNode(inst: PhiNode) {
-        val operands = inst.getOperandsList()
-        output.appendLine("${indent()}${inst.name} = phi ${inst.type} [${operands.joinToString(", ") { it.name }}]")
+        val pairsStr = inst.incomingValues.joinToString(", ") { (value, block) ->
+            "[ ${formatValueName(value)}, ${formatBlockName(block as BasicBlock)} ]"
+        }
+        output.appendLine("${indent()}%${inst.name} = phi ${inst.type} $pairsStr")
     }
     
     override fun visitTerminatorInst(inst: TerminatorInst): Unit = when (inst) {
@@ -285,5 +320,22 @@ class IRPrinter : IRVisitor<Unit> {
         is ICmpInst -> visitICmpInst(inst)
         is PhiNode -> visitPhiNode(inst)
         else -> throw IllegalArgumentException("Unknown other instruction: ${inst::class.simpleName}")
+    }
+    
+    private fun formatValueName(value: Value): String {
+        return when {
+            value is Constant -> {
+                when (value) {
+                    is space.norb.llvm.values.constants.IntConstant -> value.value.toString()
+                    else -> value.toString() // Fallback for other constant types
+                }
+            }
+            value.name.isNotEmpty() -> "%${value.name}"
+            else -> "0" // Default for unnamed values
+        }
+    }
+    
+    private fun formatBlockName(block: BasicBlock): String {
+        return "%${block.name}"
     }
 }

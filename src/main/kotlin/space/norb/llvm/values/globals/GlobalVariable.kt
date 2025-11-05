@@ -49,6 +49,54 @@ class GlobalVariable private constructor(
      */
     override fun isConstant(): Boolean = isConstantValue
     
+    /**
+     * Checks if this GlobalVariable is equal to another object.
+     * GlobalVariables are equal if they have the same name, type, module, initializer,
+     * isConstantValue, linkage, and elementType.
+     *
+     * @param other The object to compare with
+     * @return true if the other object is a GlobalVariable with the same properties, false otherwise
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GlobalVariable) return false
+        
+        return name == other.name &&
+               type == other.type &&
+               module == other.module &&
+               initializer == other.initializer &&
+               isConstantValue == other.isConstantValue &&
+               linkage == other.linkage &&
+               elementType == other.elementType
+    }
+    
+    /**
+     * Returns the hash code for this GlobalVariable.
+     * The hash code is based on all the properties that are used in equals().
+     *
+     * @return The hash code for this GlobalVariable
+     */
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + module.hashCode()
+        result = 31 * result + (initializer?.hashCode() ?: 0)
+        result = 31 * result + isConstantValue.hashCode()
+        result = 31 * result + linkage.hashCode()
+        result = 31 * result + (elementType?.hashCode() ?: 0)
+        return result
+    }
+    
+    /**
+     * Returns the string representation of this GlobalVariable in LLVM IR format.
+     * Contains the name and type information as expected by the tests.
+     *
+     * @return String representation containing name and type information
+     */
+    override fun toString(): String {
+        return "@$name = ${linkage.name.lowercase()} ${if (isConstantValue) "constant" else "global"} ${type.toString()}"
+    }
+    
     companion object {
         /**
          * Creates a global variable with an un-typed pointer.
@@ -70,7 +118,13 @@ class GlobalVariable private constructor(
             val pointerType = PointerType
             
             // Infer element type from initializer if provided
-            val elementType = initializer?.type
+            // For NullPointerConstant, use the preserved element type
+            val elementType = when {
+                initializer is space.norb.llvm.values.constants.NullPointerConstant -> {
+                    initializer.elementType
+                }
+                else -> initializer?.type
+            }
             
             return GlobalVariable(
                 name = name,

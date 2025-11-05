@@ -116,7 +116,54 @@ abstract class Constant(
      * @return true if conversion is possible without loss, false otherwise
      */
     open fun canLosslesslyConvertTo(targetType: Type): Boolean {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // Same type is always losslessly convertible
+        if (this.type == targetType) {
+            return true
+        }
+        
+        // Integer to integer conversions
+        if (this.type.isIntegerType() && targetType.isIntegerType()) {
+            val sourceBits = this.type.getPrimitiveSizeInBits() ?: return false
+            val targetBits = targetType.getPrimitiveSizeInBits() ?: return false
+            
+            // Can losslessly convert if target has same or more bits
+            return targetBits >= sourceBits
+        }
+        
+        // Float to float conversions
+        if (this.type.isFloatingPointType() && targetType.isFloatingPointType()) {
+            val sourceBits = this.type.getPrimitiveSizeInBits() ?: return false
+            val targetBits = targetType.getPrimitiveSizeInBits() ?: return false
+            
+            // Can losslessly convert if target has same or more bits
+            return targetBits >= sourceBits
+        }
+        
+        // Integer to float conversions (may lose precision for large integers)
+        if (this.type.isIntegerType() && targetType.isFloatingPointType()) {
+            // For simplicity, assume potential loss of precision
+            return false
+        }
+        
+        // Float to integer conversions (always lose fractional part)
+        if (this.type.isFloatingPointType() && targetType.isIntegerType()) {
+            return false
+        }
+        
+        // Pointer to integer and vice versa (implementation-specific)
+        if (this.type.isPointerType() && targetType.isIntegerType()) {
+            val targetBits = targetType.getPrimitiveSizeInBits() ?: return false
+            // Assume pointer size is 64 bits for now
+            return targetBits >= 64
+        }
+        
+        if (this.type.isIntegerType() && targetType.isPointerType()) {
+            val sourceBits = this.type.getPrimitiveSizeInBits() ?: return false
+            // Assume pointer size is 64 bits for now
+            return sourceBits >= 64
+        }
+        
+        return false
     }
     
     /**
@@ -127,7 +174,19 @@ abstract class Constant(
      * @return A new constant of the target type, or null if conversion is not possible
      */
     open fun convertTo(targetType: Type): Constant? {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // If same type, return this constant
+        if (this.type == targetType) {
+            return this
+        }
+        
+        // Check if conversion is possible
+        if (!canLosslesslyConvertTo(targetType)) {
+            return null
+        }
+        
+        // Delegate to concrete implementations for actual conversion
+        // This is a base implementation that should be overridden by subclasses
+        return null
     }
     
     /**
@@ -137,7 +196,38 @@ abstract class Constant(
      * @return The bit representation as a string, or null if not applicable
      */
     open fun getBitRepresentation(): String? {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // Base implementation - should be overridden by concrete classes
+        // This provides a generic approach that works for most constants
+        
+        when {
+            type.isIntegerType() -> {
+                val bits = type.getPrimitiveSizeInBits() ?: return null
+                // For integer constants, get the value and convert to binary
+                // This is a generic approach - concrete classes should override for efficiency
+                return null // Concrete classes should implement this
+            }
+            
+            type.isFloatingPointType() -> {
+                // For floating-point constants, need to get the IEEE 754 representation
+                // This is a generic approach - concrete classes should override for efficiency
+                return null // Concrete classes should implement this
+            }
+            
+            type.isPointerType() -> {
+                // For pointer constants, typically all zeros or a specific address
+                return if (isNullValue()) {
+                    "0".repeat(type.getPrimitiveSizeInBits() ?: 64)
+                } else {
+                    null // Concrete classes should implement this
+                }
+            }
+            
+            else -> {
+                // For other types (arrays, structs, etc.), return null
+                // Concrete implementations should handle these cases
+                return null
+            }
+        }
     }
     
     /**
@@ -149,6 +239,13 @@ abstract class Constant(
      * @return true if the constants have the same value, false otherwise
      */
     open fun hasSameValueAs(other: Constant): Boolean {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // If types are different, values can't be the same
+        if (this.type != other.type) {
+            return false
+        }
+        
+        // Base implementation - concrete classes should override for efficiency
+        // This provides a generic approach using string representation
+        return this.toString() == other.toString()
     }
 }

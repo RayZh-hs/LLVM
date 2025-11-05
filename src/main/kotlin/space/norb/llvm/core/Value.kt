@@ -72,17 +72,29 @@ interface Value {
      * Gets the parent module containing this value.
      * TODO: Implement in Phase 2 when module relationships are established
      */
-    fun getParent(): Any? = null
+    fun getParent(): Any? {
+        // Base implementation - concrete classes should override
+        // The parent could be a Module, Function, or BasicBlock depending on the value type
+        return null
+    }
     
     /**
      * Checks if this value has any uses.
      * TODO: Implement in Phase 2 when use-def chains are established
      */
-    fun hasUses(): Boolean = false
+    fun hasUses(): Boolean {
+        // Base implementation - concrete classes should override
+        // This should return true if there are any users of this value
+        return false
+    }
     
     /**
      * Gets all uses of this value.
      * TODO: Implement in Phase 2 when use-def chains are established
      */
-    fun getUses(): List<User> = emptyList()
+    fun getUses(): List<User> {
+        // Base implementation - concrete classes should override
+        // This should return a list of all users that use this value
+        return emptyList()
+    }
 }

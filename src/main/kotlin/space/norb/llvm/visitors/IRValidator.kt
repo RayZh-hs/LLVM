@@ -27,6 +27,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.values.Metadata
 
 /**
  * Visitor for validating LLVM IR structure and semantics.
@@ -94,6 +95,11 @@ class IRValidator : IRVisitor<Boolean> {
     
     override fun visitConstant(constant: Constant): Boolean {
         // Constants should always be valid
+        return true
+    }
+    
+    override fun visitMetadata(metadata: Metadata): Boolean {
+        // Metadata should always be valid
         return true
     }
     

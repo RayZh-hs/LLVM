@@ -59,7 +59,7 @@ class UserTest {
         val operands = listOf(operand1, operand2)
         val user = MockUser(name, type, operands)
         
-        assertEquals(operands, user.getOperands(), "User should have the correct operands")
+        assertEquals(operands, user.getOperandsList(), "User should have the correct operands")
         assertEquals(2, user.getNumOperands(), "User should have correct operand count")
     }
 
@@ -71,7 +71,7 @@ class UserTest {
         val operands = emptyList<Value>()
         val user = MockUser(name, type, operands)
         
-        assertTrue(user.getOperands().isEmpty(), "User should handle empty operands")
+        assertTrue(user.getOperandsList().isEmpty(), "User should handle empty operands")
         assertEquals(0, user.getNumOperands(), "User should have zero operand count")
     }
 
@@ -139,7 +139,7 @@ class UserTest {
         val operands = listOf(operand1, operand2, operand3)
         val user = MockUser(name, type, operands)
         
-        val userOperands = user.getOperands()
+        val userOperands = user.getOperandsList()
         assertEquals(3, userOperands.size, "Should have 3 operands")
         assertEquals(operand1, userOperands[0], "First operand should be operand1")
         assertEquals(operand2, userOperands[1], "Second operand should be operand2")
@@ -153,7 +153,7 @@ class UserTest {
         val type = IntegerType.I32
         val user = MockUser(name, type, emptyList())
         
-        val userOperands = user.getOperands()
+        val userOperands = user.getOperandsList()
         assertTrue(userOperands.isEmpty(), "Operands list should be empty")
         assertEquals(0, userOperands.size, "Operands list size should be 0")
     }

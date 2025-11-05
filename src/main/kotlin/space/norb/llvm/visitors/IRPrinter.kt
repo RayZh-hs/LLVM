@@ -27,6 +27,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.values.Metadata
 
 /**
  * Visitor for printing LLVM IR to string format.
@@ -75,6 +76,10 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitConstant(constant: Constant) {
         output.append(constant.toString())
+    }
+    
+    override fun visitMetadata(metadata: Metadata) {
+        output.append(metadata.toIRString())
     }
     
     override fun visitReturnInst(inst: ReturnInst) {

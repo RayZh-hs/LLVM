@@ -1,6 +1,7 @@
 package space.norb.llvm.structure
 
 import space.norb.llvm.values.globals.GlobalVariable
+import space.norb.llvm.values.Metadata
 
 /**
  * LLVM module containing functions, global variables, and metadata.

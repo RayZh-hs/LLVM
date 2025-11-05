@@ -55,6 +55,16 @@ data class IntegerType(val bitWidth: Int) : Type() {
     override fun isArrayType(): Boolean = false
     override fun isStructType(): Boolean = false
     override fun getPrimitiveSizeInBits(): Int? = bitWidth
+    
+    companion object {
+        // Common integer type constants
+        val I1: IntegerType = IntegerType(1)
+        val I8: IntegerType = IntegerType(8)
+        val I16: IntegerType = IntegerType(16)
+        val I32: IntegerType = IntegerType(32)
+        val I64: IntegerType = IntegerType(64)
+        val I128: IntegerType = IntegerType(128)
+    }
 }
 
 sealed class FloatingPointType : Type() {

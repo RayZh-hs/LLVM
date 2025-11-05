@@ -1,5 +1,7 @@
 package space.norb.llvm.core
 
+import space.norb.llvm.types.*
+
 /**
  * Abstract class representing all LLVM types.
  *
@@ -106,51 +108,65 @@ abstract class Type {
          *
          * @return The void type
          */
-        fun getVoidType(): Type {
-            TODO("Phase 1 placeholder - to be implemented")
-        }
+        fun getVoidType(): Type = VoidType
+        
+        /**
+         * Creates a label type instance.
+         *
+         * @return The label type
+         */
+        fun getLabelType(): Type = LabelType
+        
+        /**
+         * Creates a metadata type instance.
+         *
+         * @return The metadata type
+         */
+        fun getMetadataType(): Type = MetadataType
         
         /**
          * Creates an integer type with the specified bit width.
          *
-         * @param bitWidth The number of bits for the integer type
+         * @param bits The number of bits for the integer type
          * @return An integer type with the specified bit width
+         * @throws IllegalArgumentException if bit width is not positive
          */
-        fun getIntegerType(bitWidth: Int): Type {
-            TODO("Phase 1 placeholder - to be implemented")
+        fun getIntegerType(bits: Int): Type {
+            require(bits > 0) { "Integer bit width must be positive, got $bits" }
+            return IntegerType(bits)
         }
         
         /**
-         * Creates a floating-point type.
+         * Creates a float type instance (single precision).
          *
-         * @param isDouble Whether to create a double precision type (true) or single precision (false)
-         * @return A floating-point type
+         * @return The float type
          */
-        fun getFloatingPointType(isDouble: Boolean = false): Type {
-            TODO("Phase 1 placeholder - to be implemented")
-        }
+        fun getFloatType(): Type = FloatingPointType.FloatType
+        
+        /**
+         * Creates a double type instance (double precision).
+         *
+         * @return The double type
+         */
+        fun getDoubleType(): Type = FloatingPointType.DoubleType
         
         /**
          * Creates a pointer type pointing to the specified element type.
          *
-         * @param pointeeType The type this pointer points to
+         * @param elementType The type this pointer points to
          * @return A pointer type
          */
-        fun getPointerType(pointeeType: Type): Type {
-            TODO("Phase 1 placeholder - to be implemented")
-        }
+        fun getPointerType(elementType: Type): Type = PointerType(elementType)
         
         /**
          * Creates a function type with the specified return type and parameters.
          *
          * @param returnType The return type of the function
          * @param paramTypes The parameter types of the function
-         * @param isVarArg Whether the function is variadic
          * @return A function type
          */
-        fun getFunctionType(returnType: Type, paramTypes: List<Type>, isVarArg: Boolean = false): Type {
-            TODO("Phase 1 placeholder - to be implemented")
-        }
+        fun getFunctionType(returnType: Type, paramTypes: List<Type>): Type =
+            FunctionType(returnType, paramTypes)
         
         /**
          * Creates an array type with the specified element type and number of elements.
@@ -158,20 +174,19 @@ abstract class Type {
          * @param elementType The type of array elements
          * @param numElements The number of elements in the array
          * @return An array type
+         * @throws IllegalArgumentException if numElements is not positive
          */
         fun getArrayType(elementType: Type, numElements: Int): Type {
-            TODO("Phase 1 placeholder - to be implemented")
+            require(numElements > 0) { "Array element count must be positive, got $numElements" }
+            return ArrayType(numElements, elementType)
         }
         
         /**
          * Creates a struct type with the specified element types.
          *
          * @param elementTypes The types of struct elements
-         * @param isPacked Whether the struct is packed
          * @return A struct type
          */
-        fun getStructType(elementTypes: List<Type>, isPacked: Boolean = false): Type {
-            TODO("Phase 1 placeholder - to be implemented")
-        }
+        fun getStructType(elementTypes: List<Type>): Type = StructType(elementTypes)
     }
 }

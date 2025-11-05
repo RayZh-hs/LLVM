@@ -25,7 +25,9 @@ data class FunctionType(
 ) : Type() {
     override fun toString(): String {
         val params = paramTypes.joinToString(", ") { it.toString() }
-        val varArg = if (isVarArg) ", ..." else ""
+        val varArg = if (isVarArg) {
+            if (paramTypes.isEmpty()) "..." else ", ..."
+        } else ""
         return "${returnType.toString()} ($params$varArg)"
     }
     override fun isPrimitiveType(): Boolean = false
@@ -54,10 +56,8 @@ data class ArrayType(val numElements: Int, val elementType: Type) : Type() {
 
 data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = false) : Type() {
     override fun toString(): String {
-        val packed = if (isPacked) "<" else "{"
         val elements = elementTypes.joinToString(", ") { it.toString() }
-        val close = if (isPacked) ">" else "}"
-        return "$packed$elements$close"
+        return if (isPacked) "<{ $elements }>" else "{ $elements }"
     }
     override fun isPrimitiveType(): Boolean = false
     override fun isDerivedType(): Boolean = true

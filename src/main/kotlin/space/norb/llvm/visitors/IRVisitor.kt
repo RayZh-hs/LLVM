@@ -27,6 +27,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.values.Metadata
 
 /**
  * Visitor interface for traversing LLVM IR.
@@ -40,6 +41,7 @@ interface IRVisitor<T> {
     fun visitArgument(argument: Argument): T
     fun visitGlobalVariable(globalVariable: GlobalVariable): T
     fun visitConstant(constant: Constant): T
+    fun visitMetadata(metadata: Metadata): T
     
     // Instruction visitors
     fun visitReturnInst(inst: ReturnInst): T

@@ -10,7 +10,7 @@ import kotlin.math.abs
 data class FloatConstant(
     val value: Double,
     override val type: FloatingPointType
-) : Constant(value.toString(), type) {
+) : Constant("", type) {
     
     /**
      * Checks if this floating-point constant is null.

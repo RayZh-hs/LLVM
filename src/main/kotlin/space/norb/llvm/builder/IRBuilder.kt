@@ -236,14 +236,13 @@ class IRBuilder(val module: Module) {
     
     // Convenience methods for common operations
     fun buildNot(value: Value, name: String = ""): XorInst {
-        val allOnes = when {
+        val negOne = when {
             value.type.isIntegerType() -> {
-                val bits = value.type.getPrimitiveSizeInBits() ?: 64
-                BuilderUtils.getIntConstant((1L shl bits) - 1, value.type as IntegerType)
+                BuilderUtils.getIntConstant(-1, value.type as IntegerType)
             }
             else -> throw IllegalArgumentException("Not operation only supported for integer types")
         }
-        return buildXor(value, allOnes, name)
+        return buildXor(value, negOne, name)
     }
     
     fun buildNeg(value: Value, name: String = ""): SubInst {

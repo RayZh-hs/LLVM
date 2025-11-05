@@ -327,11 +327,35 @@ class IRPrinter : IRVisitor<Unit> {
             value is Constant -> {
                 when (value) {
                     is space.norb.llvm.values.constants.IntConstant -> value.value.toString()
+                    is space.norb.llvm.values.constants.FloatConstant -> {
+                        // Format floating point constants in LLVM IR format
+                        formatFloatConstant(value)
+                    }
                     else -> value.toString() // Fallback for other constant types
                 }
             }
             value.name.isNotEmpty() -> "%${value.name}"
             else -> "0" // Default for unnamed values
+        }
+    }
+    
+    private fun formatFloatConstant(constant: space.norb.llvm.values.constants.FloatConstant): String {
+        val value = constant.value
+        val type = constant.type
+        
+        return when {
+            value.isNaN() -> "nan"
+            value == Double.POSITIVE_INFINITY -> "inf"
+            value == Double.NEGATIVE_INFINITY -> "-inf"
+            else -> {
+                if (type is space.norb.llvm.types.FloatingPointType.FloatType) {
+                    // For float type, use scientific notation with 6 decimal places
+                    String.format("%.6e", value.toFloat())
+                } else {
+                    // For double type, use scientific notation with 6 decimal places
+                    String.format("%.6e", value)
+                }
+            }
         }
     }
     

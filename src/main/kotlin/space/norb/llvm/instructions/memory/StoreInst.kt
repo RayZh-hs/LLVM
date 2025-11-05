@@ -4,6 +4,7 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.base.MemoryInst
 import space.norb.llvm.visitors.IRVisitor
+import space.norb.llvm.types.UntypedPointerType
 
 /**
  * Store value to memory instruction.
@@ -52,9 +53,37 @@ import space.norb.llvm.visitors.IRVisitor
  */
 class StoreInst(
     name: String,
-    type: Type,
+    storedType: Type,
     value: Value,
     pointer: Value
-) : MemoryInst(name, type, listOf(value, pointer)) {
+) : MemoryInst(name, storedType, listOf(value, pointer)) {
+    
+    /**
+     * The type of value being stored to memory.
+     * This is explicitly specified since un-typed pointers don't convey this information.
+     */
+    val storedType: Type = storedType
+    
+    /**
+     * The value to be stored.
+     * The type of this value should match storedType.
+     */
+    val value: Value = value
+    
+    /**
+     * The pointer operand to which to store the value.
+     * In un-typed mode, this should be an UntypedPointerType.
+     * In typed mode (legacy), this can be a typed pointer.
+     */
+    val pointer: Value = pointer
+    
+    /**
+     * The expected pointer type for this store operation.
+     * In un-typed mode, this is UntypedPointerType.
+     * In typed mode (legacy), this is a typed pointer to the stored type.
+     */
+    val expectedPointerType: Type
+        get() = if (Type.useTypedPointers) Type.getPointerType(storedType) else UntypedPointerType
+    
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitStoreInst(this)
 }

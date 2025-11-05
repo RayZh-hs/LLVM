@@ -6,6 +6,7 @@ import space.norb.llvm.structure.BasicBlock
 import space.norb.llvm.structure.Argument
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.core.Constant
+import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
@@ -22,7 +23,7 @@ import space.norb.llvm.instructions.memory.StoreInst
 import space.norb.llvm.instructions.memory.GetElementPtrInst
 import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.instructions.casts.ZExtInst
-import space.norb.llvm.instructions.casts.SExtInst  
+import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
@@ -111,11 +112,21 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitArgument(argument: Argument) {
-        output.append("${argument.type} ${argument.name}")
+        val typeStr = if (argument.type.isPointerType() && !Type.useTypedPointers) {
+            "ptr" // Use un-typed pointer syntax
+        } else {
+            argument.type.toString()
+        }
+        output.append("$typeStr ${argument.name}")
     }
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable) {
-        output.append("@${globalVariable.name} = global ${globalVariable.type}")
+        val typeStr = if (globalVariable.type.isPointerType() && !Type.useTypedPointers) {
+            "ptr" // Use un-typed pointer syntax
+        } else {
+            globalVariable.type.toString()
+        }
+        output.append("@${globalVariable.name} = global $typeStr")
     }
     
     override fun visitConstant(constant: Constant) {
@@ -179,34 +190,46 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitAllocaInst(inst: AllocaInst) {
-        // TODO: Update for un-typed pointer compliance
-        // Current: allocates typed pointer (legacy model)
-        // Target: should allocate un-typed pointer "ptr" with element type info elsewhere
-        output.appendLine("${indent()}${inst.name} = alloca ${inst.type}")
+        // Generate compliant IR based on pointer mode
+        output.appendLine("${indent()}${inst.name} = alloca ${inst.allocatedType}")
+        // Note: alloca result type is implicit and handled by the instruction's type property
+        // The instruction's type will be printed as "ptr" when accessed through other methods
     }
     
     override fun visitLoadInst(inst: LoadInst) {
-        // TODO: Update for un-typed pointer compliance
-        // Current: loads from typed pointer (legacy model)
-        // Target: should load from un-typed pointer "ptr" with explicit result type
-        val operands = inst.getOperandsList()
-        output.appendLine("${indent()}${inst.name} = load ${operands.first().type}, ${operands.first().name}")
+        // Generate compliant IR based on pointer mode
+        val pointer = inst.pointer
+        val pointerTypeStr = if (Type.useTypedPointers) {
+            pointer.type.toString()
+        } else {
+            "ptr" // Use un-typed pointer syntax
+        }
+        output.appendLine("${indent()}${inst.name} = load ${inst.loadedType}, $pointerTypeStr ${pointer.name}")
     }
     
     override fun visitStoreInst(inst: StoreInst) {
-        // TODO: Update for un-typed pointer compliance
-        // Current: stores to typed pointer (legacy model)
-        // Target: should store to un-typed pointer "ptr" with explicit value type
-        val operands = inst.getOperandsList()
-        output.appendLine("${indent()}store ${operands[0].type} ${operands[0].name}, ${operands[1].type} ${operands[1].name}")
+        // Generate compliant IR based on pointer mode
+        val value = inst.value
+        val pointer = inst.pointer
+        val pointerTypeStr = if (Type.useTypedPointers) {
+            pointer.type.toString()
+        } else {
+            "ptr" // Use un-typed pointer syntax
+        }
+        output.appendLine("${indent()}store ${value.type} ${value.name}, $pointerTypeStr ${pointer.name}")
     }
     
     override fun visitGetElementPtrInst(inst: GetElementPtrInst) {
-        // TODO: Update for un-typed pointer compliance
-        // Current: GEP with typed pointer (legacy model)
-        // Target: GEP with un-typed pointer "ptr" and explicit element type info
-        val operands = inst.getOperandsList()
-        output.appendLine("${indent()}${inst.name} = getelementptr ${operands.first().type}, ${operands.first().name}")
+        // Generate compliant IR based on pointer mode
+        val pointer = inst.pointer
+        val indices = inst.indices
+        val pointerTypeStr = if (Type.useTypedPointers) {
+            pointer.type.toString()
+        } else {
+            "ptr" // Use un-typed pointer syntax
+        }
+        val indicesStr = indices.joinToString(", ") { "${it.type} ${it.name}" }
+        output.appendLine("${indent()}${inst.name} = getelementptr ${inst.elementType}, $pointerTypeStr ${pointer.name}, $indicesStr")
     }
     
     override fun visitTruncInst(inst: TruncInst) {
@@ -222,12 +245,22 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitBitcastInst(inst: BitcastInst) {
-        output.appendLine("${indent()}${inst.name} = bitcast ${inst.value.type} ${inst.value.name} to ${inst.type}")
+        val targetTypeStr = if (inst.type.isPointerType() && !Type.useTypedPointers) {
+            "ptr" // Use un-typed pointer syntax
+        } else {
+            inst.type.toString()
+        }
+        output.appendLine("${indent()}${inst.name} = bitcast ${inst.value.type} ${inst.value.name} to $targetTypeStr")
     }
     
     override fun visitCallInst(inst: CallInst) {
         val operands = inst.getOperandsList()
-        output.appendLine("${indent()}${inst.name} = call ${operands.first().type} ${operands.first().name}()")
+        val calleeTypeStr = if (operands.first().type.isPointerType() && !Type.useTypedPointers) {
+            "ptr" // Use un-typed pointer syntax
+        } else {
+            operands.first().type.toString()
+        }
+        output.appendLine("${indent()}${inst.name} = call $calleeTypeStr ${operands.first().name}()")
     }
     
     override fun visitICmpInst(inst: ICmpInst) {

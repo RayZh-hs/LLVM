@@ -6,6 +6,8 @@ import space.norb.llvm.structure.BasicBlock
 import space.norb.llvm.structure.Argument
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.core.Constant
+import space.norb.llvm.core.Type
+import space.norb.llvm.types.UntypedPointerType
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
@@ -145,6 +147,15 @@ class IRValidator : IRVisitor<Boolean> {
         if (inst.name.isEmpty()) {
             addError("Alloca instruction must have a name")
         }
+        
+        // Validate pointer type based on migration mode
+        if (!Type.useTypedPointers) {
+            // In un-typed mode, the result type should be un-typed pointer
+            if (inst.type != UntypedPointerType) {
+                addError("Alloca instruction result type must be un-typed pointer in un-typed pointer mode")
+            }
+        }
+        
         return errors.isEmpty()
     }
     
@@ -153,6 +164,21 @@ class IRValidator : IRVisitor<Boolean> {
         if (operands.isEmpty()) {
             addError("Load instruction must have a pointer operand")
         }
+        
+        // Validate pointer operand type based on migration mode
+        val pointer = operands.first()
+        if (!Type.useTypedPointers) {
+            // In un-typed mode, the pointer operand should be un-typed pointer
+            if (pointer.type != UntypedPointerType) {
+                addError("Load instruction pointer operand must be un-typed pointer in un-typed pointer mode")
+            }
+        } else {
+            // In typed mode, the pointer operand should be a typed pointer
+            if (!pointer.type.isPointerType()) {
+                addError("Load instruction pointer operand must be a pointer type")
+            }
+        }
+        
         return errors.isEmpty()
     }
     
@@ -161,6 +187,21 @@ class IRValidator : IRVisitor<Boolean> {
         if (operands.size < 2) {
             addError("Store instruction must have value and pointer operands")
         }
+        
+        // Validate pointer operand type based on migration mode
+        val pointer = operands[1] // Second operand is the pointer
+        if (!Type.useTypedPointers) {
+            // In un-typed mode, the pointer operand should be un-typed pointer
+            if (pointer.type != UntypedPointerType) {
+                addError("Store instruction pointer operand must be un-typed pointer in un-typed pointer mode")
+            }
+        } else {
+            // In typed mode, the pointer operand should be a typed pointer
+            if (!pointer.type.isPointerType()) {
+                addError("Store instruction pointer operand must be a pointer type")
+            }
+        }
+        
         return errors.isEmpty()
     }
     
@@ -169,16 +210,50 @@ class IRValidator : IRVisitor<Boolean> {
         if (operands.isEmpty()) {
             addError("GetElementPtr instruction must have at least a pointer operand")
         }
+        
+        // Validate pointer operand type based on migration mode
+        val pointer = operands.first()
+        if (!Type.useTypedPointers) {
+            // In un-typed mode, the pointer operand should be un-typed pointer
+            if (pointer.type != UntypedPointerType) {
+                addError("GetElementPtr instruction pointer operand must be un-typed pointer in un-typed pointer mode")
+            }
+        } else {
+            // In typed mode, the pointer operand should be a typed pointer
+            if (!pointer.type.isPointerType()) {
+                addError("GetElementPtr instruction pointer operand must be a pointer type")
+            }
+        }
+        
+        // Validate result type based on migration mode
+        if (!Type.useTypedPointers) {
+            // In un-typed mode, the result type should be un-typed pointer
+            if (inst.type != UntypedPointerType) {
+                addError("GetElementPtr instruction result type must be un-typed pointer in un-typed pointer mode")
+            }
+        }
+        
         return errors.isEmpty()
     }
     
     override fun visitTruncInst(inst: TruncInst): Boolean = validateCastInst(inst, "trunc")
     override fun visitZExtInst(inst: ZExtInst): Boolean = validateCastInst(inst, "zext")
     override fun visitSExtInst(inst: SExtInst): Boolean = validateCastInst(inst, "sext")
-    override fun visitBitcastInst(inst: BitcastInst): Boolean = validateCastInst(inst, "bitcast")
+    override fun visitBitcastInst(inst: BitcastInst): Boolean = validateBitcastInst(inst)
     
     private fun validateCastInst(inst: Any, opName: String): Boolean {
         // Basic validation for cast instructions
+        return true
+    }
+    
+    private fun validateBitcastInst(inst: Any): Boolean {
+        // Special validation for bitcast instructions with pointer types
+        // This would need to be implemented with proper BitcastInst access
+        // For now, we'll do basic validation
+        
+        // In un-typed mode, all pointers can be bitcast to each other
+        // In typed mode, pointer bitcasting rules are maintained for compatibility
+        
         return true
     }
     

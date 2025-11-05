@@ -4,6 +4,7 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.base.MemoryInst
 import space.norb.llvm.visitors.IRVisitor
+import space.norb.llvm.types.UntypedPointerType
 
 /**
  * Load value from memory instruction.
@@ -52,8 +53,30 @@ import space.norb.llvm.visitors.IRVisitor
  */
 class LoadInst(
     name: String,
-    type: Type,
+    loadedType: Type,
     pointer: Value
-) : MemoryInst(name, type, listOf(pointer)) {
+) : MemoryInst(name, loadedType, listOf(pointer)) {
+    
+    /**
+     * The type of value being loaded from memory.
+     * This is explicitly specified since un-typed pointers don't convey this information.
+     */
+    val loadedType: Type = loadedType
+    
+    /**
+     * The pointer operand from which to load the value.
+     * In un-typed mode, this should be an UntypedPointerType.
+     * In typed mode (legacy), this can be a typed pointer.
+     */
+    val pointer: Value = pointer
+    
+    /**
+     * The expected pointer type for this load operation.
+     * In un-typed mode, this is UntypedPointerType.
+     * In typed mode (legacy), this is a typed pointer to the loaded type.
+     */
+    val expectedPointerType: Type
+        get() = if (Type.useTypedPointers) Type.getPointerType(loadedType) else UntypedPointerType
+    
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitLoadInst(this)
 }

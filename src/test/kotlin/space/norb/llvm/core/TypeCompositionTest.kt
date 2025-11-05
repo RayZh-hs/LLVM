@@ -45,42 +45,33 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to pointer types should work correctly")
         fun testPointerToPointer() {
-            // MIGRATION NOTE: This test validates legacy typed pointer behavior
-            // After migration to un-typed pointers:
-            // - All pointer types will be "ptr" instead of "i32*", "i32**", etc.
-            // - pointeeType property will no longer exist
-            // - Type checking will need to be updated for un-typed pointers
+            // Test with un-typed pointers (default mode)
             val i32Type = TypeUtils.I32
-            val i32Ptr = PointerType(i32Type)
-            val i32PtrPtr = PointerType(i32Ptr)
-            val i32PtrPtrPtr = PointerType(i32PtrPtr)
+            val i32Ptr = Type.getPointerType(i32Type)
+            val i32PtrPtr = Type.getPointerType(i32Type) // All pointers are un-typed, so nested is same
+            val i32PtrPtrPtr = Type.getPointerType(i32Type)
             
-            assertEquals("i32*", i32Ptr.toString(), "Simple pointer should have correct representation")
-            assertEquals("i32**", i32PtrPtr.toString(), "Pointer to pointer should have correct representation")
-            assertEquals("i32***", i32PtrPtrPtr.toString(), "Triple pointer should have correct representation")
-            
-            assertEquals(i32Type, i32Ptr.pointeeType, "Pointer should point to correct type")
-            assertEquals(i32Ptr, i32PtrPtr.pointeeType, "Pointer to pointer should point to pointer")
-            assertEquals(i32PtrPtr, i32PtrPtrPtr.pointeeType, "Triple pointer should point to double pointer")
+            assertEquals("ptr", i32Ptr.toString(), "Simple pointer should have correct representation")
+            assertEquals("ptr", i32PtrPtr.toString(), "Pointer to pointer should have correct representation")
+            assertEquals("ptr", i32PtrPtrPtr.toString(), "Triple pointer should have correct representation")
             
             assertTrue(i32Ptr.isPointerType(), "Simple pointer should be pointer type")
             assertTrue(i32PtrPtr.isPointerType(), "Pointer to pointer should be pointer type")
             assertTrue(i32PtrPtrPtr.isPointerType(), "Triple pointer should be pointer type")
+            
+            // All un-typed pointers should be equal
+            assertEquals(i32Ptr, i32PtrPtr, "All un-typed pointers should be equal")
+            assertEquals(i32Ptr, i32PtrPtrPtr, "All un-typed pointers should be equal")
         }
 
         @Test
         @DisplayName("Pointer to array types should work correctly")
         fun testPointerToArray() {
-            // MIGRATION NOTE: This test validates legacy typed pointer behavior
-            // After migration to un-typed pointers:
-            // - String representation will change from "[10 x i32]*" to "ptr"
-            // - pointeeType property will no longer exist
-            // - Array type information will need to be conveyed through other means
             val i32Array = ArrayType(10, TypeUtils.I32)
-            val arrayPtr = PointerType(i32Array)
             
-            assertEquals("[10 x i32]*", arrayPtr.toString(), "Pointer to array should have correct representation")
-            assertEquals(i32Array, arrayPtr.pointeeType, "Pointer should point to array")
+            // Test with un-typed pointers (default mode)
+            val arrayPtr = Type.getPointerType(i32Array)
+            assertEquals("ptr", arrayPtr.toString(), "Pointer to array should have correct representation")
             assertTrue(arrayPtr.isPointerType(), "Pointer to array should be pointer type")
             assertFalse(arrayPtr.isArrayType(), "Pointer to array should not be array type")
         }
@@ -88,16 +79,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to struct types should work correctly")
         fun testPointerToStruct() {
-            // MIGRATION NOTE: This test validates legacy typed pointer behavior
-            // After migration to un-typed pointers:
-            // - String representation will change from "{ i32, i64 }*" to "ptr"
-            // - pointeeType property will no longer exist
-            // - Struct type information will need to be conveyed through other means
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.I64))
-            val structPtr = PointerType(structType)
             
-            assertEquals("{ i32, i64 }*", structPtr.toString(), "Pointer to struct should have correct representation")
-            assertEquals(structType, structPtr.pointeeType, "Pointer should point to struct")
+            // Test with un-typed pointers (default mode)
+            val structPtr = Type.getPointerType(structType)
+            assertEquals("ptr", structPtr.toString(), "Pointer to struct should have correct representation")
             assertTrue(structPtr.isPointerType(), "Pointer to struct should be pointer type")
             assertFalse(structPtr.isStructType(), "Pointer to struct should not be struct type")
         }
@@ -105,16 +91,11 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to function types should work correctly")
         fun testPointerToFunction() {
-            // MIGRATION NOTE: This test validates legacy typed pointer behavior
-            // After migration to un-typed pointers:
-            // - String representation will change from "i32 (i32, i64)*" to "ptr"
-            // - pointeeType property will no longer exist
-            // - Function type information will need to be conveyed through other means
             val funcType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I32, TypeUtils.I64))
-            val funcPtr = PointerType(funcType)
             
-            assertEquals("i32 (i32, i64)*", funcPtr.toString(), "Pointer to function should have correct representation")
-            assertEquals(funcType, funcPtr.pointeeType, "Pointer should point to function")
+            // Test with un-typed pointers (default mode)
+            val funcPtr = Type.getPointerType(funcType)
+            assertEquals("ptr", funcPtr.toString(), "Pointer to function should have correct representation")
             assertTrue(funcPtr.isPointerType(), "Pointer to function should be pointer type")
             assertFalse(funcPtr.isFunctionType(), "Pointer to function should not be function type")
         }
@@ -142,14 +123,17 @@ class TypeCompositionTest {
         @DisplayName("Function types with complex parameter types should work correctly")
         fun testComplexParameterFunction() {
             val i32Array = ArrayType(10, TypeUtils.I32)
-            val structType = StructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))            
-            val i32Ptr = PointerType(TypeUtils.I32)
-            val funcPtrType = PointerType(FunctionType(TypeUtils.I64, emptyList()))
+            val structType = StructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
+            
+            // Test with un-typed pointers (default mode)
+            val i32Ptr = Type.getPointerType(TypeUtils.I32)
+            val funcPtrType = Type.getPointerType(FunctionType(TypeUtils.I64, emptyList()))
+            val structPtr = Type.getPointerType(structType)
             
             val params = listOf(i32Array, structType, i32Ptr, funcPtrType)
-            val funcType = FunctionType(PointerType(structType), params)
+            val funcType = FunctionType(structPtr, params)
             
-            assertEquals("{ float, double }* ([10 x i32], { float, double }, i32*, i64 ()*)", funcType.toString())
+            assertEquals("ptr ([10 x i32], { float, double }, ptr, ptr)", funcType.toString())
             assertTrue(funcType.returnType.isPointerType())
             assertEquals(4, funcType.paramTypes.size)
             assertEquals(i32Array, funcType.paramTypes[0])
@@ -162,10 +146,13 @@ class TypeCompositionTest {
         @DisplayName("Function types returning complex types should work correctly")
         fun testComplexReturnFunction() {
             val arrayType = ArrayType(5, ArrayType(10, TypeUtils.I32))
-            val structType = StructType(listOf(TypeUtils.I32, PointerType(TypeUtils.FLOAT)))
+            
+            // Test with un-typed pointers (default mode)
+            val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+            val structType = StructType(listOf(TypeUtils.I32, floatPtr))
             val funcType = FunctionType(arrayType, listOf(structType))
             
-            assertEquals("[5 x [10 x i32]] ({ i32, float* })", funcType.toString())
+            assertEquals("[5 x [10 x i32]] ({ i32, ptr })", funcType.toString())
             assertTrue(funcType.returnType.isArrayType())
             assertEquals(1, funcType.paramTypes.size)
             assertTrue(funcType.paramTypes[0].isStructType())
@@ -241,12 +228,13 @@ class TypeCompositionTest {
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I32))
             val funcArray = ArrayType(5, funcType)
             
-            val ptrType = PointerType(TypeUtils.DOUBLE)
+            // Test with un-typed pointers (default mode)
+            val ptrType = Type.getPointerType(TypeUtils.DOUBLE)
             val ptrArray = ArrayType(7, ptrType)
             
             assertEquals("[3 x { i32, i64 }]", structArray.toString())
             assertEquals("[5 x void (i32)]", funcArray.toString())
-            assertEquals("[7 x double*]", ptrArray.toString())
+            assertEquals("[7 x ptr]", ptrArray.toString())
             
             assertTrue(structArray.elementType.isStructType())
             assertTrue(funcArray.elementType.isFunctionType())
@@ -339,12 +327,13 @@ class TypeCompositionTest {
         @DisplayName("Function returning pointer to struct should work correctly")
         fun testFunctionReturningPointerToStruct() {
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
-            val structPtr = PointerType(structType)
+            
+            // Test with un-typed pointers (default mode)
+            val structPtr = Type.getPointerType(structType)
             val funcType = FunctionType(structPtr, listOf(TypeUtils.I8, TypeUtils.I16))
             
-            assertEquals("{ i32, float }* (i8, i16)", funcType.toString())
+            assertEquals("ptr (i8, i16)", funcType.toString())
             assertTrue(funcType.returnType.isPointerType())
-            assertTrue((funcType.returnType as PointerType).pointeeType.isStructType())
             assertEquals(2, funcType.paramTypes.size)
         }
 
@@ -352,14 +341,15 @@ class TypeCompositionTest {
         @DisplayName("Array of function pointers should work correctly")
         fun testArrayOfFunctionPointers() {
             val funcType = FunctionType(TypeUtils.I64, listOf(TypeUtils.I32))
-            val funcPtr = PointerType(funcType)
+            
+            // Test with un-typed pointers (default mode)
+            val funcPtr = Type.getPointerType(funcType)
             val funcPtrArray = ArrayType(5, funcPtr)
             
-            assertEquals("i64 (i32)*", funcPtr.toString())
-            assertEquals("[5 x i64 (i32)*]", funcPtrArray.toString())
+            assertEquals("ptr", funcPtr.toString())
+            assertEquals("[5 x ptr]", funcPtrArray.toString())
             
             assertTrue(funcPtrArray.elementType.isPointerType())
-            assertTrue((funcPtrArray.elementType as PointerType).pointeeType.isFunctionType())
         }
 
         @Test
@@ -367,13 +357,14 @@ class TypeCompositionTest {
         fun testStructWithFunctionPointersAndArrays() {
             val funcType1 = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I32))
             val funcType2 = FunctionType(TypeUtils.FLOAT, listOf(TypeUtils.DOUBLE))
-            val funcPtr1 = PointerType(funcType1)
-            val funcPtr2 = PointerType(funcType2)
-            
             val i32Array = ArrayType(10, TypeUtils.I32)
+            
+            // Test with un-typed pointers (default mode)
+            val funcPtr1 = Type.getPointerType(funcType1)
+            val funcPtr2 = Type.getPointerType(funcType2)
             val structType = StructType(listOf(funcPtr1, i32Array, funcPtr2))
             
-            assertEquals("{ void (i32)*, [10 x i32], float (double)* }", structType.toString())
+            assertEquals("{ ptr, [10 x i32], ptr }", structType.toString())
             
             assertTrue(structType.elementTypes[0].isPointerType())
             assertTrue(structType.elementTypes[1].isArrayType())
@@ -385,26 +376,24 @@ class TypeCompositionTest {
         fun testComplexNestedComposition() {
             // Create a complex type: pointer to array of structs containing function pointers
             val innerFuncType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I8))
-            val innerFuncPtr = PointerType(innerFuncType)
-            val innerStruct = StructType(listOf(TypeUtils.I64, innerFuncPtr))
+            val innerStruct = StructType(listOf(TypeUtils.I64, Type.getPointerType(innerFuncType)))
             val structArray = ArrayType(3, innerStruct)
-            val complexType = PointerType(structArray)
             
-            assertEquals("i32 (i8)*", innerFuncPtr.toString())
-            assertEquals("{ i64, i32 (i8)* }", innerStruct.toString())
-            assertEquals("[3 x { i64, i32 (i8)* }]", structArray.toString())
-            assertEquals("[3 x { i64, i32 (i8)* }]*", complexType.toString())
+            // Test with un-typed pointers (default mode)
+            val innerFuncPtr = Type.getPointerType(innerFuncType)
+            val complexType = Type.getPointerType(structArray)
+            
+            assertEquals("ptr", innerFuncPtr.toString())
+            assertEquals("{ i64, ptr }", innerStruct.toString())
+            assertEquals("[3 x { i64, ptr }]", structArray.toString())
+            assertEquals("ptr", complexType.toString())
             
             // Verify the structure
             assertTrue(complexType.isPointerType())
-            val arrayType = complexType.pointeeType as ArrayType
-            assertTrue(arrayType.isArrayType())
-            val structType = arrayType.elementType as StructType
-            assertTrue(structType.isStructType())
-            assertTrue(structType.elementTypes[0].isIntegerType())
-            assertTrue(structType.elementTypes[1].isPointerType())
-            val funcPtrType = structType.elementTypes[1] as PointerType
-            assertTrue(funcPtrType.pointeeType.isFunctionType())
+            assertTrue(structArray.isArrayType())
+            assertTrue(innerStruct.isStructType())
+            assertTrue(innerStruct.elementTypes[0].isIntegerType())
+            assertTrue(innerStruct.elementTypes[1].isPointerType())
         }
 
         @Test
@@ -413,21 +402,20 @@ class TypeCompositionTest {
             // Create complex parameter types
             val structType = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
             val structArray = ArrayType(5, structType)
-            val structArrayPtr = PointerType(structArray)
-            
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I8))
-            val funcPtr = PointerType(funcType)
             
+            // Test with un-typed pointers (default mode)
+            val structArrayPtr = Type.getPointerType(structArray)
+            val funcPtr = Type.getPointerType(funcType)
             val complexStruct = StructType(listOf(TypeUtils.I64, structArrayPtr, funcPtr))
             
             // Create function with complex parameters and return type
             val complexFuncType = FunctionType(
-                PointerType(complexStruct),
+                Type.getPointerType(complexStruct),
                 listOf(complexStruct, structArrayPtr, funcPtr)
             )
             
-            assertEquals("{ i64, [5 x { i32, float }]*, void (i8)* }* ({ i64, [5 x { i32, float }]*, void (i8)* }, [5 x { i32, float }]*, void (i8)*)", 
-                complexFuncType.toString())
+            assertEquals("ptr ({ i64, ptr, ptr }, ptr, ptr)", complexFuncType.toString())
             
             assertTrue(complexFuncType.returnType.isPointerType())
             assertEquals(3, complexFuncType.paramTypes.size)

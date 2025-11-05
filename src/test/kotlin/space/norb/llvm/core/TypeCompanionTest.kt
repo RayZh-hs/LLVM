@@ -102,8 +102,18 @@ class TypeCompanionTest {
     }
 
     @Test
-    @DisplayName("getPointerType should return PointerType for given element type")
+    @DisplayName("getPointerType should return UntypedPointerType by default")
     fun testGetPointerType() {
+        // Test with new un-typed pointer mode (default)
+        val i32 = Type.getIntegerType(32)
+        val pointerType = Type.getPointerType(i32)
+        assertTrue(pointerType === UntypedPointerType, "getPointerType should return UntypedPointerType by default")
+        assertEquals("ptr", pointerType.toString())
+    }
+    
+    @Test
+    @DisplayName("getPointerType should return PointerType in legacy mode")
+    fun testGetPointerTypeLegacyMode() {
         // Test with legacy mode enabled for backward compatibility
         val originalUseTypedPointers = Type.useTypedPointers
         Type.useTypedPointers = true
@@ -114,24 +124,6 @@ class TypeCompanionTest {
             assertTrue(pointerType is PointerType, "getPointerType should return PointerType in legacy mode")
             assertEquals("i32*", pointerType.toString())
             assertEquals(i32, (pointerType as PointerType).pointeeType)
-        } finally {
-            // Restore original setting
-            Type.useTypedPointers = originalUseTypedPointers
-        }
-    }
-    
-    @Test
-    @DisplayName("getPointerType should return UntypedPointerType in new mode")
-    fun testGetPointerTypeNewMode() {
-        // Test with new un-typed pointer mode (default)
-        val originalUseTypedPointers = Type.useTypedPointers
-        Type.useTypedPointers = false
-        
-        try {
-            val i32 = Type.getIntegerType(32)
-            val pointerType = Type.getPointerType(i32)
-            assertTrue(pointerType === UntypedPointerType, "getPointerType should return UntypedPointerType in new mode")
-            assertEquals("ptr", pointerType.toString())
         } finally {
             // Restore original setting
             Type.useTypedPointers = originalUseTypedPointers

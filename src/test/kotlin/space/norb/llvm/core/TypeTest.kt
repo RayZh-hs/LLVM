@@ -120,15 +120,11 @@ class TypeTest {
     @Test
     @DisplayName("PointerType should have correct string representation")
     fun testPointerType() {
-        // MIGRATION NOTE: This test validates legacy typed pointer behavior
-        // After migration to un-typed pointers:
-        // - String representation will change from "i32*" to "ptr"
-        // - pointeeType property will no longer exist
-        // - All PointerType instances will be the same un-typed pointer type
+        // Test with un-typed pointers (default mode)
         val i32Type = IntegerType(32)
-        val pointerType = PointerType(i32Type)
-        assertEquals("i32*", pointerType.toString())
-        assertEquals(i32Type, pointerType.pointeeType)
+        val untypedPtr = Type.getPointerType(i32Type)
+        assertEquals("ptr", untypedPtr.toString())
+        assertEquals(UntypedPointerType, untypedPtr)
     }
 
     @Test
@@ -195,16 +191,14 @@ class TypeTest {
         assertEquals(i32Type1, i32Type2, "Integer types with same bit width should be equal")
         assertNotEquals(i32Type1, i64Type, "Integer types with different bit widths should not be equal")
         
-        // MIGRATION NOTE: This test validates legacy typed pointer equality
-        // After migration to un-typed pointers:
-        // - All pointers will be equal regardless of pointee type
-        // - This assertion will need to be updated to expect equality for all pointers
-        val pointerType1 = PointerType(i32Type1)
-        val pointerType2 = PointerType(i32Type2)
-        val pointerType3 = PointerType(i64Type)
+        // Test with un-typed pointers (default mode)
+        val untypedPtr1 = Type.getPointerType(i32Type1)
+        val untypedPtr2 = Type.getPointerType(i32Type2)
+        val untypedPtr3 = Type.getPointerType(i64Type)
         
-        assertEquals(pointerType1, pointerType2, "Pointer types with same pointee type should be equal")
-        assertNotEquals(pointerType1, pointerType3, "Pointer types with different pointee types should not be equal")
+        assertEquals(untypedPtr1, untypedPtr2, "All un-typed pointers should be equal")
+        assertEquals(untypedPtr1, untypedPtr3, "All un-typed pointers should be equal regardless of element type")
+        assertEquals(UntypedPointerType, untypedPtr1, "All un-typed pointers should be UntypedPointerType")
     }
 
     @Test
@@ -244,18 +238,24 @@ class TypeTest {
     @Test
     @DisplayName("Nested type equality should work correctly")
     fun testNestedTypeEquality() {
-        // MIGRATION NOTE: This test validates legacy nested pointer equality
-        // After migration to un-typed pointers:
-        // - All nested pointers will be equal to each other
-        // - Pointee type chain will no longer exist for equality checking
-        // Test pointer to pointer equality
+        // Test pointer to pointer equality with un-typed pointers
         val i32Type = IntegerType(32)
-        val i32Ptr1 = PointerType(i32Type)
-        val i32Ptr2 = PointerType(i32Type)
-        val i32PtrPtr1 = PointerType(i32Ptr1)
-        val i32PtrPtr2 = PointerType(i32Ptr2)
+        val i32Ptr1 = Type.getPointerType(i32Type)
+        val i32Ptr2 = Type.getPointerType(i32Type)
+        val i32PtrPtr1 = Type.getPointerType(i32Type) // All pointers are un-typed, so nested is same
+        val i32PtrPtr2 = Type.getPointerType(i32Type)
         
-        assertEquals(i32PtrPtr1, i32PtrPtr2, "Nested pointer types should be equal")
+        assertEquals(i32PtrPtr1, i32PtrPtr2, "All un-typed pointers should be equal")
+        assertEquals(i32Ptr1, i32Ptr2, "All un-typed pointers should be equal")
+        assertEquals(i32Ptr1, i32PtrPtr1, "All un-typed pointers should be equal regardless of nesting")
+        
+        // Test function with complex parameters equality
+        val complexParam1 = ArrayType(10, StructType(listOf(TypeUtils.I32)))
+        val complexParam2 = ArrayType(10, StructType(listOf(TypeUtils.I32)))
+        val complexFunc1 = FunctionType(Type.getPointerType(TypeUtils.I32), listOf(complexParam1))
+        val complexFunc2 = FunctionType(Type.getPointerType(TypeUtils.I32), listOf(complexParam2))
+        
+        assertEquals(complexFunc1, complexFunc2, "Functions with complex equal parameters should be equal")
         
         // Test array of structs equality
         val structType1 = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
@@ -264,14 +264,6 @@ class TypeTest {
         val structArray2 = ArrayType(5, structType2)
         
         assertEquals(structArray1, structArray2, "Arrays of equal structs should be equal")
-        
-        // Test function with complex parameters equality
-        val complexParam1 = ArrayType(10, StructType(listOf(TypeUtils.I32)))
-        val complexParam2 = ArrayType(10, StructType(listOf(TypeUtils.I32)))
-        val complexFunc1 = FunctionType(PointerType(TypeUtils.I32), listOf(complexParam1))
-        val complexFunc2 = FunctionType(PointerType(TypeUtils.I32), listOf(complexParam2))
-        
-        assertEquals(complexFunc1, complexFunc2, "Functions with complex equal parameters should be equal")
     }
 
     @Test
@@ -285,17 +277,13 @@ class TypeTest {
         assertEquals(i32Type1.hashCode(), i32Type2.hashCode(), "Equal types should have equal hash codes")
         assertNotEquals(i32Type1.hashCode(), i64Type.hashCode(), "Different types should have different hash codes")
         
-        // MIGRATION NOTE: This test validates legacy typed pointer hash codes
-        // After migration to un-typed pointers:
-        // - All pointers will have the same hash code
-        // - The second assertion will need to be updated to expect equal hash codes
-        // Test pointer types
-        val i32Ptr1 = PointerType(i32Type1)
-        val i32Ptr2 = PointerType(i32Type2)
-        val i64Ptr = PointerType(i64Type)
+        // Test with un-typed pointers (default mode)
+        val untypedPtr1 = Type.getPointerType(i32Type1)
+        val untypedPtr2 = Type.getPointerType(i32Type2)
+        val untypedPtr3 = Type.getPointerType(i64Type)
         
-        assertEquals(i32Ptr1.hashCode(), i32Ptr2.hashCode(), "Equal pointer types should have equal hash codes")
-        assertNotEquals(i32Ptr1.hashCode(), i64Ptr.hashCode(), "Different pointer types should have different hash codes")
+        assertEquals(untypedPtr1.hashCode(), untypedPtr2.hashCode(), "All un-typed pointers should have equal hash codes")
+        assertEquals(untypedPtr1.hashCode(), untypedPtr3.hashCode(), "All un-typed pointers should have equal hash codes regardless of element type")
         
         // Test function types
         val funcType1 = FunctionType(TypeUtils.I32, listOf(TypeUtils.I8, TypeUtils.I16))
@@ -353,25 +341,24 @@ class TypeTest {
     @Test
     @DisplayName("Structurally identical types should be equal")
     fun testStructurallyIdenticalTypes() {
-        // Create the same type structure in different ways
         val i32Type1 = IntegerType(32)
         val i32Type2 = IntegerType(32)
         
-        val structType1 = StructType(listOf(i32Type1, PointerType(i32Type1)))
-        val structType2 = StructType(listOf(i32Type2, PointerType(i32Type2)))
+        val structType1 = StructType(listOf(i32Type1, Type.getPointerType(i32Type1)))
+        val structType2 = StructType(listOf(i32Type2, Type.getPointerType(i32Type2)))
         
         assertEquals(structType1, structType2, "Structurally identical structs should be equal")
         assertEquals(structType1.hashCode(), structType2.hashCode(), "Structurally identical structs should have equal hash codes")
         
         // Test with more complex structures
         val complexType1 = FunctionType(
-            ArrayType(5, StructType(listOf(i32Type1, PointerType(i32Type1)))),
-            listOf(PointerType(FunctionType(i32Type1, listOf(i32Type1))))
+            ArrayType(5, StructType(listOf(i32Type1, Type.getPointerType(i32Type1)))),
+            listOf(Type.getPointerType(FunctionType(i32Type1, listOf(i32Type1))))
         )
         
         val complexType2 = FunctionType(
-            ArrayType(5, StructType(listOf(i32Type2, PointerType(i32Type2)))),
-            listOf(PointerType(FunctionType(i32Type2, listOf(i32Type2))))
+            ArrayType(5, StructType(listOf(i32Type2, Type.getPointerType(i32Type2)))),
+            listOf(Type.getPointerType(FunctionType(i32Type2, listOf(i32Type2))))
         )
         
         assertEquals(complexType1, complexType2, "Complex structurally identical types should be equal")
@@ -387,8 +374,8 @@ class TypeTest {
         // Test different primitive types
         assertNotEquals(i32Type, floatType, "Different primitive types should not be equal")
         
-        // Test different derived types
-        val i32Ptr = PointerType(i32Type)
+        // Test with un-typed pointers (default mode)
+        val i32Ptr = Type.getPointerType(i32Type)
         val i32Array = ArrayType(10, i32Type)
         val i32Struct = StructType(listOf(i32Type))
         val i32Func = FunctionType(i32Type, emptyList())

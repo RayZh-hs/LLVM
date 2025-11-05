@@ -72,13 +72,28 @@ class TypeCompatibilityTest {
         fun testDerivedTypesFirstClass() {
             val i32Type = TypeUtils.I32
             
-            // MIGRATION NOTE: This test validates legacy typed pointer classification
-            // After migration to un-typed pointers:
-            // - UntypedPointerType should still be first-class
-            // - Test should continue to pass with un-typed pointers
-            // Pointer types
-            val ptrType = PointerType(i32Type)
-            assertTrue(TypeUtils.isFirstClassType(ptrType), "pointer types should be first-class")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
+            
+            try {
+                // Pointer types
+                val ptrType = Type.getPointerType(i32Type)
+                assertTrue(TypeUtils.isFirstClassType(ptrType), "un-typed pointer types should be first-class")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                // Pointer types
+                val ptrType = Type.getPointerType(i32Type)
+                assertTrue(TypeUtils.isFirstClassType(ptrType), "typed pointer types should be first-class")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
             // Function types
             val funcType = FunctionType(i32Type, listOf(i32Type))
@@ -117,18 +132,38 @@ class TypeCompatibilityTest {
         @Test
         @DisplayName("Pointer types should be single value types")
         fun testPointerSingleValueTypes() {
-            // MIGRATION NOTE: This test validates legacy typed pointer classification
-            // After migration to un-typed pointers:
-            // - UntypedPointerType should still be single value type
-            // - Test should continue to pass with un-typed pointers
-            val i32Ptr = PointerType(TypeUtils.I32)
-            assertTrue(TypeUtils.isSingleValueType(i32Ptr), "i32* should be single value")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
             
-            val floatPtr = PointerType(TypeUtils.FLOAT)
-            assertTrue(TypeUtils.isSingleValueType(floatPtr), "float* should be single value")
+            try {
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertTrue(TypeUtils.isSingleValueType(i32Ptr), "un-typed i32 ptr should be single value")
+                
+                val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+                assertTrue(TypeUtils.isSingleValueType(floatPtr), "un-typed float ptr should be single value")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertTrue(TypeUtils.isSingleValueType(voidPtr), "un-typed void ptr should be single value")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
-            val voidPtr = PointerType(TypeUtils.VOID)
-            assertTrue(TypeUtils.isSingleValueType(voidPtr), "void* should be single value")
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertTrue(TypeUtils.isSingleValueType(i32Ptr), "typed i32* should be single value")
+                
+                val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+                assertTrue(TypeUtils.isSingleValueType(floatPtr), "typed float* should be single value")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertTrue(TypeUtils.isSingleValueType(voidPtr), "typed void* should be single value")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
         }
 
         @Test
@@ -198,13 +233,28 @@ class TypeCompatibilityTest {
             assertFalse(TypeUtils.isAggregateType(TypeUtils.FLOAT), "float should not be aggregate")
             assertFalse(TypeUtils.isAggregateType(TypeUtils.VOID), "void should not be aggregate")
             
-            // MIGRATION NOTE: This test validates legacy typed pointer classification
-            // After migration to un-typed pointers:
-            // - UntypedPointerType should still not be aggregate type
-            // - Test should continue to pass with un-typed pointers
-            // Derived types (except array and struct)
-            val ptrType = PointerType(TypeUtils.I32)
-            assertFalse(TypeUtils.isAggregateType(ptrType), "pointer should not be aggregate")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
+            
+            try {
+                // Derived types (except array and struct)
+                val ptrType = Type.getPointerType(TypeUtils.I32)
+                assertFalse(TypeUtils.isAggregateType(ptrType), "un-typed pointer should not be aggregate")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                // Derived types (except array and struct)
+                val ptrType = Type.getPointerType(TypeUtils.I32)
+                assertFalse(TypeUtils.isAggregateType(ptrType), "typed pointer should not be aggregate")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
             val funcType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I32))
             assertFalse(TypeUtils.isAggregateType(funcType), "function should not be aggregate")
@@ -229,8 +279,26 @@ class TypeCompatibilityTest {
             assertFalse(TypeUtils.isIntegerType(TypeUtils.DOUBLE), "double should not be integer")
             assertFalse(TypeUtils.isIntegerType(TypeUtils.VOID), "void should not be integer")
             
-            val ptrType = PointerType(TypeUtils.I32)
-            assertFalse(TypeUtils.isIntegerType(ptrType), "pointer should not be integer")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
+            
+            try {
+                val ptrType = Type.getPointerType(TypeUtils.I32)
+                assertFalse(TypeUtils.isIntegerType(ptrType), "un-typed pointer should not be integer")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                val ptrType = Type.getPointerType(TypeUtils.I32)
+                assertFalse(TypeUtils.isIntegerType(ptrType), "typed pointer should not be integer")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
         }
 
         @Test
@@ -242,28 +310,69 @@ class TypeCompatibilityTest {
             assertFalse(TypeUtils.isFloatingPointType(TypeUtils.I32), "i32 should not be floating-point")
             assertFalse(TypeUtils.isFloatingPointType(TypeUtils.VOID), "void should not be floating-point")
             
-            val ptrType = PointerType(TypeUtils.FLOAT)
-            assertFalse(TypeUtils.isFloatingPointType(ptrType), "pointer should not be floating-point")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
+            
+            try {
+                val ptrType = Type.getPointerType(TypeUtils.FLOAT)
+                assertFalse(TypeUtils.isFloatingPointType(ptrType), "un-typed pointer should not be floating-point")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                val ptrType = Type.getPointerType(TypeUtils.FLOAT)
+                assertFalse(TypeUtils.isFloatingPointType(ptrType), "typed pointer should not be floating-point")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
         }
 
         @Test
         @DisplayName("Pointer type classification should work correctly")
         fun testPointerTypeClassification() {
-            // MIGRATION NOTE: This test validates legacy typed pointer classification
-            // After migration to un-typed pointers:
-            // - isPointerTy should work with UntypedPointerType
-            // - Test should continue to pass with un-typed pointers
-            val i32Ptr = PointerType(TypeUtils.I32)
-            assertTrue(TypeUtils.isPointerTy(i32Ptr), "i32* should be pointer")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
             
-            val floatPtr = PointerType(TypeUtils.FLOAT)
-            assertTrue(TypeUtils.isPointerTy(floatPtr), "float* should be pointer")
+            try {
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertTrue(TypeUtils.isPointerTy(i32Ptr), "un-typed i32 ptr should be pointer")
+                
+                val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+                assertTrue(TypeUtils.isPointerTy(floatPtr), "un-typed float ptr should be pointer")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertTrue(TypeUtils.isPointerTy(voidPtr), "un-typed void ptr should be pointer")
+                
+                val funcPtr = Type.getPointerType(FunctionType(TypeUtils.I32, emptyList()))
+                assertTrue(TypeUtils.isPointerTy(funcPtr), "un-typed function ptr should be pointer")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
-            val voidPtr = PointerType(TypeUtils.VOID)
-            assertTrue(TypeUtils.isPointerTy(voidPtr), "void* should be pointer")
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
             
-            val funcPtr = PointerType(FunctionType(TypeUtils.I32, emptyList()))
-            assertTrue(TypeUtils.isPointerTy(funcPtr), "function pointer should be pointer")
+            try {
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertTrue(TypeUtils.isPointerTy(i32Ptr), "typed i32* should be pointer")
+                
+                val floatPtr = Type.getPointerType(TypeUtils.FLOAT)
+                assertTrue(TypeUtils.isPointerTy(floatPtr), "typed float* should be pointer")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertTrue(TypeUtils.isPointerTy(voidPtr), "typed void* should be pointer")
+                
+                val funcPtr = Type.getPointerType(FunctionType(TypeUtils.I32, emptyList()))
+                assertTrue(TypeUtils.isPointerTy(funcPtr), "typed function ptr should be pointer")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
             assertFalse(TypeUtils.isPointerTy(TypeUtils.I32), "i32 should not be pointer")
             assertFalse(TypeUtils.isPointerTy(TypeUtils.VOID), "void should not be pointer")
@@ -284,16 +393,34 @@ class TypeCompatibilityTest {
             val floatArray = ArrayType(5, TypeUtils.FLOAT)
             assertEquals(TypeUtils.FLOAT, TypeUtils.getElementType(floatArray), "Array element type should be correct")
             
-            // MIGRATION NOTE: This test validates legacy typed pointer element type extraction
-            // After migration to un-typed pointers:
-            // - getElementType will return null for un-typed pointers
-            // - These assertions will need to be updated to expect null
-            // Pointer types
-            val i32Ptr = PointerType(TypeUtils.I32)
-            assertEquals(TypeUtils.I32, TypeUtils.getElementType(i32Ptr), "Pointer element type should be correct")
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
             
-            val voidPtr = PointerType(TypeUtils.VOID)
-            assertEquals(TypeUtils.VOID, TypeUtils.getElementType(voidPtr), "Pointer element type should be correct")
+            try {
+                // Pointer types
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertNull(TypeUtils.getElementType(i32Ptr), "Un-typed pointer element type should be null")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertNull(TypeUtils.getElementType(voidPtr), "Un-typed pointer element type should be null")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                // Pointer types
+                val i32Ptr = Type.getPointerType(TypeUtils.I32)
+                assertEquals(TypeUtils.I32, TypeUtils.getElementType(i32Ptr), "Typed pointer element type should be correct")
+                
+                val voidPtr = Type.getPointerType(TypeUtils.VOID)
+                assertEquals(TypeUtils.VOID, TypeUtils.getElementType(voidPtr), "Typed pointer element type should be correct")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
             
             // Non-applicable types
             assertNull(TypeUtils.getElementType(TypeUtils.I32), "Non-array/pointer should return null")
@@ -342,7 +469,25 @@ class TypeCompatibilityTest {
             
             // Non-function types
             assertNull(TypeUtils.getFunctionParamType(TypeUtils.I32, 0), "Non-function should return null")
-            assertNull(TypeUtils.getFunctionParamType(PointerType(TypeUtils.I32), 0), "Pointer should return null")
+            
+            // Test with un-typed pointers (default mode)
+            val originalUseTypedPointers = Type.useTypedPointers
+            Type.useTypedPointers = false
+            
+            try {
+                assertNull(TypeUtils.getFunctionParamType(Type.getPointerType(TypeUtils.I32), 0), "Un-typed pointer should return null")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
+            
+            // Test with typed pointers (legacy mode)
+            Type.useTypedPointers = true
+            
+            try {
+                assertNull(TypeUtils.getFunctionParamType(Type.getPointerType(TypeUtils.I32), 0), "Typed pointer should return null")
+            } finally {
+                Type.useTypedPointers = originalUseTypedPointers
+            }
         }
     }
 

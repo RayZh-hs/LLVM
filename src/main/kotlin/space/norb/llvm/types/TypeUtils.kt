@@ -86,10 +86,19 @@ object TypeUtils {
     /**
      * Checks if a type is a pointer type.
      *
+     * This method works with both typed and un-typed pointers based on the migration flag.
+     * In un-typed mode, it checks for UntypedPointerType.
+     * In typed mode, it checks for PointerType.
+     *
      * @param type The type to check
      * @return true if the type is a pointer type, false otherwise
      */
-    fun isPointerTy(type: Type): Boolean = type.isPointerType()
+    fun isPointerTy(type: Type): Boolean {
+        return when (type) {
+            is PointerType, UntypedPointerType -> true
+            else -> false
+        }
+    }
     
     // ==================== Type Size and Alignment Utilities ====================
     
@@ -105,6 +114,10 @@ object TypeUtils {
      * Returns the size in bits for scalar types.
      * Scalar types include integers, floating-point types, and pointers.
      *
+     * For pointer types, this method returns the pointer size based on the migration flag.
+     * In un-typed mode, it returns 64 bits for UntypedPointerType.
+     * In typed mode, it returns 64 bits for PointerType.
+     *
      * @param type The type to get the size for
      * @return The size in bits, or null if not a scalar type
      */
@@ -112,8 +125,15 @@ object TypeUtils {
         return when (type) {
             is IntegerType -> type.bitWidth
             is FloatingPointType -> type.getPrimitiveSizeInBits()
-            is PointerType -> 64 // Assume 64-bit pointers
-            UntypedPointerType -> 64 // Assume 64-bit pointers
+            is PointerType -> {
+                // For typed pointers, return standard pointer size
+                // This maintains consistency with un-typed pointers
+                64 // Assume 64-bit pointers
+            }
+            UntypedPointerType -> {
+                // For un-typed pointers, return standard pointer size
+                64 // Assume 64-bit pointers
+            }
             else -> null
         }
     }
@@ -123,14 +143,27 @@ object TypeUtils {
     /**
      * Returns the element type for array, pointer, and vector types.
      *
+     * For pointer types, this method handles both typed and un-typed pointers:
+     * - For typed pointers (PointerType), returns the pointee type
+     * - For un-typed pointers (UntypedPointerType), returns null as there's no element type information
+     *
+     * This method respects the migration flag and works correctly in both modes.
+     *
      * @param type The type to get the element type for
      * @return The element type, or null if not applicable
      */
     fun getElementType(type: Type): Type? {
         return when (type) {
             is ArrayType -> type.elementType
-            is PointerType -> type.pointeeType
-            UntypedPointerType -> null // Un-typed pointers don't have element type
+            is PointerType -> {
+                // For typed pointers, return the pointee type
+                type.pointeeType
+            }
+            UntypedPointerType -> {
+                // For un-typed pointers, there's no element type information
+                // This is the key difference in the new LLVM IR model
+                null
+            }
             else -> null
         }
     }
@@ -171,6 +204,11 @@ object TypeUtils {
     /**
      * Checks if two types can be bitcast without loss of information.
      *
+     * This method has been updated to handle un-typed pointers correctly:
+     * - All pointer types (typed and un-typed) can be bitcast to each other
+     * - In un-typed mode, all pointers are equivalent for bitcasting purposes
+     * - In typed mode, pointer bitcasting rules are maintained for compatibility
+     *
      * @param typeA The first type
      * @param typeB The second type
      * @return true if the types can be bitcast without loss, false otherwise
@@ -179,9 +217,13 @@ object TypeUtils {
         // Same types can always be bitcast
         if (typeA == typeB) return true
         
+        // Check if both types are pointers (typed or un-typed)
+        val isAPointer = typeA is PointerType || typeA == UntypedPointerType
+        val isBPointer = typeB is PointerType || typeB == UntypedPointerType
+        
         // Pointers to pointers of any type can be bitcast
-        if ((typeA is PointerType || typeA == UntypedPointerType) &&
-            (typeB is PointerType || typeB == UntypedPointerType)) return true
+        // This works for both typed and un-typed pointers
+        if (isAPointer && isBPointer) return true
         
         val sizeA = getPrimitiveSizeInBits(typeA)
         val sizeB = getPrimitiveSizeInBits(typeB)
@@ -248,5 +290,142 @@ object TypeUtils {
         
         // No common type found
         return null
+    }
+    
+    // ==================== Pointer Migration Utilities ====================
+    
+    /**
+     * Converts a typed pointer to an un-typed pointer.
+     *
+     * This utility helps migrate from typed to un-typed pointers.
+     * If already in un-typed mode, returns the input type.
+     *
+     * @param typedPointerType The typed pointer type to convert
+     * @return The un-typed pointer type
+     */
+    fun toUntypedPointer(typedPointerType: Type): Type {
+        require(typedPointerType.isPointerType()) { "Type must be a pointer type" }
+        
+        return if (Type.useTypedPointers) {
+            // Legacy mode: convert to un-typed
+            UntypedPointerType
+        } else {
+            // Already in un-typed mode
+            typedPointerType
+        }
+    }
+    
+    /**
+     * Converts an un-typed pointer to a typed pointer.
+     *
+     * This utility helps maintain compatibility during migration.
+     * If already in typed mode, returns the input type.
+     *
+     * @param untypedPointerType The un-typed pointer type
+     * @param elementType The element type for the typed pointer
+     * @return The typed pointer type
+     */
+    fun toTypedPointer(untypedPointerType: Type, elementType: Type): Type {
+        require(untypedPointerType.isPointerType()) { "Type must be a pointer type" }
+        
+        return if (Type.useTypedPointers) {
+            // Legacy mode: convert to typed
+            PointerType(elementType)
+        } else {
+            // Already in un-typed mode
+            untypedPointerType
+        }
+    }
+    
+    /**
+     * Checks if two pointer types are equivalent for the purposes of operations.
+     *
+     * In un-typed mode, all pointer types are equivalent.
+     * In typed mode, pointer types are equivalent only if they have the same pointee type.
+     *
+     * @param typeA The first pointer type
+     * @param typeB The second pointer type
+     * @return true if the types are equivalent for operations
+     */
+    fun arePointersEquivalent(typeA: Type, typeB: Type): Boolean {
+        require(typeA.isPointerType()) { "Type A must be a pointer type" }
+        require(typeB.isPointerType()) { "Type B must be a pointer type" }
+        
+        return if (Type.useTypedPointers) {
+            // Legacy mode: check if pointee types are the same
+            when {
+                typeA is PointerType && typeB is PointerType -> typeA.pointeeType == typeB.pointeeType
+                else -> typeA == typeB
+            }
+        } else {
+            // New mode: all un-typed pointers are equivalent
+            true
+        }
+    }
+    
+    /**
+     * Gets the element type for a pointer, handling both typed and un-typed pointers.
+     *
+     * For typed pointers, returns the pointee type.
+     * For un-typed pointers, returns null as there's no element type information.
+     *
+     * @param pointerType The pointer type
+     * @return The element type, or null for un-typed pointers
+     */
+    fun getPointerTypeElement(pointerType: Type): Type? {
+        require(pointerType.isPointerType()) { "Type must be a pointer type" }
+        
+        return when (pointerType) {
+            is PointerType -> pointerType.pointeeType
+            UntypedPointerType -> null
+            else -> null
+        }
+    }
+    
+    /**
+     * Creates a pointer type that can be used in GEP operations.
+     *
+     * For GEP operations, we need to ensure we have the right pointer type
+     * based on the migration mode and the element type being accessed.
+     *
+     * @param elementType The element type being accessed
+     * @return The appropriate pointer type for GEP operations
+     */
+    fun createGEPPointerType(elementType: Type): Type {
+        return if (Type.useTypedPointers) {
+            // Legacy mode: create typed pointer
+            PointerType(elementType)
+        } else {
+            // New mode: use un-typed pointer
+            UntypedPointerType
+        }
+    }
+    
+    /**
+     * Checks if a pointer type contains element type information.
+     *
+     * @param pointerType The pointer type to check
+     * @return true if the pointer type contains element type information
+     */
+    fun hasElementType(pointerType: Type): Boolean {
+        require(pointerType.isPointerType()) { "Type must be a pointer type" }
+        
+        return when (pointerType) {
+            is PointerType -> true
+            UntypedPointerType -> false
+            else -> false
+        }
+    }
+    
+    /**
+     * Creates a pointer type with the specified element type, respecting migration flag.
+     *
+     * This is a convenience method that centralizes pointer type creation logic.
+     *
+     * @param elementType The element type
+     * @return The appropriate pointer type (typed or un-typed based on migration flag)
+     */
+    fun createPointerType(elementType: Type): Type {
+        return Type.getPointerType(elementType)
     }
 }

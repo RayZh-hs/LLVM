@@ -4,6 +4,7 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.base.MemoryInst
 import space.norb.llvm.visitors.IRVisitor
+import space.norb.llvm.types.UntypedPointerType
 
 /**
  * Stack memory allocation instruction.
@@ -51,8 +52,25 @@ import space.norb.llvm.visitors.IRVisitor
  */
 class AllocaInst(
     name: String,
-    type: Type,
+    allocatedType: Type,
     arraySize: Value? = null
-) : MemoryInst(name, type, if (arraySize != null) listOf(arraySize) else emptyList()) {
+) : MemoryInst(name,
+    if (Type.useTypedPointers) Type.getPointerType(allocatedType) else UntypedPointerType,
+    if (arraySize != null) listOf(arraySize) else emptyList()) {
+    
+    /**
+     * The type of memory being allocated.
+     * This is preserved for type information even when using un-typed pointers.
+     */
+    val allocatedType: Type = allocatedType
+    
+    /**
+     * The pointer type returned by this alloca instruction.
+     * In un-typed mode, this will be UntypedPointerType.
+     * In typed mode (legacy), this will be a typed pointer.
+     */
+    val resultType: Type
+        get() = if (Type.useTypedPointers) Type.getPointerType(allocatedType) else UntypedPointerType
+    
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitAllocaInst(this)
 }

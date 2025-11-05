@@ -72,25 +72,49 @@ class IRBuilder(val module: Module) {
     }
     
     // Memory operations
-    fun buildAlloca(type: Type, name: String = ""): AllocaInst {
-        return AllocaInst(if (name.isEmpty()) "alloca" else name, type)
+    fun buildAlloca(allocatedType: Type, name: String = ""): AllocaInst {
+        return AllocaInst(if (name.isEmpty()) "alloca" else name, allocatedType)
     }
     
-    fun buildLoad(address: Value, name: String = ""): LoadInst {
-        // Load instruction returns the type of the pointed-to value, not the pointer type
-        val elementType = when {
-            address.type is PointerType -> (address.type as PointerType).pointeeType
-            else -> VoidType // Fallback
-        }
-        return LoadInst(if (name.isEmpty()) "load" else name, elementType, address)
+    fun buildLoad(loadedType: Type, address: Value, name: String = ""): LoadInst {
+        return LoadInst(if (name.isEmpty()) "load" else name, loadedType, address)
     }
     
     fun buildStore(value: Value, address: Value): StoreInst {
-        return StoreInst("store", VoidType, value, address)
+        return StoreInst("store", value.type, value, address)
+    }
+    
+    fun buildGep(elementType: Type, address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
+        return GetElementPtrInst(if (name.isEmpty()) "gep" else name, elementType, address, indices)
+    }
+    
+    // Convenience methods for backward compatibility
+    fun buildLoad(address: Value, name: String = ""): LoadInst {
+        // Try to infer the loaded type from the pointer type (legacy mode)
+        val loadedType = when {
+            Type.useTypedPointers && address.type is PointerType -> {
+                (address.type as PointerType).pointeeType
+            }
+            else -> {
+                // In un-typed mode, we can't infer the type, so caller must use buildLoad(loadedType, address)
+                throw IllegalArgumentException("In un-typed pointer mode, loaded type must be explicitly specified. Use buildLoad(loadedType, address) instead.")
+            }
+        }
+        return buildLoad(loadedType, address, name)
     }
     
     fun buildGep(address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
-        return GetElementPtrInst(if (name.isEmpty()) "gep" else name, address.type, address, indices)
+        // Try to infer the element type from the pointer type (legacy mode)
+        val elementType = when {
+            Type.useTypedPointers && address.type is PointerType -> {
+                (address.type as PointerType).pointeeType
+            }
+            else -> {
+                // In un-typed mode, we can't infer the type, so caller must use buildGep(elementType, address, indices)
+                throw IllegalArgumentException("In un-typed pointer mode, element type must be explicitly specified. Use buildGep(elementType, address, indices) instead.")
+            }
+        }
+        return buildGep(elementType, address, indices, name)
     }
     
     // Other operations

@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.0")
 }
 
 tasks.test {

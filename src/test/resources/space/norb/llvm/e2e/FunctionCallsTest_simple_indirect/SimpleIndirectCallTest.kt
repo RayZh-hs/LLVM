@@ -25,7 +25,8 @@ object SimpleIndirectCallTest {
         // Create a helper function: i32 @subtract(i32 %a, i32 %b)
         val subtractFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("a", "b")
         )
         val subtractFunction = builder.createFunction("subtract", subtractFunctionType)
         module.functions.add(subtractFunction)

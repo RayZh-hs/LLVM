@@ -97,6 +97,29 @@ class IRBuilder(val module: Module) {
         return Function(name, type, module)
     }
     
+    /**
+     * Create a function with custom parameter names.
+     * This overload merges the parameter names into the type and delegates to the constructor.
+     */
+    fun createFunction(name: String, type: FunctionType, paramNames: List<String>): Function {
+        val updatedType = type.copy(paramNames = paramNames)
+        return Function(name, updatedType, module)
+    }
+    
+    /**
+     * Convenience overload to create a function with return type, parameter types, and optional parameter names.
+     */
+    fun createFunction(
+        name: String,
+        returnType: Type,
+        paramTypes: List<Type>,
+        paramNames: List<String>? = null,
+        isVarArg: Boolean = false
+    ): Function {
+        val functionType = FunctionType(returnType, paramTypes, isVarArg, paramNames)
+        return Function(name, functionType, module)
+    }
+    
     fun createBasicBlock(name: String, function: Function): BasicBlock {
         return BasicBlock(name, function)
     }

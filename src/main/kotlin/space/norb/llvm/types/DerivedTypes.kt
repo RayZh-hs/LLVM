@@ -45,7 +45,8 @@ object PointerType : Type() {
 data class FunctionType(
     val returnType: Type,
     val paramTypes: List<Type>,
-    val isVarArg: Boolean = false
+    val isVarArg: Boolean = false,
+    val paramNames: List<String>? = null
 ) : Type() {
     override fun toString(): String {
         val params = paramTypes.joinToString(", ") { it.toString() }
@@ -63,6 +64,14 @@ data class FunctionType(
     override fun isArrayType(): Boolean = false
     override fun isStructType(): Boolean = false
     override fun getPrimitiveSizeInBits(): Int? = null
+    
+    /**
+     * Get the parameter name at the specified index.
+     * Falls back to "arg$index" when no custom name is provided.
+     */
+    fun getParameterName(index: Int): String {
+        return paramNames?.getOrNull(index) ?: "arg$index"
+    }
 }
 
 data class ArrayType(val numElements: Int, val elementType: Type) : Type() {

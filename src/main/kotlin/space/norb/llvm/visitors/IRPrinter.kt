@@ -68,6 +68,9 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitModule(module: Module) {
         output.appendLine("; Module: ${module.name}")
+        // Print global variables first
+        module.globalVariables.forEach { visitGlobalVariable(it) }
+        // Then print functions
         module.functions.forEach { visitFunction(it) }
     }
     
@@ -119,12 +122,35 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable) {
-        val typeStr = if (globalVariable.type.isPointerType()) {
-            "ptr" // Use un-typed pointer syntax
-        } else {
-            globalVariable.type.toString()
+        val linkageStr = when (globalVariable.linkage.name) {
+            "EXTERNAL" -> "external "
+            else -> "${globalVariable.linkage.name.lowercase()} "
         }
-        output.append("@${globalVariable.name} = global $typeStr")
+        
+        val constantStr = if (globalVariable.isConstant()) {
+            "constant "
+        } else {
+            ""
+        }
+        
+        // Use element type if available, otherwise use pointer type
+        val typeStr = globalVariable.elementType?.toString() ?: globalVariable.type.toString()
+        
+        val initializerStr = if (globalVariable.hasInitializer()) {
+            " ${formatValueName(globalVariable.initializer!!)}"
+        } else {
+            // Both external and non-external globals without initializers use zeroinitializer
+            " zeroinitializer"
+        }
+        
+        // Include "global" keyword for all non-constant globals, including external ones
+        val globalKeyword = if (!globalVariable.isConstant()) {
+            "global "
+        } else {
+            ""
+        }
+        
+        output.appendLine("@${globalVariable.name} = ${linkageStr}${constantStr}${globalKeyword}${typeStr}${initializerStr}")
     }
     
     override fun visitConstant(constant: Constant) {
@@ -139,7 +165,7 @@ class IRPrinter : IRVisitor<Unit> {
         val operands = inst.getOperandsList()
         val value = operands.firstOrNull()
         if (value != null) {
-            output.appendLine("${indent()}ret ${value.type} %${value.name}")
+            output.appendLine("${indent()}ret ${value.type} ${formatValueName(value)}")
         } else {
             output.appendLine("${indent()}ret void")
         }
@@ -172,7 +198,7 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitAddInst(inst: AddInst) {
-        output.appendLine("${indent()}%${inst.name} = add ${inst.lhs.type} %${inst.lhs.name}, %${inst.rhs.name}")
+        output.appendLine("${indent()}%${inst.name} = add ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
     override fun visitSubInst(inst: SubInst) {
@@ -256,17 +282,48 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             inst.type.toString()
         }
-        output.appendLine("${indent()}%${inst.name} = bitcast ${inst.value.type} ${formatValueName(inst.value)} to $targetTypeStr")
+        
+        val sourceTypeStr = if (inst.value is space.norb.llvm.structure.Function) {
+            // For function values, print the function type with * to indicate function pointer
+            "${inst.value.type}*"
+        } else {
+            inst.value.type.toString()
+        }
+        
+        val sourceValueName = if (inst.value is space.norb.llvm.structure.Function) {
+            "@${inst.value.name}"
+        } else {
+            formatValueName(inst.value)
+        }
+        
+        output.appendLine("${indent()}%${inst.name} = bitcast $sourceTypeStr $sourceValueName to $targetTypeStr")
     }
     
     override fun visitCallInst(inst: CallInst) {
-        val operands = inst.getOperandsList()
-        val calleeTypeStr = if (operands.first().type.isPointerType()) {
+        val callee = inst.callee
+        val arguments = inst.arguments
+        
+        // Format the return type
+        val returnTypeStr = if (inst.type.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
         } else {
-            operands.first().type.toString()
+            inst.type.toString()
         }
-        output.appendLine("${indent()}%${inst.name} = call $calleeTypeStr ${formatValueName(operands.first())}()")
+        
+        // Format arguments with their types
+        val argsStr = arguments.joinToString(", ") { arg ->
+            val argTypeStr = if (arg.type.isPointerType()) {
+                "ptr" // Use un-typed pointer syntax
+            } else {
+                arg.type.toString()
+            }
+            "$argTypeStr ${formatValueName(arg)}"
+        }
+        
+        // Format the callee name (will use @ for direct functions, % for indirect)
+        val calleeName = formatValueName(callee)
+        
+        output.appendLine("${indent()}%${inst.name} = call $returnTypeStr $calleeName($argsStr)")
     }
     
     override fun visitICmpInst(inst: ICmpInst) {
@@ -324,14 +381,30 @@ class IRPrinter : IRVisitor<Unit> {
     
     private fun formatValueName(value: Value): String {
         return when {
+            value is space.norb.llvm.structure.Function -> {
+                // Direct function calls should use @ prefix
+                "@${value.name}"
+            }
             value is Constant -> {
                 when (value) {
-                    is space.norb.llvm.values.constants.IntConstant -> value.value.toString()
+                    is space.norb.llvm.values.constants.IntConstant -> {
+                        if (value.isUnsigned && value.value < 0) {
+                            // Convert negative Long to unsigned representation
+                            val unsignedValue = value.value.toULong()
+                            unsignedValue.toString()
+                        } else {
+                            value.value.toString()
+                        }
+                    }
                     is space.norb.llvm.values.constants.FloatConstant -> {
                         // Format floating point constants in LLVM IR format
                         formatFloatConstant(value)
                     }
-                    else -> value.toString() // Fallback for other constant types
+                    is space.norb.llvm.values.globals.GlobalVariable -> "@${value.name}"
+                    else -> {
+                        // For other constants, if they have a name use it, otherwise use toString
+                        if (value.name.isNotEmpty()) "%${value.name}" else value.toString()
+                    }
                 }
             }
             value.name.isNotEmpty() -> "%${value.name}"

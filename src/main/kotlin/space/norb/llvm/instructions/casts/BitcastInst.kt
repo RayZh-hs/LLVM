@@ -36,21 +36,27 @@ class BitcastInst(
 ) : CastInst(name, type, value) {
     
     init {
-        // Get the size of both types
-        val srcSize = value.type.getPrimitiveSizeInBits()
-        val dstSize = type.getPrimitiveSizeInBits()
-        
-        // Validate that both types have a size
-        if (srcSize == null) {
-            throw IllegalArgumentException("BitcastInst source type must have a defined size, got ${value.type}")
-        }
-        if (dstSize == null) {
-            throw IllegalArgumentException("BitcastInst destination type must have a defined size, got $type")
-        }
-        
-        // Validate that both types have the same size
-        if (srcSize != dstSize) {
-            throw IllegalArgumentException("BitcastInst source and destination types must have the same size: source ($srcSize bits) != destination ($dstSize bits)")
+        // Special handling for function-to-pointer casts
+        if (value.type.isFunctionType() && type.isPointerType()) {
+            // Function to pointer casts are allowed and don't need size validation
+            // Skip the rest of the validation
+        } else {
+            // Get size of both types
+            val srcSize = value.type.getPrimitiveSizeInBits()
+            val dstSize = type.getPrimitiveSizeInBits()
+            
+            // Validate that both types have a size
+            if (srcSize == null) {
+                throw IllegalArgumentException("BitcastInst source type must have a defined size, got ${value.type}")
+            }
+            if (dstSize == null) {
+                throw IllegalArgumentException("BitcastInst destination type must have a defined size, got $type")
+            }
+            
+            // Validate that both types have the same size
+            if (srcSize != dstSize) {
+                throw IllegalArgumentException("BitcastInst source and destination types must have the same size: source ($srcSize bits) != destination ($dstSize bits)")
+            }
         }
     }
     

@@ -24,7 +24,8 @@ object ComplexDirectCallTest {
         // Create a helper function: i32 @multiply(i32 %a, i32 %b)
         val multiplyFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("a", "b")
         )
         val multiplyFunction = builder.createFunction("multiply", multiplyFunctionType)
         module.functions.add(multiplyFunction)
@@ -44,7 +45,8 @@ object ComplexDirectCallTest {
         // Create another helper function: i32 @calculate(i32 %x, i32 %y, i32 %z)
         val calculateFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("x", "y", "z")
         )
         val calculateFunction = builder.createFunction("calculate", calculateFunctionType)
         module.functions.add(calculateFunction)

@@ -8,8 +8,10 @@ import space.norb.llvm.types.IntegerType
  */
 data class IntConstant(
     val value: Long,
-    override val type: IntegerType
-) : Constant(value.toString(), type) {
+    override val type: IntegerType,
+    val isUnsigned: Boolean = false,
+    override val name: String = value.toString()
+) : Constant(name, type) {
     
     /**
      * Checks if this integer constant is null.

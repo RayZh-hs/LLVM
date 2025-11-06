@@ -54,6 +54,8 @@ class DynamicEndToEndTest {
                     appendLine("Failed to execute buildIR for '${testCase.name}'")
                     appendLine("Source: ${testCase.source}")
                     appendLine("Reason: ${ex.message}")
+                    appendLine("Exception: ${ex::class.simpleName}")
+                    appendLine("Stack trace: ${ex.stackTraceToString()}")
                 }
             )
         }

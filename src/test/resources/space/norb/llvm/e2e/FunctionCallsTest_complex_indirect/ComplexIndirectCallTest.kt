@@ -26,7 +26,8 @@ object ComplexIndirectCallTest {
         // Create helper function 1: i32 @add(i32 %a, i32 %b)
         val addFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("a", "b")
         )
         val addFunction = builder.createFunction("add", addFunctionType)
         module.functions.add(addFunction)
@@ -46,7 +47,8 @@ object ComplexIndirectCallTest {
         // Create helper function 2: i32 @multiply(i32 %a, i32 %b)
         val multiplyFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("a", "b")
         )
         val multiplyFunction = builder.createFunction("multiply", multiplyFunctionType)
         module.functions.add(multiplyFunction)
@@ -97,10 +99,10 @@ object ComplexIndirectCallTest {
         
         // Multiply block
         builder.positionAtEnd(mulBlock)
-        val mulFuncPtr = builder.buildBitcast(multiplyFunction, PointerType, "func_ptr")
+        val mulFuncPtr = builder.buildBitcast(multiplyFunction, PointerType, "func_ptr1")
         val const4 = BuilderUtils.getIntConstant(4, IntegerType.I32)
         val const6 = BuilderUtils.getIntConstant(6, IntegerType.I32)
-        val mulCallResult = builder.buildIndirectCall(mulFuncPtr, listOf(const4, const6), IntegerType.I32, "call_result")
+        val mulCallResult = builder.buildIndirectCall(mulFuncPtr, listOf(const4, const6), IntegerType.I32, "call_result2")
         builder.buildBr(mergeBlock)
         
         // Merge block

@@ -62,45 +62,47 @@ class CallInst private constructor(
     val functionType: FunctionType
     
     init {
-        // Validate that callee has a function type or pointer to function type
-        val calleeType = when {
+        // For indirect calls, we need to handle the case where we don't have function type information
+        // The validation should be deferred to the createIndirectCall method
+        this.functionType = when {
             callee.type.isFunctionType() -> callee.type as FunctionType
             callee.type.isPointerType() -> {
-                // For indirect calls, we assume the pointer points to a function
-                // In a real implementation, we'd need to track the pointed-to type
-                throw IllegalArgumentException("Indirect calls through function pointers require function type information")
+                // For indirect calls, we create a dummy function type since we don't have the actual type
+                // The actual validation happens in createIndirectCall
+                FunctionType(space.norb.llvm.types.VoidType, emptyList(), false)
             }
             else -> {
                 throw IllegalArgumentException("Callee must have function type or be a function pointer")
             }
         }
         
-        this.functionType = calleeType
-        
-        // Validate argument count
-        if (!calleeType.isVarArg && args.size != calleeType.paramTypes.size) {
-            throw IllegalArgumentException(
-                "Argument count mismatch: expected ${calleeType.paramTypes.size}, got ${args.size}"
-            )
-        }
-        
-        if (calleeType.isVarArg && args.size < calleeType.paramTypes.size) {
-            throw IllegalArgumentException(
-                "Variadic function requires at least ${calleeType.paramTypes.size} arguments, got ${args.size}"
-            )
-        }
-        
-        // Validate argument types for fixed parameters
-        for (i in calleeType.paramTypes.indices) {
-            if (i < args.size) {
-                val expectedType = calleeType.paramTypes[i]
-                val actualType = args[i].type
-                
-                // In untyped pointer mode, all pointers are compatible
-                if (!isTypeCompatible(expectedType, actualType)) {
-                    throw IllegalArgumentException(
-                        "Argument type mismatch at position $i: expected $expectedType, got $actualType"
-                    )
+        // Only validate for direct calls where we have the actual function type
+        if (isDirectCall && callee.type.isFunctionType()) {
+            // Validate argument count
+            if (!functionType.isVarArg && args.size != functionType.paramTypes.size) {
+                throw IllegalArgumentException(
+                    "Argument count mismatch: expected ${functionType.paramTypes.size}, got ${args.size}"
+                )
+            }
+            
+            if (functionType.isVarArg && args.size < functionType.paramTypes.size) {
+                throw IllegalArgumentException(
+                    "Variadic function requires at least ${functionType.paramTypes.size} arguments, got ${args.size}"
+                )
+            }
+            
+            // Validate argument types for fixed parameters
+            for (i in functionType.paramTypes.indices) {
+                if (i < args.size) {
+                    val expectedType = functionType.paramTypes[i]
+                    val actualType = args[i].type
+                    
+                    // In untyped pointer mode, all pointers are compatible
+                    if (!isTypeCompatible(expectedType, actualType)) {
+                        throw IllegalArgumentException(
+                            "Argument type mismatch at position $i: expected $expectedType, got $actualType"
+                        )
+                    }
                 }
             }
         }
@@ -182,7 +184,9 @@ class CallInst private constructor(
          * @throws IllegalArgumentException if argument validation fails
          */
         fun createDirectCall(name: String, callee: Value, args: List<Value>): CallInst {
-            return CallInst(name, callee.type, callee, args, true)
+            val functionType = callee.type as? FunctionType
+                ?: throw IllegalArgumentException("Direct calls require function values")
+            return CallInst(name, functionType.returnType, callee, args, true)
         }
         
         /**

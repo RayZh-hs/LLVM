@@ -27,8 +27,8 @@ object BuilderUtils {
     
     fun getDoubleType(): Type = FloatingPointType.DoubleType
     
-    fun getFunctionType(returnType: Type, paramTypes: List<Type>, isVarArg: Boolean = false): FunctionType {
-        return FunctionType(returnType, paramTypes, isVarArg)
+    fun getFunctionType(returnType: Type, paramTypes: List<Type>, isVarArg: Boolean = false, paramNames: List<String>? = null): FunctionType {
+        return FunctionType(returnType, paramTypes, isVarArg, paramNames)
     }
     
     // Constant creation utilities

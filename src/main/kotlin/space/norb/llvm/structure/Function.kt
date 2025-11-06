@@ -15,7 +15,7 @@ class Function(
 ) : Value {
     val returnType: Type = type.returnType
     val parameters: List<Argument> = type.paramTypes.mapIndexed { index, paramType ->
-        Argument("arg$index", paramType, this, index)
+        Argument(type.getParameterName(index), paramType, this, index)
     }
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null

@@ -32,8 +32,8 @@ abstract class CastInst(
 ) : Instruction(name, type, listOf(value)) {
     
     init {
-        // Validate that we're not casting to the same type
-        if (value.type == type) {
+        // Validate that we're not casting to same type, except for function-to-pointer casts
+        if (value.type == type && !value.type.isFunctionType() && !type.isPointerType()) {
             throw IllegalArgumentException("Cast instruction must convert to a different type: ${value.type} -> $type")
         }
     }

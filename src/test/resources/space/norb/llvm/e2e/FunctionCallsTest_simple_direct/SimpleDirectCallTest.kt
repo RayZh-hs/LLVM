@@ -24,7 +24,8 @@ object SimpleDirectCallTest {
         // Create a helper function: i32 @add(i32 %a, i32 %b)
         val addFunctionType = FunctionType(
             returnType = IntegerType.I32,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("a", "b")
         )
         val addFunction = builder.createFunction("add", addFunctionType)
         module.functions.add(addFunction)

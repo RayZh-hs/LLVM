@@ -21,14 +21,15 @@ object ComplexComparisonPredicatesTest {
      * @param builder The IR builder to use
      */
     fun buildIR(module: Module, builder: IRBuilder) {
-        // Create function type: i1 (i32, i32, i32)
+        // Create function type: i32 (i32, i32, i32)
         val functionType = FunctionType(
-            returnType = IntegerType.I1,
-            paramTypes = listOf(IntegerType.I32, IntegerType.I32, IntegerType.I32)
+            returnType = IntegerType.I32,
+            paramTypes = listOf(IntegerType.I32, IntegerType.I32, IntegerType.I32),
+            paramNames = listOf("arg0", "arg1", "arg2")
         )
         
         // Create the function
-        val function = builder.createFunction("complex_comparison_test", functionType)
+        val function = builder.createFunction("complex_comparisons", functionType)
         module.functions.add(function)
         
         // Create entry block
@@ -48,12 +49,41 @@ object ComplexComparisonPredicatesTest {
         
         // Create multiple comparisons
         val cmp1 = builder.buildICmp(IcmpPredicate.SGT, arg0, arg1, "cmp1")
-        val cmp2 = builder.buildICmp(IcmpPredicate.EQ, arg1, arg2, "cmp2")
+        val cmp2 = builder.buildICmp(IcmpPredicate.ULT, arg1, arg2, "cmp2")
         
         // Combine comparisons with AND
-        val result = builder.buildAnd(cmp1, cmp2, "result")
+        val condition = builder.buildAnd(cmp1, cmp2, "condition")
         
-        // Return the result
+        // Create then block
+        val thenBlock = builder.createBasicBlock("then", function)
+        function.basicBlocks.add(thenBlock)
+        builder.positionAtEnd(thenBlock)
+        val thenResult = builder.buildAdd(arg0, arg2, "then_result")
+        
+        // Create else block
+        val elseBlock = builder.createBasicBlock("else", function)
+        function.basicBlocks.add(elseBlock)
+        builder.positionAtEnd(elseBlock)
+        val elseResult = builder.buildSub(arg0, arg2, "else_result")
+        
+        // Create merge block
+        val mergeBlock = builder.createBasicBlock("merge", function)
+        function.basicBlocks.add(mergeBlock)
+        
+        // Add branches to then and else blocks
+        builder.positionAtEnd(thenBlock)
+        builder.buildBr(mergeBlock) // Branch to merge
+        
+        builder.positionAtEnd(elseBlock)
+        builder.buildBr(mergeBlock) // Branch to merge
+        
+        // Build merge block
+        builder.positionAtEnd(mergeBlock)
+        val result = builder.buildPhi(IntegerType.I32, listOf(Pair(thenResult, thenBlock), Pair(elseResult, elseBlock)), "result")
         builder.buildRet(result)
+        
+        // Go back to entry block and add conditional branch
+        builder.positionAtEnd(entryBlock)
+        builder.buildCondBr(condition, thenBlock, elseBlock)
     }
 }

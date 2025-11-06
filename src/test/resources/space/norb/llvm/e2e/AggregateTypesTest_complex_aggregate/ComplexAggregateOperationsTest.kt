@@ -60,19 +60,18 @@ object ComplexAggregateOperationsTest {
         // Create array type: [10 x { i32, i64 }]
         val arrayType = ArrayType(10, innerStructType)
         
-        // Get element pointer for array element's second field: gep [10 x { i32, i64 }], ptr, 0, outerIndex, innerIndex
-        val gepIndices = listOf(
-            IntConstant(0, IntegerType.I32), 
-            outerIndex, 
-            innerIndex
-        )
-        val fieldPtr = builder.buildGep(arrayType, arrayPtr, gepIndices, "field_ptr")
+        // Get element pointer for struct field directly: gep [10 x { i32, i64 }], ptr, 0, outerIndex, 1
+        val fieldPtr = builder.buildGep(arrayType, arrayPtr, listOf(
+            IntConstant(0, IntegerType.I32, false),
+            outerIndex,
+            IntConstant(1, IntegerType.I32, false)  // Access second field (index 1)
+        ), "field_ptr")
         
         // Load the field
         val field = builder.buildLoad(IntegerType.I64, fieldPtr, "field")
         
         // Add a constant to the field
-        val result = builder.buildAdd(field, IntConstant(100, IntegerType.I64), "result")
+        val result = builder.buildAdd(field, IntConstant(100, IntegerType.I64, false), "result")
         
         // Return the result
         builder.buildRet(result)

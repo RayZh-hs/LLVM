@@ -106,32 +106,45 @@ abstract class User(
     
     /**
      * Replaces all uses of a value with another value.
-     * TODO: Implement in Phase 2 when use-def chains are established
+     * TODO: Deferred - requires use-def chain infrastructure.
+     * Dependencies: Value.useList tracking, User operand registration,
+     * and bidirectional use-def relationship management.
      *
      * @param oldValue The value to replace
      * @param newValue The value to replace with
      */
     fun replaceUsesOfWith(oldValue: Value, newValue: Value) {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // Phase 1 implementation: iterate through operands and replace matching values
+        for (i in operands.indices) {
+            if (operands[i] == oldValue) {
+                operands[i] = newValue
+            }
+        }
     }
     
     /**
      * Gets all users of this value.
-     * TODO: Implement in Phase 2 when use-def chains are established
+     * TODO: Deferred - requires use-def chain infrastructure.
+     * Dependencies: Value.useList tracking, User operand registration,
+     * and bidirectional use-def relationship management.
      *
      * @return List of all users that use this value
      */
     fun getUsers(): List<User> {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // Phase 1 implementation: return empty list since use-def chains aren't established
+        return emptyList()
     }
     
     /**
      * Checks if this value is used by any other value.
-     * TODO: Implement in Phase 2 when use-def chains are established
+     * TODO: Deferred - requires use-def chain infrastructure.
+     * Dependencies: Value.useList tracking, User operand registration,
+     * and bidirectional use-def relationship management.
      *
      * @return true if this value has any users, false otherwise
      */
     fun hasUsers(): Boolean {
-        TODO("Phase 1 placeholder - to be implemented in Phase 2")
+        // Phase 1 implementation: return false since use-def chains aren't established
+        return false
     }
 }

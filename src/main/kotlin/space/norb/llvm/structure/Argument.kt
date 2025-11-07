@@ -28,4 +28,9 @@ class Argument(
     override fun toString(): String {
         return "Argument(name=$name, type=$type, function=${function.name}, index=$index)"
     }
+    
+    override fun getParent(): Any? {
+        // Arguments belong to functions
+        return function
+    }
 }

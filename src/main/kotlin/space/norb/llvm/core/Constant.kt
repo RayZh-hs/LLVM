@@ -109,8 +109,24 @@ abstract class Constant(
     // Placeholder methods for Phase 1 - to be implemented in later phases
     
     /**
+     * Checks if this constant can be converted to the specified type.
+     * TODO: Deferred - requires type conversion framework.
+     * Dependencies: Type compatibility checking, conversion rules engine,
+     * and constant factory methods for target types.
+     *
+     * @param targetType The type to check conversion to
+     * @return true if conversion is possible, false otherwise
+     */
+    open fun canConvertTo(targetType: Type): Boolean {
+        // Phase 1: Only support identical types (no conversion needed)
+        return this.type == targetType
+    }
+    
+    /**
      * Checks if this constant can be losslessly converted to the specified type.
-     * TODO: Implement in Phase 2 when type conversion is supported
+     * TODO: Deferred - requires type conversion framework.
+     * Dependencies: Type compatibility checking, conversion rules engine,
+     * and precision loss analysis algorithms.
      *
      * @param targetType The type to check conversion to
      * @return true if conversion is possible without loss, false otherwise
@@ -168,66 +184,33 @@ abstract class Constant(
     
     /**
      * Attempts to convert this constant to the specified type.
-     * TODO: Implement in Phase 2 when type conversion is supported
+     * TODO: Deferred - requires type conversion framework.
+     * Dependencies: Type compatibility checking, conversion rules engine,
+     * and constant factory methods for target types.
      *
      * @param targetType The type to convert to
      * @return A new constant of the target type, or null if conversion is not possible
      */
     open fun convertTo(targetType: Type): Constant? {
-        // If same type, return this constant
-        if (this.type == targetType) {
-            return this
+        // Phase 1: Only support identical types (no conversion needed)
+        return if (this.type == targetType) {
+            this
+        } else {
+            null
         }
-        
-        // Check if conversion is possible
-        if (!canLosslesslyConvertTo(targetType)) {
-            return null
-        }
-        
-        // Delegate to concrete implementations for actual conversion
-        // This is a base implementation that should be overridden by subclasses
-        return null
     }
     
     /**
      * Gets the bit representation of this constant.
-     * TODO: Implement in Phase 2 when bit-level operations are supported
+     * TODO: Deferred - requires bit utilities framework.
+     * Dependencies: Bit-level serialization, endianness handling,
+     * and type-specific bit layout algorithms.
      *
      * @return The bit representation as a string, or null if not applicable
      */
     open fun getBitRepresentation(): String? {
-        // Base implementation - should be overridden by concrete classes
-        // This provides a generic approach that works for most constants
-        
-        when {
-            type.isIntegerType() -> {
-                val bits = type.getPrimitiveSizeInBits() ?: return null
-                // For integer constants, get the value and convert to binary
-                // This is a generic approach - concrete classes should override for efficiency
-                return null // Concrete classes should implement this
-            }
-            
-            type.isFloatingPointType() -> {
-                // For floating-point constants, need to get the IEEE 754 representation
-                // This is a generic approach - concrete classes should override for efficiency
-                return null // Concrete classes should implement this
-            }
-            
-            type.isPointerType() -> {
-                // For pointer constants, typically all zeros or a specific address
-                return if (isNullValue()) {
-                    "0".repeat(type.getPrimitiveSizeInBits() ?: 64)
-                } else {
-                    null // Concrete classes should implement this
-                }
-            }
-            
-            else -> {
-                // For other types (arrays, structs, etc.), return null
-                // Concrete implementations should handle these cases
-                return null
-            }
-        }
+        // Phase 1: Bit-level operations not supported yet
+        return null
     }
     
     /**

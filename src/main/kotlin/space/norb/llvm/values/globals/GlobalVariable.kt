@@ -97,6 +97,11 @@ class GlobalVariable private constructor(
         return "@$name = ${linkage.name.lowercase()} ${if (isConstantValue) "constant" else "global"} ${type.toString()}"
     }
     
+    override fun getParent(): Any? {
+        // Global variables belong to modules
+        return module
+    }
+    
     companion object {
         /**
          * Creates a global variable with an un-typed pointer.

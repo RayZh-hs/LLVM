@@ -35,4 +35,9 @@ class Function(
     override fun toString(): String {
         return "Function(name=$name, type=$type, module=${module.name})"
     }
+    
+    override fun getParent(): Any? {
+        // Functions belong to modules
+        return module
+    }
 }

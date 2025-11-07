@@ -67,10 +67,15 @@ interface Value {
      */
     fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T
     
-    // Placeholder methods for Phase 1 - to be implemented in later phases
     /**
-     * Gets the parent module containing this value.
-     * TODO: Implement in Phase 2 when module relationships are established
+     * Gets the parent containing this value.
+     * The parent could be a Module, Function, or BasicBlock depending on the value type:
+     * - Functions belong to Modules
+     * - BasicBlocks belong to Functions
+     * - Instructions belong to BasicBlocks
+     * - Arguments belong to Functions
+     * - GlobalVariables belong to Modules
+     * - Constants typically don't have parents unless they are global initializers
      */
     fun getParent(): Any? {
         // Base implementation - concrete classes should override
@@ -80,7 +85,9 @@ interface Value {
     
     /**
      * Checks if this value has any uses.
-     * TODO: Implement in Phase 2 when use-def chains are established
+     * TODO: Deferred - requires use-def chain infrastructure.
+     * Dependencies: Value.useList tracking, User operand registration,
+     * and bidirectional use-def relationship management.
      */
     fun hasUses(): Boolean {
         // Base implementation - concrete classes should override
@@ -90,7 +97,9 @@ interface Value {
     
     /**
      * Gets all uses of this value.
-     * TODO: Implement in Phase 2 when use-def chains are established
+     * TODO: Deferred - requires use-def chain infrastructure.
+     * Dependencies: Value.useList tracking, User operand registration,
+     * and bidirectional use-def relationship management.
      */
     fun getUses(): List<User> {
         // Base implementation - concrete classes should override

@@ -77,6 +77,12 @@ abstract class Metadata : Value {
      * @return The LLVM IR string representation of this metadata
      */
     abstract fun toIRString(): String
+    
+    override fun getParent(): Any? {
+        // Metadata typically doesn't have a parent in the same way
+        // Could be attached to various entities, but for Phase 1, return null
+        return null
+    }
 }
 
 /**

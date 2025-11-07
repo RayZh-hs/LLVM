@@ -92,7 +92,6 @@ class IRBuilder(val module: Module) {
         return instruction
     }
     
-    // TODO: Implement IR construction methods
     fun createFunction(name: String, type: FunctionType): Function {
         return Function(name, type, module)
     }

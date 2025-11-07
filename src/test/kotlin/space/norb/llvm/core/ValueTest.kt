@@ -5,6 +5,14 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.VoidType
+import space.norb.llvm.structure.Module
+import space.norb.llvm.structure.Function
+import space.norb.llvm.structure.BasicBlock
+import space.norb.llvm.structure.Argument
+import space.norb.llvm.values.globals.GlobalVariable
+import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.PointerType
+import space.norb.llvm.instructions.memory.AllocaInst
 
 /**
  * Unit tests for the Value interface.
@@ -20,7 +28,7 @@ class ValueTest {
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
-            TODO("Not implemented for mock")
+            throw UnsupportedOperationException("accept() not implemented for MockValue - this is a test mock")
         }
         
         override fun toString(): String = "MockValue(name='$name', type=$type)"
@@ -99,5 +107,67 @@ class ValueTest {
         val toString = value.toString()
         assertTrue(toString.contains(name), "toString should contain the value name")
         assertTrue(toString.contains(type.toString()), "toString should contain the type information")
+    }
+
+    @Test
+    @DisplayName("Function getParent should return module")
+    fun testFunctionGetParent() {
+        val module = Module("testModule")
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val function = Function("testFunction", functionType, module)
+        
+        assertEquals(module, function.getParent(), "Function getParent should return the containing module")
+    }
+
+    @Test
+    @DisplayName("BasicBlock getParent should return function")
+    fun testBasicBlockGetParent() {
+        val module = Module("testModule")
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val function = Function("testFunction", functionType, module)
+        val basicBlock = BasicBlock("entry", function)
+        
+        assertEquals(function, basicBlock.getParent(), "BasicBlock getParent should return the containing function")
+    }
+
+    @Test
+    @DisplayName("Argument getParent should return function")
+    fun testArgumentGetParent() {
+        val module = Module("testModule")
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val function = Function("testFunction", functionType, module)
+        val argument = function.parameters.first()
+        
+        assertEquals(function, argument.getParent(), "Argument getParent should return the containing function")
+    }
+
+    @Test
+    @DisplayName("GlobalVariable getParent should return module")
+    fun testGlobalVariableGetParent() {
+        val module = Module("testModule")
+        val globalVariable = GlobalVariable.create("testGlobal", module)
+        
+        assertEquals(module, globalVariable.getParent(), "GlobalVariable getParent should return the containing module")
+    }
+
+    @Test
+    @DisplayName("Instruction getParent should return basic block")
+    fun testInstructionGetParent() {
+        val module = Module("testModule")
+        val functionType = FunctionType(IntegerType.I32, listOf())
+        val function = Function("testFunction", functionType, module)
+        val basicBlock = BasicBlock("entry", function)
+        val instruction = AllocaInst("alloca", IntegerType.I32)
+        instruction.parent = basicBlock
+        
+        assertEquals(basicBlock, instruction.getParent(), "Instruction getParent should return the containing basic block")
+    }
+
+    @Test
+    @DisplayName("MockValue getParent should return null")
+    fun testMockValueGetParent() {
+        val mockValue = MockValue("test", IntegerType.I32)
+        
+        assertNull(mockValue.getParent(), "MockValue getParent should return null by default")
     }
 }

@@ -21,7 +21,7 @@ class UserTest {
         private val userOperands: List<Value>
     ) : User(userName, userType, userOperands) {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
-            TODO("Not implemented for mock")
+            throw UnsupportedOperationException("accept() not implemented for MockValue - this is a test mock")
         }
         
         override fun toString(): String = "MockUser(name='$userName', type=$userType, operands=${getOperandsList()})"
@@ -35,7 +35,7 @@ class UserTest {
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
-            TODO("Not implemented for mock")
+            throw UnsupportedOperationException("accept() not implemented for MockUser - this is a test mock")
         }
         
         override fun toString(): String = "MockValue(name='$name', type=$type)"

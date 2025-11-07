@@ -32,4 +32,9 @@ class BasicBlock(
     override fun toString(): String {
         return "BasicBlock(name=$name, type=$type, function=${function.name})"
     }
+    
+    override fun getParent(): Any? {
+        // Basic blocks belong to functions
+        return function
+    }
 }

@@ -60,6 +60,6 @@ object GlobalStructTest {
         builder.positionAtEnd(entryBlock)
         
         // Return the global struct pointer
-        builder.buildRet(globalStruct)
+        builder.insertRet(globalStruct)
     }
 }

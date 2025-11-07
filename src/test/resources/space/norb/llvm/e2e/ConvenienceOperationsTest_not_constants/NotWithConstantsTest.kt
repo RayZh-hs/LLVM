@@ -46,13 +46,13 @@ object NotWithConstantsTest {
         val const2 = IntConstant(0x87654321, IntegerType.I32)
         
         // Create NOT operations with constants
-        val not1 = builder.buildNot(const1, "not1")
-        val not2 = builder.buildNot(const2, "not2")
+        val not1 = builder.insertNot(const1, "not1")
+        val not2 = builder.insertNot(const2, "not2")
         
         // Combine the results
-        val result = builder.buildXor(not1, not2, "result")
+        val result = builder.insertXor(not1, not2, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

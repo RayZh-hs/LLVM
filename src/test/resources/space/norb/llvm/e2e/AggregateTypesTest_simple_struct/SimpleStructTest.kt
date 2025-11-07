@@ -52,9 +52,9 @@ object SimpleStructTest {
         val structType = StructType(listOf(IntegerType.I32, IntegerType.I64, FloatingPointType.FloatType))
         
         // Allocate struct
-        val structPtr = builder.buildAlloca(structType, "struct")
+        val structPtr = builder.insertAlloca(structType, "struct")
         
         // Return the struct pointer
-        builder.buildRet(structPtr)
+        builder.insertRet(structPtr)
     }
 }

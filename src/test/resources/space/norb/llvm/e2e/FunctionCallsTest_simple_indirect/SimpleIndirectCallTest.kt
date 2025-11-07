@@ -40,8 +40,8 @@ object SimpleIndirectCallTest {
         builder.positionAtEnd(subtractBlock)
         val a = subtractFunction.parameters[0]
         val b = subtractFunction.parameters[1]
-        val result = builder.buildSub(a, b, "result")
-        builder.buildRet(result)
+        val result = builder.insertSub(a, b, "result")
+        builder.insertRet(result)
         
         // Create main function: i32 @main()
         val mainFunctionType = FunctionType(
@@ -60,12 +60,12 @@ object SimpleIndirectCallTest {
         builder.positionAtEnd(mainBlock)
         
         // Create a function pointer to subtract
-        val funcPtr = builder.buildBitcast(subtractFunction, PointerType, "func_ptr")
+        val funcPtr = builder.insertBitcast(subtractFunction, PointerType, "func_ptr")
         
         // Call through function pointer
         val const10 = BuilderUtils.getIntConstant(10, IntegerType.I32)
         val const3 = BuilderUtils.getIntConstant(3, IntegerType.I32)
-        val callResult = builder.buildIndirectCall(funcPtr, listOf(const10, const3), IntegerType.I32, "call_result")
-        builder.buildRet(callResult)
+        val callResult = builder.insertIndirectCall(funcPtr, listOf(const10, const3), IntegerType.I32, "call_result")
+        builder.insertRet(callResult)
     }
 }

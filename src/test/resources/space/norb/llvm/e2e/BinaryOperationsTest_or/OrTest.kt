@@ -50,9 +50,9 @@ object OrTest {
         val arg1 = function.parameters[1]
         
         // Create or instruction
-        val result = builder.buildOr(arg0, arg1, "result")
+        val result = builder.insertOr(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

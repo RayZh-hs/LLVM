@@ -46,9 +46,9 @@ object EQTest {
         val arg1 = function.parameters[1]
         
         // Create EQ comparison
-        val result = builder.buildICmp(IcmpPredicate.EQ, arg0, arg1, "result")
+        val result = builder.insertICmp(IcmpPredicate.EQ, arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -46,9 +46,9 @@ object UGTTest {
         val arg1 = function.parameters[1]
         
         // Create UGT comparison
-        val result = builder.buildICmp(IcmpPredicate.UGT, arg0, arg1, "result")
+        val result = builder.insertICmp(IcmpPredicate.UGT, arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

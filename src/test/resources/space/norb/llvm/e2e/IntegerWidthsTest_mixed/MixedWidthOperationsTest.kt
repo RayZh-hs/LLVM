@@ -52,14 +52,14 @@ object MixedWidthOperationsTest {
         val arg3 = function.parameters[3]  // i64
         
         // Create operations with mixed width values
-        val temp1 = builder.buildSExt(arg0, IntegerType.I64, "temp1")  // temp1 = sext i8 to i64
-        val temp2 = builder.buildSExt(arg1, IntegerType.I64, "temp2")  // temp2 = sext i16 to i64
-        val temp3 = builder.buildSExt(arg2, IntegerType.I64, "temp3")  // temp3 = sext i32 to i64
-        val temp4 = builder.buildAdd(temp1, temp2, "temp4")  // temp4 = temp1 + temp2
-        val temp5 = builder.buildAdd(temp4, temp3, "temp5")  // temp5 = temp4 + temp3
-        val result = builder.buildAdd(temp5, arg3, "result")  // result = temp5 + arg3
+        val temp1 = builder.insertSExt(arg0, IntegerType.I64, "temp1")  // temp1 = sext i8 to i64
+        val temp2 = builder.insertSExt(arg1, IntegerType.I64, "temp2")  // temp2 = sext i16 to i64
+        val temp3 = builder.insertSExt(arg2, IntegerType.I64, "temp3")  // temp3 = sext i32 to i64
+        val temp4 = builder.insertAdd(temp1, temp2, "temp4")  // temp4 = temp1 + temp2
+        val temp5 = builder.insertAdd(temp4, temp3, "temp5")  // temp5 = temp4 + temp3
+        val result = builder.insertAdd(temp5, arg3, "result")  // result = temp5 + arg3
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

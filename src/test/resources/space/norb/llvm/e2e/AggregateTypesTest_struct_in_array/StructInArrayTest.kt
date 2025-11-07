@@ -55,9 +55,9 @@ object StructInArrayTest {
         val structType = StructType(listOf(IntegerType.I32, arrayType, IntegerType.I64))
         
         // Allocate struct
-        val structPtr = builder.buildAlloca(structType, "struct")
+        val structPtr = builder.insertAlloca(structType, "struct")
         
         // Return the struct pointer
-        builder.buildRet(structPtr)
+        builder.insertRet(structPtr)
     }
 }

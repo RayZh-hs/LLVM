@@ -50,13 +50,13 @@ object ComplexCastOperationsTest {
         val arg1 = function.parameters[1]  // i32
         
         // Create a sequence of cast operations
-        val temp1 = builder.buildSExt(arg0, IntegerType.I64, "temp1")  // temp1 = sext i8 to i64
-        val temp2 = builder.buildZExt(arg1, IntegerType.I64, "temp2")  // temp2 = zext i32 to i64
-        val temp3 = builder.buildAdd(temp1, temp2, "temp3")            // temp3 = temp1 + temp2
-        val temp4 = builder.buildTrunc(temp3, IntegerType.I32, "temp4") // temp4 = trunc i64 to i32
-        val result = builder.buildSExt(temp4, IntegerType.I64, "result") // result = sext i32 to i64
+        val temp1 = builder.insertSExt(arg0, IntegerType.I64, "temp1")  // temp1 = sext i8 to i64
+        val temp2 = builder.insertZExt(arg1, IntegerType.I64, "temp2")  // temp2 = zext i32 to i64
+        val temp3 = builder.insertAdd(temp1, temp2, "temp3")            // temp3 = temp1 + temp2
+        val temp4 = builder.insertTrunc(temp3, IntegerType.I32, "temp4") // temp4 = trunc i64 to i32
+        val result = builder.insertSExt(temp4, IntegerType.I64, "result") // result = sext i32 to i64
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

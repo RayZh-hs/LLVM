@@ -45,13 +45,13 @@ object WidthCastingOperationsTest {
         val arg0 = function.parameters[0]  // i64
         
         // Create operations with width casting
-        val temp1 = builder.buildZExt(arg0, IntegerType.I128, "temp1")  // temp1 = zext i64 to i128
-        val temp2 = builder.buildMul(temp1, IntConstant(2L, IntegerType.I128), "temp2")  // temp2 = temp1 * 2
-        val temp3 = builder.buildTrunc(temp2, IntegerType.I64, "temp3")  // temp3 = trunc i128 to i64
-        val temp4 = builder.buildSExt(temp3, IntegerType.I128, "temp4")  // temp4 = sext i64 to i128
-        val result = builder.buildAdd(temp4, IntConstant(1000000L, IntegerType.I128), "result")  // result = temp4 + 1000000
+        val temp1 = builder.insertZExt(arg0, IntegerType.I128, "temp1")  // temp1 = zext i64 to i128
+        val temp2 = builder.insertMul(temp1, IntConstant(2L, IntegerType.I128), "temp2")  // temp2 = temp1 * 2
+        val temp3 = builder.insertTrunc(temp2, IntegerType.I64, "temp3")  // temp3 = trunc i128 to i64
+        val temp4 = builder.insertSExt(temp3, IntegerType.I128, "temp4")  // temp4 = sext i64 to i128
+        val result = builder.insertAdd(temp4, IntConstant(1000000L, IntegerType.I128), "result")  // result = temp4 + 1000000
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

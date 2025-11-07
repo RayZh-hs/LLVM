@@ -50,9 +50,9 @@ object MulTest {
         val arg1 = function.parameters[1]
         
         // Create mul instruction
-        val result = builder.buildMul(arg0, arg1, "result")
+        val result = builder.insertMul(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -68,12 +68,12 @@ object NestedStructTest {
             IntConstant(1, IntegerType.I32), 
             IntConstant(0, IntegerType.I32)
         )
-        val fieldPtr = builder.buildGep(outerStructType, structPtr, gepIndices, "field_ptr")
+        val fieldPtr = builder.insertGep(outerStructType, structPtr, gepIndices, "field_ptr")
         
         // Load the field
-        val field = builder.buildLoad(IntegerType.I32, fieldPtr, "field")
+        val field = builder.insertLoad(IntegerType.I32, fieldPtr, "field")
         
         // Return the field
-        builder.buildRet(field)
+        builder.insertRet(field)
     }
 }

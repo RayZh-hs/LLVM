@@ -124,155 +124,155 @@ class IRBuilder(val module: Module) {
     }
     
     // Terminator methods
-    fun buildRet(value: Value?): ReturnInst {
+    fun insertRet(value: Value?): ReturnInst {
         val ret = ReturnInst("ret", value?.type ?: VoidType, value)
         return insertInstruction(ret) as ReturnInst
     }
     
-    fun buildRetVoid(): ReturnInst {
-        return buildRet(null)
+    fun insertRetVoid(): ReturnInst {
+        return insertRet(null)
     }
     
-    fun buildBr(target: BasicBlock): BranchInst {
+    fun insertBr(target: BasicBlock): BranchInst {
         val br = BranchInst.createUnconditional("br", VoidType, target)
         return insertInstruction(br) as BranchInst
     }
     
-    fun buildCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock): BranchInst {
+    fun insertCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock): BranchInst {
         val br = BranchInst.createConditional("condbr", VoidType, condition, trueTarget, falseTarget)
         return insertInstruction(br) as BranchInst
     }
     
-    fun buildSwitch(condition: Value, defaultDest: BasicBlock, cases: List<Pair<Value, BasicBlock>>, name: String = ""): SwitchInst {
+    fun insertSwitch(condition: Value, defaultDest: BasicBlock, cases: List<Pair<Value, BasicBlock>>, name: String = ""): SwitchInst {
         val sw = SwitchInst.create(if (name.isEmpty()) "switch" else name, VoidType, condition, defaultDest, cases)
         return insertInstruction(sw) as SwitchInst
     }
     
     // Binary operations
-    fun buildAdd(lhs: Value, rhs: Value, name: String = ""): AddInst {
+    fun insertAdd(lhs: Value, rhs: Value, name: String = ""): AddInst {
         val add = AddInst(if (name.isEmpty()) "add" else name, lhs.type, lhs, rhs)
         return insertInstruction(add) as AddInst
     }
     
-    fun buildSub(lhs: Value, rhs: Value, name: String = ""): SubInst {
+    fun insertSub(lhs: Value, rhs: Value, name: String = ""): SubInst {
         val sub = SubInst.create(if (name.isEmpty()) "sub" else name, lhs, rhs)
         return insertInstruction(sub) as SubInst
     }
     
-    fun buildMul(lhs: Value, rhs: Value, name: String = ""): MulInst {
+    fun insertMul(lhs: Value, rhs: Value, name: String = ""): MulInst {
         val mul = MulInst.create(if (name.isEmpty()) "mul" else name, lhs, rhs)
         return insertInstruction(mul) as MulInst
     }
     
-    fun buildAnd(lhs: Value, rhs: Value, name: String = ""): AndInst {
+    fun insertAnd(lhs: Value, rhs: Value, name: String = ""): AndInst {
         val and = AndInst.create(if (name.isEmpty()) "and" else name, lhs, rhs)
         return insertInstruction(and) as AndInst
     }
     
-    fun buildOr(lhs: Value, rhs: Value, name: String = ""): OrInst {
+    fun insertOr(lhs: Value, rhs: Value, name: String = ""): OrInst {
         val or = OrInst.create(if (name.isEmpty()) "or" else name, lhs, rhs)
         return insertInstruction(or) as OrInst
     }
     
-    fun buildXor(lhs: Value, rhs: Value, name: String = ""): XorInst {
+    fun insertXor(lhs: Value, rhs: Value, name: String = ""): XorInst {
         val xor = XorInst.create(if (name.isEmpty()) "xor" else name, lhs, rhs)
         return insertInstruction(xor) as XorInst
     }
     
-    fun buildSDiv(lhs: Value, rhs: Value, name: String = ""): SDivInst {
+    fun insertSDiv(lhs: Value, rhs: Value, name: String = ""): SDivInst {
         val sdiv = SDivInst.create(if (name.isEmpty()) "sdiv" else name, lhs, rhs)
         return insertInstruction(sdiv) as SDivInst
     }
     
     // Cast operations
-    fun buildBitcast(value: Value, destType: Type, name: String = ""): BitcastInst {
+    fun insertBitcast(value: Value, destType: Type, name: String = ""): BitcastInst {
         val bitcast = BitcastInst.create(if (name.isEmpty()) "bitcast" else name, value, destType)
         return insertInstruction(bitcast) as BitcastInst
     }
     
-    fun buildSExt(value: Value, destType: IntegerType, name: String = ""): SExtInst {
+    fun insertSExt(value: Value, destType: IntegerType, name: String = ""): SExtInst {
         val sext = SExtInst.create(if (name.isEmpty()) "sext" else name, value, destType)
         return insertInstruction(sext) as SExtInst
     }
     
-    fun buildZExt(value: Value, destType: IntegerType, name: String = ""): ZExtInst {
+    fun insertZExt(value: Value, destType: IntegerType, name: String = ""): ZExtInst {
         val zext = ZExtInst.create(if (name.isEmpty()) "zext" else name, value, destType)
         return insertInstruction(zext) as ZExtInst
     }
     
-    fun buildTrunc(value: Value, destType: IntegerType, name: String = ""): TruncInst {
+    fun insertTrunc(value: Value, destType: IntegerType, name: String = ""): TruncInst {
         val trunc = TruncInst.create(if (name.isEmpty()) "trunc" else name, value, destType)
         return insertInstruction(trunc) as TruncInst
     }
     
     // Memory operations
-    fun buildAlloca(allocatedType: Type, name: String = ""): AllocaInst {
+    fun insertAlloca(allocatedType: Type, name: String = ""): AllocaInst {
         val alloca = AllocaInst(if (name.isEmpty()) "alloca" else name, allocatedType)
         return insertInstruction(alloca) as AllocaInst
     }
     
-    fun buildLoad(loadedType: Type, address: Value, name: String = ""): LoadInst {
+    fun insertLoad(loadedType: Type, address: Value, name: String = ""): LoadInst {
         val load = LoadInst(if (name.isEmpty()) "load" else name, loadedType, address)
         return insertInstruction(load) as LoadInst
     }
     
-    fun buildStore(value: Value, address: Value): StoreInst {
+    fun insertStore(value: Value, address: Value): StoreInst {
         val store = StoreInst("store", value.type, value, address)
         return insertInstruction(store) as StoreInst
     }
     
-    fun buildGep(elementType: Type, address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
+    fun insertGep(elementType: Type, address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
         val gep = GetElementPtrInst(if (name.isEmpty()) "gep" else name, elementType, address, indices)
         return insertInstruction(gep) as GetElementPtrInst
     }
     
     // Simplified methods for untyped pointer usage
-    fun buildLoad(address: Value, loadedType: Type, name: String = ""): LoadInst {
-        return buildLoad(loadedType, address, name)
+    fun insertLoad(address: Value, loadedType: Type, name: String = ""): LoadInst {
+        return insertLoad(loadedType, address, name)
     }
     
-    fun buildGep(address: Value, elementType: Type, indices: List<Value>, name: String = ""): GetElementPtrInst {
-        return buildGep(elementType, address, indices, name)
+    fun insertGep(address: Value, elementType: Type, indices: List<Value>, name: String = ""): GetElementPtrInst {
+        return insertGep(elementType, address, indices, name)
     }
     
     // Other operations
-    fun buildCall(function: Function, args: List<Value>, name: String = ""): CallInst {
+    fun insertCall(function: Function, args: List<Value>, name: String = ""): CallInst {
         val call = CallInst.createDirectCall(if (name.isEmpty()) "call" else name, function, args)
         return insertInstruction(call) as CallInst
     }
     
-    fun buildIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String = ""): CallInst {
+    fun insertIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String = ""): CallInst {
         val call = CallInst.createIndirectCall(if (name.isEmpty()) "call" else name, returnType, funcPtr, args)
         return insertInstruction(call) as CallInst
     }
     
-    fun buildICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): ICmpInst {
+    fun insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): ICmpInst {
         val icmp = ICmpInst.create(if (name.isEmpty()) "icmp" else name, pred, lhs, rhs)
         return insertInstruction(icmp) as ICmpInst
     }
     
-    fun buildPhi(type: Type, incomingValues: List<Pair<Value, BasicBlock>>, name: String = ""): PhiNode {
+    fun insertPhi(type: Type, incomingValues: List<Pair<Value, BasicBlock>>, name: String = ""): PhiNode {
         val phi = PhiNode.create(if (name.isEmpty()) "phi" else name, type, incomingValues.map { Pair(it.first, it.second) })
         return insertInstruction(phi) as PhiNode
     }
     
     // Convenience methods for common operations
-    fun buildNot(value: Value, name: String = ""): XorInst {
+    fun insertNot(value: Value, name: String = ""): XorInst {
         val negOne = when {
             value.type.isIntegerType() -> {
                 BuilderUtils.getIntConstant(-1, value.type as IntegerType)
             }
             else -> throw IllegalArgumentException("Not operation only supported for integer types")
         }
-        return buildXor(value, negOne, name)
+        return insertXor(value, negOne, name)
     }
     
-    fun buildNeg(value: Value, name: String = ""): SubInst {
+    fun insertNeg(value: Value, name: String = ""): SubInst {
         val zero = when {
             value.type.isIntegerType() -> BuilderUtils.getIntConstant(0, value.type as IntegerType)
             value.type.isFloatingPointType() -> BuilderUtils.getFloatConstant(0.0, value.type as FloatingPointType)
             else -> throw IllegalArgumentException("Negation not supported for type: ${value.type}")
         }
-        return buildSub(zero, value, name)
+        return insertSub(zero, value, name)
     }
 }

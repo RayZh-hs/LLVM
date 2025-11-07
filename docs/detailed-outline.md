@@ -424,24 +424,24 @@ class IRBuilder(val module: Module) {
     fun createBasicBlock(name: String, function: Function): BasicBlock { /* implementation */ }
     
     // Terminator methods
-    fun buildRet(value: Value?): ReturnInst { /* implementation */ }
-    fun buildBr(target: BasicBlock): BranchInst { /* implementation */ }
-    fun buildCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock): BranchInst { /* implementation */ }
+    fun insertRet(value: Value?): ReturnInst { /* implementation */ }
+    fun insertBr(target: BasicBlock): BranchInst { /* implementation */ }
+    fun insertCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock): BranchInst { /* implementation */ }
     
     // Binary operations
-    fun buildAdd(lhs: Value, rhs: Value, name: String = ""): AddInst { /* implementation */ }
-    fun buildSub(lhs: Value, rhs: Value, name: String = ""): SubInst { /* implementation */ }
-    fun buildMul(lhs: Value, rhs: Value, name: String = ""): MulInst { /* implementation */ }
+    fun insertAdd(lhs: Value, rhs: Value, name: String = ""): AddInst { /* implementation */ }
+    fun insertSub(lhs: Value, rhs: Value, name: String = ""): SubInst { /* implementation */ }
+    fun insertMul(lhs: Value, rhs: Value, name: String = ""): MulInst { /* implementation */ }
     
     // Memory operations
-    fun buildAlloca(type: Type, name: String = ""): AllocaInst { /* implementation */ }
-    fun buildLoad(address: Value, name: String = ""): LoadInst { /* implementation */ }
-    fun buildStore(value: Value, address: Value): StoreInst { /* implementation */ }
-    fun buildGep(address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst { /* implementation */ }
+    fun insertAlloca(type: Type, name: String = ""): AllocaInst { /* implementation */ }
+    fun insertLoad(address: Value, name: String = ""): LoadInst { /* implementation */ }
+    fun insertStore(value: Value, address: Value): StoreInst { /* implementation */ }
+    fun insertGep(address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst { /* implementation */ }
     
     // Other operations
-    fun buildCall(function: Function, args: List<Value>, name: String = ""): CallInst { /* implementation */ }
-    fun buildICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): ICmpInst { /* implementation */ }
+    fun insertCall(function: Function, args: List<Value>, name: String = ""): CallInst { /* implementation */ }
+    fun insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): ICmpInst { /* implementation */ }
 }
 ```
 

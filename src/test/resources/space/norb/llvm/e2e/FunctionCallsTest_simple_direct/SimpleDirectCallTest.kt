@@ -39,8 +39,8 @@ object SimpleDirectCallTest {
         builder.positionAtEnd(addBlock)
         val a = addFunction.parameters[0]
         val b = addFunction.parameters[1]
-        val result = builder.buildAdd(a, b, "result")
-        builder.buildRet(result)
+        val result = builder.insertAdd(a, b, "result")
+        builder.insertRet(result)
         
         // Create main function: i32 @main()
         val mainFunctionType = FunctionType(
@@ -59,7 +59,7 @@ object SimpleDirectCallTest {
         builder.positionAtEnd(mainBlock)
         val const5 = BuilderUtils.getIntConstant(5, IntegerType.I32)
         val const3 = BuilderUtils.getIntConstant(3, IntegerType.I32)
-        val callResult = builder.buildCall(addFunction, listOf(const5, const3), "call_result")
-        builder.buildRet(callResult)
+        val callResult = builder.insertCall(addFunction, listOf(const5, const3), "call_result")
+        builder.insertRet(callResult)
     }
 }

@@ -44,9 +44,9 @@ object NegI64Test {
         val arg0 = function.parameters[0]
         
         // Create negation operation
-        val result = builder.buildNeg(arg0, "result")
+        val result = builder.insertNeg(arg0, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

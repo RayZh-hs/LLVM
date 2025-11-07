@@ -56,9 +56,9 @@ object ConstantGlobalTest {
         builder.positionAtEnd(entryBlock)
         
         // Load the constant global variable
-        val loadedValue = builder.buildLoad(IntegerType.I32, constantGlobal, "loaded_value")
+        val loadedValue = builder.insertLoad(IntegerType.I32, constantGlobal, "loaded_value")
         
         // Return the loaded value
-        builder.buildRet(loadedValue)
+        builder.insertRet(loadedValue)
     }
 }

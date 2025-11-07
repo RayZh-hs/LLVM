@@ -207,21 +207,21 @@ This is the primary user-facing class for constructing the IR. It simplifies the
         *   `createFunction(name: String, type: FunctionType): Function`
         *   `createBasicBlock(name: String, function: Function): BasicBlock`
     *   **Terminators:**
-        *   `buildRet(value: Value?)`
-        *   `buildBr(target: BasicBlock)`
-        *   `buildCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock)`
+        *   `insertRet(value: Value?)`
+        *   `insertBr(target: BasicBlock)`
+        *   `insertCondBr(condition: Value, trueTarget: BasicBlock, falseTarget: BasicBlock)`
     *   **Binary Ops:**
-        *   `buildAdd(lhs: Value, rhs: Value, name: String = ""): Value`
-        *   `buildSub(lhs: Value, rhs: Value, name: String = ""): Value`
-        *   `buildMul(...)`
+        *   `insertAdd(lhs: Value, rhs: Value, name: String = ""): Value`
+        *   `insertSub(lhs: Value, rhs: Value, name: String = ""): Value`
+        *   `insertMul(...)`
     *   **Memory Ops:**
-        *   `buildAlloca(type: Type, name: String = ""): Value`
-        *   `buildLoad(address: Value, name: String = ""): Value`
-        *   `buildStore(value: Value, address: Value)`
-        *   `buildGep(address: Value, indices: List<Value>, name: String = ""): Value`
+        *   `insertAlloca(type: Type, name: String = ""): Value`
+        *   `insertLoad(address: Value, name: String = ""): Value`
+        *   `insertStore(value: Value, address: Value)`
+        *   `insertGep(address: Value, indices: List<Value>, name: String = ""): Value`
     *   **Other Ops:**
-        *   `buildCall(function: Function, args: List<Value>, name: String = ""): Value`
-        *   `buildICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): Value`
+        *   `insertCall(function: Function, args: List<Value>, name: String = ""): Value`
+        *   `insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): Value`
 
 ---
 

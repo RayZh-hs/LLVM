@@ -45,19 +45,19 @@ object MultipleBranchesTest {
         
         // Entry block - branch to block1
         builder.positionAtEnd(entryBlock)
-        builder.buildBr(block1)
+        builder.insertBr(block1)
         
         // Block1 - branch to block2
         builder.positionAtEnd(block1)
-        builder.buildBr(block2)
+        builder.insertBr(block2)
         
         // Block2 - branch to block3
         builder.positionAtEnd(block2)
-        builder.buildBr(block3)
+        builder.insertBr(block3)
         
         // Block3 - return a constant
         builder.positionAtEnd(block3)
         val result = IntConstant(123, IntegerType.I32)
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

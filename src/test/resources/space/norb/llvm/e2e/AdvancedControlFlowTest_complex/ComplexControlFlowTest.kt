@@ -45,22 +45,22 @@ object ComplexControlFlowTest {
         
         // Entry block - unconditional branch to compute
         builder.positionAtEnd(entryBlock)
-        builder.buildBr(computeBlock)
+        builder.insertBr(computeBlock)
         
         // Compute block - perform computation and branch to cleanup
         builder.positionAtEnd(computeBlock)
         val arg0 = function.parameters[0]
         val arg1 = function.parameters[1]
-        val temp = builder.buildAdd(arg0, arg1, "temp")
-        builder.buildBr(cleanupBlock)
+        val temp = builder.insertAdd(arg0, arg1, "temp")
+        builder.insertBr(cleanupBlock)
         
         // Cleanup block - perform cleanup and branch to exit
         builder.positionAtEnd(cleanupBlock)
-        val result = builder.buildMul(temp, IntConstant(2, IntegerType.I32), "result")
-        builder.buildBr(exitBlock)
+        val result = builder.insertMul(temp, IntConstant(2, IntegerType.I32), "result")
+        builder.insertBr(exitBlock)
         
         // Exit block - return the result
         builder.positionAtEnd(exitBlock)
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

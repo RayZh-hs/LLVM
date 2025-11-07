@@ -49,7 +49,7 @@ object SwitchTest {
         val arg0 = function.parameters[0]
         
         // Create switch instruction
-        builder.buildSwitch(arg0, defaultBlock, listOf(
+        builder.insertSwitch(arg0, defaultBlock, listOf(
             Pair(BuilderUtils.getIntConstant(1, IntegerType.I32), case1Block),
             Pair(BuilderUtils.getIntConstant(2, IntegerType.I32), case2Block)
         ))
@@ -57,25 +57,25 @@ object SwitchTest {
         // Case 1 block
         builder.positionAtEnd(case1Block)
         val case1Result = BuilderUtils.getIntConstant(10, IntegerType.I32)
-        builder.buildBr(mergeBlock)
+        builder.insertBr(mergeBlock)
         
         // Case 2 block
         builder.positionAtEnd(case2Block)
         val case2Result = BuilderUtils.getIntConstant(20, IntegerType.I32)
-        builder.buildBr(mergeBlock)
+        builder.insertBr(mergeBlock)
         
         // Default block
         builder.positionAtEnd(defaultBlock)
         val defaultResult = BuilderUtils.getIntConstant(0, IntegerType.I32)
-        builder.buildBr(mergeBlock)
+        builder.insertBr(mergeBlock)
         
         // Merge block
         builder.positionAtEnd(mergeBlock)
-        val result = builder.buildPhi(IntegerType.I32, listOf(
+        val result = builder.insertPhi(IntegerType.I32, listOf(
             Pair(case1Result, case1Block),
             Pair(case2Result, case2Block),
             Pair(defaultResult, defaultBlock)
         ), "result")
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

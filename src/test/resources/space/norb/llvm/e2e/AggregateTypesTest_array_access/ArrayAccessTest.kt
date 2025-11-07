@@ -57,12 +57,12 @@ object ArrayAccessTest {
         
         // Get element pointer: gep [10 x i32], ptr, 0, index
         val gepIndices = listOf(IntConstant(0, IntegerType.I32), index)
-        val elementPtr = builder.buildGep(arrayType, arrayPtr, gepIndices, "element_ptr")
+        val elementPtr = builder.insertGep(arrayType, arrayPtr, gepIndices, "element_ptr")
         
         // Load the element
-        val element = builder.buildLoad(IntegerType.I32, elementPtr, "element")
+        val element = builder.insertLoad(IntegerType.I32, elementPtr, "element")
         
         // Return the element
-        builder.buildRet(element)
+        builder.insertRet(element)
     }
 }

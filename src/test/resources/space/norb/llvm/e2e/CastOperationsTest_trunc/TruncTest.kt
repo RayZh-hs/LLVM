@@ -49,9 +49,9 @@ object TruncTest {
         val arg0 = function.parameters[0]
         
         // Create trunc instruction (i32 to i8)
-        val result = builder.buildTrunc(arg0, IntegerType.I8, "result")
+        val result = builder.insertTrunc(arg0, IntegerType.I8, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

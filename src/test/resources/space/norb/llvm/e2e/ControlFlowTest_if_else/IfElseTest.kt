@@ -52,25 +52,25 @@ object IfElseTest {
         
         // Compare arg0 with 0
         val zero = BuilderUtils.getIntConstant(0, IntegerType.I32)
-        val condition = builder.buildICmp(IcmpPredicate.NE, arg0, zero, "condition")
-        builder.buildCondBr(condition, thenBlock, elseBlock)
+        val condition = builder.insertICmp(IcmpPredicate.NE, arg0, zero, "condition")
+        builder.insertCondBr(condition, thenBlock, elseBlock)
         
         // Then block
         builder.positionAtEnd(thenBlock)
-        val thenResult = builder.buildAdd(arg1, arg2, "then_result")
-        builder.buildBr(mergeBlock)
+        val thenResult = builder.insertAdd(arg1, arg2, "then_result")
+        builder.insertBr(mergeBlock)
         
         // Else block
         builder.positionAtEnd(elseBlock)
-        val elseResult = builder.buildSub(arg1, arg2, "else_result")
-        builder.buildBr(mergeBlock)
+        val elseResult = builder.insertSub(arg1, arg2, "else_result")
+        builder.insertBr(mergeBlock)
         
         // Merge block
         builder.positionAtEnd(mergeBlock)
-        val result = builder.buildPhi(IntegerType.I32, listOf(
+        val result = builder.insertPhi(IntegerType.I32, listOf(
             Pair(thenResult, thenBlock),
             Pair(elseResult, elseBlock)
         ), "result")
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

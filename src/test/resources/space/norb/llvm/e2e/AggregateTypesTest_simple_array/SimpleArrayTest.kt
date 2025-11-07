@@ -51,9 +51,9 @@ object SimpleArrayTest {
         val arrayType = ArrayType(10, IntegerType.I32)
         
         // Allocate array
-        val arrayPtr = builder.buildAlloca(arrayType, "array")
+        val arrayPtr = builder.insertAlloca(arrayType, "array")
         
         // Return the array pointer
-        builder.buildRet(arrayPtr)
+        builder.insertRet(arrayPtr)
     }
 }

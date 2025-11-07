@@ -48,23 +48,23 @@ object ComplexComparisonPredicatesTest {
         val arg2 = function.parameters[2]
         
         // Create multiple comparisons
-        val cmp1 = builder.buildICmp(IcmpPredicate.SGT, arg0, arg1, "cmp1")
-        val cmp2 = builder.buildICmp(IcmpPredicate.ULT, arg1, arg2, "cmp2")
+        val cmp1 = builder.insertICmp(IcmpPredicate.SGT, arg0, arg1, "cmp1")
+        val cmp2 = builder.insertICmp(IcmpPredicate.ULT, arg1, arg2, "cmp2")
         
         // Combine comparisons with AND
-        val condition = builder.buildAnd(cmp1, cmp2, "condition")
+        val condition = builder.insertAnd(cmp1, cmp2, "condition")
         
         // Create then block
         val thenBlock = builder.createBasicBlock("then", function)
         function.basicBlocks.add(thenBlock)
         builder.positionAtEnd(thenBlock)
-        val thenResult = builder.buildAdd(arg0, arg2, "then_result")
+        val thenResult = builder.insertAdd(arg0, arg2, "then_result")
         
         // Create else block
         val elseBlock = builder.createBasicBlock("else", function)
         function.basicBlocks.add(elseBlock)
         builder.positionAtEnd(elseBlock)
-        val elseResult = builder.buildSub(arg0, arg2, "else_result")
+        val elseResult = builder.insertSub(arg0, arg2, "else_result")
         
         // Create merge block
         val mergeBlock = builder.createBasicBlock("merge", function)
@@ -72,18 +72,18 @@ object ComplexComparisonPredicatesTest {
         
         // Add branches to then and else blocks
         builder.positionAtEnd(thenBlock)
-        builder.buildBr(mergeBlock) // Branch to merge
+        builder.insertBr(mergeBlock) // Branch to merge
         
         builder.positionAtEnd(elseBlock)
-        builder.buildBr(mergeBlock) // Branch to merge
+        builder.insertBr(mergeBlock) // Branch to merge
         
         // Build merge block
         builder.positionAtEnd(mergeBlock)
-        val result = builder.buildPhi(IntegerType.I32, listOf(Pair(thenResult, thenBlock), Pair(elseResult, elseBlock)), "result")
-        builder.buildRet(result)
+        val result = builder.insertPhi(IntegerType.I32, listOf(Pair(thenResult, thenBlock), Pair(elseResult, elseBlock)), "result")
+        builder.insertRet(result)
         
         // Go back to entry block and add conditional branch
         builder.positionAtEnd(entryBlock)
-        builder.buildCondBr(condition, thenBlock, elseBlock)
+        builder.insertCondBr(condition, thenBlock, elseBlock)
     }
 }

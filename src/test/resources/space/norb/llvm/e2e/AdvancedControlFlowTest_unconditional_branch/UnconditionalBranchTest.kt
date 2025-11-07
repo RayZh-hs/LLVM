@@ -43,11 +43,11 @@ object UnconditionalBranchTest {
         
         // Entry block - create unconditional branch
         builder.positionAtEnd(entryBlock)
-        builder.buildBr(targetBlock)
+        builder.insertBr(targetBlock)
         
         // Target block - return a constant
         builder.positionAtEnd(targetBlock)
         val result = IntConstant(42, IntegerType.I32)
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

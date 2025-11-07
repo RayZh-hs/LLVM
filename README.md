@@ -73,10 +73,10 @@ val a = addFunction.parameters[0]
 val b = addFunction.parameters[1]
 
 // Add the two parameters
-val result = builder.buildAdd(a, b, "result")
+val result = builder.insertAdd(a, b, "result")
 
 // Return the result
-builder.buildRet(result)
+builder.insertRet(result)
 
 // Print the generated IR
 val printer = IRPrinter()
@@ -186,17 +186,17 @@ absFunction.basicBlocks.addAll(listOf(entryBlock, positiveBlock, negativeBlock))
 // Entry block
 builder.positionAtEnd(entryBlock)
 val param = absFunction.parameters[0]
-val isNegative = builder.buildICmp(IcmpPredicate.SLT, param, BuilderUtils.getIntConstant(0, IntegerType(32)), "isneg")
-builder.buildCondBr(isNegative, negativeBlock, positiveBlock)
+val isNegative = builder.insertICmp(IcmpPredicate.SLT, param, BuilderUtils.getIntConstant(0, IntegerType(32)), "isneg")
+builder.insertCondBr(isNegative, negativeBlock, positiveBlock)
 
 // Positive block
 builder.positionAtEnd(positiveBlock)
-builder.buildRet(param)
+builder.insertRet(param)
 
 // Negative block
 builder.positionAtEnd(negativeBlock)
-val negated = builder.buildNeg(param, "neg")
-builder.buildRet(negated)
+val negated = builder.insertNeg(param, "neg")
+builder.insertRet(negated)
 ```
 
 ### Working with Arrays and Structs
@@ -222,7 +222,7 @@ module.globalVariables.add(globalPeople)
 
 // Access array element
 val index = BuilderUtils.getIntConstant(2, IntegerType(32))
-val elementPtr = builder.buildGep(
+val elementPtr = builder.insertGep(
     personType,
     globalPeople,
     listOf(BuilderUtils.getIntConstant(0, IntegerType(32)), index),

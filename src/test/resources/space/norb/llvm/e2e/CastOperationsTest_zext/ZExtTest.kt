@@ -49,9 +49,9 @@ object ZExtTest {
         val arg0 = function.parameters[0]
         
         // Create zext instruction (i8 to i32)
-        val result = builder.buildZExt(arg0, IntegerType.I32, "result")
+        val result = builder.insertZExt(arg0, IntegerType.I32, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

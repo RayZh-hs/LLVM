@@ -44,15 +44,15 @@ object AllocaStoreLoadTest {
         val arg0 = function.parameters[0]
         
         // Allocate memory on stack
-        val alloca = builder.buildAlloca(IntegerType.I32, "var")
+        val alloca = builder.insertAlloca(IntegerType.I32, "var")
         
         // Store the argument value
-        builder.buildStore(arg0, alloca)
+        builder.insertStore(arg0, alloca)
         
         // Load the value back
-        val loaded = builder.buildLoad(IntegerType.I32, alloca, "loaded")
+        val loaded = builder.insertLoad(IntegerType.I32, alloca, "loaded")
         
         // Return the loaded value
-        builder.buildRet(loaded)
+        builder.insertRet(loaded)
     }
 }

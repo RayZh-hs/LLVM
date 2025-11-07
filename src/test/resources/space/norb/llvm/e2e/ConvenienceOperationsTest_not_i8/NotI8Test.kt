@@ -44,9 +44,9 @@ object NotI8Test {
         val arg0 = function.parameters[0]
         
         // Create NOT operation
-        val result = builder.buildNot(arg0, "result")
+        val result = builder.insertNot(arg0, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

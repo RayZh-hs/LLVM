@@ -50,9 +50,9 @@ object XorTest {
         val arg1 = function.parameters[1]
         
         // Create xor instruction
-        val result = builder.buildXor(arg0, arg1, "result")
+        val result = builder.insertXor(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

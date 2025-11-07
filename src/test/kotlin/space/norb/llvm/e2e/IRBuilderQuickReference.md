@@ -48,40 +48,40 @@ builder.positionAtEnd(entryBlock)
 
 ```kotlin
 // Arithmetic operations
-val addResult = builder.buildAdd(lhs, rhs, "result")
-val subResult = builder.buildSub(lhs, rhs, "result")
-val mulResult = builder.buildMul(lhs, rhs, "result")
-val divResult = builder.buildSDiv(lhs, rhs, "result")
+val addResult = builder.insertAdd(lhs, rhs, "result")
+val subResult = builder.insertSub(lhs, rhs, "result")
+val mulResult = builder.insertMul(lhs, rhs, "result")
+val divResult = builder.insertSDiv(lhs, rhs, "result")
 
 // Bitwise operations
-val andResult = builder.buildAnd(lhs, rhs, "result")
-val orResult = builder.buildOr(lhs, rhs, "result")
-val xorResult = builder.buildXor(lhs, rhs, "result")
+val andResult = builder.insertAnd(lhs, rhs, "result")
+val orResult = builder.insertOr(lhs, rhs, "result")
+val xorResult = builder.insertXor(lhs, rhs, "result")
 ```
 
 ## Comparison Operations
 
 ```kotlin
 // Integer comparisons
-val eq = builder.buildICmp(IcmpPredicate.EQ, lhs, rhs, "eq")
-val ne = builder.buildICmp(IcmpPredicate.NE, lhs, rhs, "ne")
-val slt = builder.buildICmp(IcmpPredicate.SLT, lhs, rhs, "slt")
-val sle = builder.buildICmp(IcmpPredicate.SLE, lhs, rhs, "sle")
-val sgt = builder.buildICmp(IcmpPredicate.SGT, lhs, rhs, "sgt")
-val sge = builder.buildICmp(IcmpPredicate.SGE, lhs, rhs, "sge")
+val eq = builder.insertICmp(IcmpPredicate.EQ, lhs, rhs, "eq")
+val ne = builder.insertICmp(IcmpPredicate.NE, lhs, rhs, "ne")
+val slt = builder.insertICmp(IcmpPredicate.SLT, lhs, rhs, "slt")
+val sle = builder.insertICmp(IcmpPredicate.SLE, lhs, rhs, "sle")
+val sgt = builder.insertICmp(IcmpPredicate.SGT, lhs, rhs, "sgt")
+val sge = builder.insertICmp(IcmpPredicate.SGE, lhs, rhs, "sge")
 ```
 
 ## Control Flow
 
 ```kotlin
 // Unconditional branch
-builder.buildBr(targetBlock)
+builder.insertBr(targetBlock)
 
 // Conditional branch
-builder.buildCondBr(condition, trueBlock, falseBlock)
+builder.insertCondBr(condition, trueBlock, falseBlock)
 
 // Switch statement
-val switchInst = builder.buildSwitch(
+val switchInst = builder.insertSwitch(
     condition, 
     defaultBlock, 
     listOf(
@@ -91,32 +91,32 @@ val switchInst = builder.buildSwitch(
 )
 
 // Return statements
-builder.buildRet(value)           // Return with value
-builder.buildRetVoid()            // Return void
+builder.insertRet(value)           // Return with value
+builder.insertRetVoid()            // Return void
 ```
 
 ## Memory Operations
 
 ```kotlin
 // Allocate memory on stack
-val alloca = builder.buildAlloca(IntegerType.I32, "var")
+val alloca = builder.insertAlloca(IntegerType.I32, "var")
 
 // Store value to memory
-builder.buildStore(value, pointer)
+builder.insertStore(value, pointer)
 
 // Load value from memory
-val loaded = builder.buildLoad(IntegerType.I32, pointer, "loaded")
+val loaded = builder.insertLoad(IntegerType.I32, pointer, "loaded")
 
 // Get element pointer (array indexing)
 val index = BuilderUtils.getIntConstant(2, IntegerType.I32)
-val gep = builder.buildGep(IntegerType.I32, arrayPtr, listOf(index), "elem_ptr")
+val gep = builder.insertGep(IntegerType.I32, arrayPtr, listOf(index), "elem_ptr")
 ```
 
 ## Phi Nodes
 
 ```kotlin
 // Create phi node with incoming values
-val phi = builder.buildPhi(
+val phi = builder.insertPhi(
     IntegerType.I32, 
     listOf(
         Pair(value1, block1),
@@ -131,30 +131,30 @@ val phi = builder.buildPhi(
 
 ```kotlin
 // Bit cast
-val bitcast = builder.buildBitcast(value, destType, "bitcast")
+val bitcast = builder.insertBitcast(value, destType, "bitcast")
 
 // Sign extend
-val sext = builder.buildSExt(value, destType, "sext")
+val sext = builder.insertSExt(value, destType, "sext")
 
 // Zero extend
-val zext = builder.buildZExt(value, destType, "zext")
+val zext = builder.insertZExt(value, destType, "zext")
 
 // Truncate
-val trunc = builder.buildTrunc(value, destType, "trunc")
+val trunc = builder.insertTrunc(value, destType, "trunc")
 ```
 
 ## Function Calls
 
 ```kotlin
 // Direct function call
-val callResult = builder.buildCall(
+val callResult = builder.insertCall(
     targetFunction, 
     listOf(arg1, arg2, arg3), 
     "call_result"
 )
 
 // Indirect function call
-val indirectCall = builder.buildIndirectCall(
+val indirectCall = builder.insertIndirectCall(
     functionPointer, 
     listOf(arg1, arg2), 
     returnType, 
@@ -175,22 +175,22 @@ val mergeBlock = builder.createBasicBlock("merge", function)
 
 // Entry block
 builder.positionAtEnd(entryBlock)
-val condition = builder.buildICmp(IcmpPredicate.NE, conditionValue, zero, "condition")
-builder.buildCondBr(condition, thenBlock, elseBlock)
+val condition = builder.insertICmp(IcmpPredicate.NE, conditionValue, zero, "condition")
+builder.insertCondBr(condition, thenBlock, elseBlock)
 
 // Then block
 builder.positionAtEnd(thenBlock)
-val thenResult = builder.buildAdd(a, b, "then_result")
-builder.buildBr(mergeBlock)
+val thenResult = builder.insertAdd(a, b, "then_result")
+builder.insertBr(mergeBlock)
 
 // Else block
 builder.positionAtEnd(elseBlock)
-val elseResult = builder.buildSub(a, b, "else_result")
-builder.buildBr(mergeBlock)
+val elseResult = builder.insertSub(a, b, "else_result")
+builder.insertBr(mergeBlock)
 
 // Merge block
 builder.positionAtEnd(mergeBlock)
-val result = builder.buildPhi(
+val result = builder.insertPhi(
     IntegerType.I32, 
     listOf(
         Pair(thenResult, thenBlock),
@@ -198,7 +198,7 @@ val result = builder.buildPhi(
     ), 
     "result"
 )
-builder.buildRet(result)
+builder.insertRet(result)
 ```
 
 ### Simple Function Pattern
@@ -218,5 +218,5 @@ function.entryBlock = entryBlock
 builder.positionAtEnd(entryBlock)
 val arg0 = function.parameters[0]
 val arg1 = function.parameters[1]
-val result = builder.buildAdd(arg0, arg1, "result")
-builder.buildRet(result)
+val result = builder.insertAdd(arg0, arg1, "result")
+builder.insertRet(result)

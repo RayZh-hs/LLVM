@@ -46,9 +46,9 @@ object SGTTest {
         val arg1 = function.parameters[1]
         
         // Create SGT comparison
-        val result = builder.buildICmp(IcmpPredicate.SGT, arg0, arg1, "result")
+        val result = builder.insertICmp(IcmpPredicate.SGT, arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -51,11 +51,11 @@ object I16OperationsTest {
         val arg1 = function.parameters[1]
         
         // Create operations with i16 values
-        val temp1 = builder.buildMul(arg0, arg1, "temp1")  // temp1 = a * b
-        val temp2 = builder.buildOr(temp1, IntConstant(4095, IntegerType.I16), "temp2")  // temp2 = temp1 | 4095
-        val result = builder.buildSub(temp2, IntConstant(1000, IntegerType.I16), "result")  // result = temp2 - 1000
+        val temp1 = builder.insertMul(arg0, arg1, "temp1")  // temp1 = a * b
+        val temp2 = builder.insertOr(temp1, IntConstant(4095, IntegerType.I16), "temp2")  // temp2 = temp1 | 4095
+        val result = builder.insertSub(temp2, IntConstant(1000, IntegerType.I16), "result")  // result = temp2 - 1000
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

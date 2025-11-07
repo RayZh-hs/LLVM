@@ -48,15 +48,15 @@ object VoidWithBranchesTest {
         builder.positionAtEnd(entryBlock)
         val arg0 = function.parameters[0]
         val zero = IntConstant(0, IntegerType.I32)
-        val condition = builder.buildICmp(IcmpPredicate.EQ, arg0, zero, "condition")
-        builder.buildCondBr(condition, block1, block2)
+        val condition = builder.insertICmp(IcmpPredicate.EQ, arg0, zero, "condition")
+        builder.insertCondBr(condition, block1, block2)
         
         // Block1 - void return
         builder.positionAtEnd(block1)
-        builder.buildRetVoid()
+        builder.insertRetVoid()
         
         // Block2 - void return
         builder.positionAtEnd(block2)
-        builder.buildRetVoid()
+        builder.insertRetVoid()
     }
 }

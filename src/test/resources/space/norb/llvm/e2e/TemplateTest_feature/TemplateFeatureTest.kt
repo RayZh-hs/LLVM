@@ -47,9 +47,9 @@ object TemplateFeatureTest {
         
         // Build your IR here
         // Example: add two numbers
-        val result = builder.buildAdd(arg0, arg1, "result")
+        val result = builder.insertAdd(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

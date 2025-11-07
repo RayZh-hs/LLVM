@@ -46,13 +46,13 @@ object NegWithConstantsTest {
         val const2 = IntConstant(-17, IntegerType.I32)
         
         // Create negation operations with constants
-        val neg1 = builder.buildNeg(const1, "neg1")
-        val neg2 = builder.buildNeg(const2, "neg2")
+        val neg1 = builder.insertNeg(const1, "neg1")
+        val neg2 = builder.insertNeg(const2, "neg2")
         
         // Combine the results
-        val result = builder.buildAdd(neg1, neg2, "result")
+        val result = builder.insertAdd(neg1, neg2, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -50,9 +50,9 @@ object SubTest {
         val arg1 = function.parameters[1]
         
         // Create sub instruction
-        val result = builder.buildSub(arg0, arg1, "result")
+        val result = builder.insertSub(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

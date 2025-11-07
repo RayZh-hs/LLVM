@@ -49,12 +49,12 @@ object GetElementPtrTest {
         val index = BuilderUtils.getIntConstant(2, IntegerType.I32)
         
         // Get pointer to element at index 2
-        val gep = builder.buildGep(IntegerType.I32, arg0, listOf(index), "ptr_to_elem")
+        val gep = builder.insertGep(IntegerType.I32, arg0, listOf(index), "ptr_to_elem")
         
         // Load the value at that location
-        val loaded = builder.buildLoad(IntegerType.I32, gep, "loaded")
+        val loaded = builder.insertLoad(IntegerType.I32, gep, "loaded")
         
         // Return the loaded value
-        builder.buildRet(loaded)
+        builder.insertRet(loaded)
     }
 }

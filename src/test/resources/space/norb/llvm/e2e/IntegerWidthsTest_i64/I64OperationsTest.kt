@@ -51,12 +51,12 @@ object I64OperationsTest {
         val arg1 = function.parameters[1]
         
         // Create operations with i64 values
-        val temp1 = builder.buildAdd(arg0, arg1, "temp1")  // temp1 = a + b
-        val temp2 = builder.buildSDiv(temp1, IntConstant(2L, IntegerType.I64), "temp2")  // temp2 = temp1 / 2
-        val temp3 = builder.buildAnd(temp2, IntConstant(281474976710655L, IntegerType.I64), "temp3")  // temp3 = temp2 & mask
-        val result = builder.buildXor(temp3, IntConstant(Long.MIN_VALUE, IntegerType.I64, isUnsigned = true), "result")  // result = temp3 ^ sign_bit
+        val temp1 = builder.insertAdd(arg0, arg1, "temp1")  // temp1 = a + b
+        val temp2 = builder.insertSDiv(temp1, IntConstant(2L, IntegerType.I64), "temp2")  // temp2 = temp1 / 2
+        val temp3 = builder.insertAnd(temp2, IntConstant(281474976710655L, IntegerType.I64), "temp3")  // temp3 = temp2 & mask
+        val result = builder.insertXor(temp3, IntConstant(Long.MIN_VALUE, IntegerType.I64, isUnsigned = true), "result")  // result = temp3 ^ sign_bit
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -52,12 +52,12 @@ object ComplexBinaryOperationsTest {
         val arg2 = function.parameters[2]
         
         // Create a sequence of binary operations
-        val temp1 = builder.buildMul(arg0, arg1, "temp1")  // temp1 = a * b
-        val temp2 = builder.buildAdd(temp1, arg2, "temp2")  // temp2 = temp1 + c
-        val temp3 = builder.buildAnd(temp2, IntConstant(255, IntegerType.I32), "temp3")  // temp3 = temp2 & 255
-        val result = builder.buildXor(temp3, IntConstant(128, IntegerType.I32), "result")  // result = temp3 ^ 128
+        val temp1 = builder.insertMul(arg0, arg1, "temp1")  // temp1 = a * b
+        val temp2 = builder.insertAdd(temp1, arg2, "temp2")  // temp2 = temp1 + c
+        val temp3 = builder.insertAnd(temp2, IntConstant(255, IntegerType.I32), "temp3")  // temp3 = temp2 & 255
+        val result = builder.insertXor(temp3, IntConstant(128, IntegerType.I32), "result")  // result = temp3 ^ 128
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

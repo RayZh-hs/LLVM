@@ -60,6 +60,6 @@ object GlobalArrayTest {
         builder.positionAtEnd(entryBlock)
         
         // Return the global array pointer
-        builder.buildRet(globalArray)
+        builder.insertRet(globalArray)
     }
 }

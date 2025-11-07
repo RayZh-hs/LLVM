@@ -46,9 +46,9 @@ object SGETest {
         val arg1 = function.parameters[1]
         
         // Create SGE comparison
-        val result = builder.buildICmp(IcmpPredicate.SGE, arg0, arg1, "result")
+        val result = builder.insertICmp(IcmpPredicate.SGE, arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

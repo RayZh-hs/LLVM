@@ -40,4 +40,22 @@ class Function(
         // Functions belong to modules
         return module
     }
+
+    fun setBasicBlock(block: BasicBlock): Function {
+        this.entryBlock = block
+        this.basicBlocks.clear()
+        this.basicBlocks.add(block)
+        return this
+    }
+
+    fun setBasicBlocks(blocks: List<BasicBlock>): Function {
+        if (blocks.isNotEmpty()) {
+            this.entryBlock = blocks[0]
+        } else {
+            throw IllegalArgumentException("Basic blocks list cannot be empty")
+        }
+        this.basicBlocks.clear()
+        this.basicBlocks.addAll(blocks)
+        return this
+    }
 }

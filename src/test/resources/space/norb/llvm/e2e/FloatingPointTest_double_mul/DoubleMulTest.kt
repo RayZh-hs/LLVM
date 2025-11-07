@@ -46,9 +46,9 @@ object DoubleMulTest {
         val b = function.parameters[1]
         
         // Perform multiplication: a * b
-        val result = builder.buildMul(a, b, "result")
+        val result = builder.insertMul(a, b, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -41,8 +41,8 @@ object ComplexIndirectCallTest {
         builder.positionAtEnd(addEntryBlock)
         val addA = addFunction.parameters[0]
         val addB = addFunction.parameters[1]
-        val addResult = builder.buildAdd(addA, addB, "result")
-        builder.buildRet(addResult)
+        val addResult = builder.insertAdd(addA, addB, "result")
+        builder.insertRet(addResult)
         
         // Create helper function 2: i32 @multiply(i32 %a, i32 %b)
         val multiplyFunctionType = FunctionType(
@@ -62,8 +62,8 @@ object ComplexIndirectCallTest {
         builder.positionAtEnd(multiplyBlock)
         val mulA = multiplyFunction.parameters[0]
         val mulB = multiplyFunction.parameters[1]
-        val mulResult = builder.buildMul(mulA, mulB, "result")
-        builder.buildRet(mulResult)
+        val mulResult = builder.insertMul(mulA, mulB, "result")
+        builder.insertRet(mulResult)
         
         // Create main function: i32 @main()
         val mainFunctionType = FunctionType(
@@ -86,31 +86,31 @@ object ComplexIndirectCallTest {
         builder.positionAtEnd(entryBlock)
         val const1 = BuilderUtils.getIntConstant(1, IntegerType.I32)
         val zero = BuilderUtils.getIntConstant(0, IntegerType.I32)
-        val condition = builder.buildICmp(IcmpPredicate.EQ, const1, zero, "condition")
-        builder.buildCondBr(condition, mulBlock, useAddBlock)
+        val condition = builder.insertICmp(IcmpPredicate.EQ, const1, zero, "condition")
+        builder.insertCondBr(condition, mulBlock, useAddBlock)
         
         // Add block
         builder.positionAtEnd(useAddBlock)
-        val addFuncPtr = builder.buildBitcast(addFunction, PointerType, "func_ptr")
+        val addFuncPtr = builder.insertBitcast(addFunction, PointerType, "func_ptr")
         val const5 = BuilderUtils.getIntConstant(5, IntegerType.I32)
         val const3 = BuilderUtils.getIntConstant(3, IntegerType.I32)
-        val addCallResult = builder.buildIndirectCall(addFuncPtr, listOf(const5, const3), IntegerType.I32, "call_result")
-        builder.buildBr(mergeBlock)
+        val addCallResult = builder.insertIndirectCall(addFuncPtr, listOf(const5, const3), IntegerType.I32, "call_result")
+        builder.insertBr(mergeBlock)
         
         // Multiply block
         builder.positionAtEnd(mulBlock)
-        val mulFuncPtr = builder.buildBitcast(multiplyFunction, PointerType, "func_ptr1")
+        val mulFuncPtr = builder.insertBitcast(multiplyFunction, PointerType, "func_ptr1")
         val const4 = BuilderUtils.getIntConstant(4, IntegerType.I32)
         val const6 = BuilderUtils.getIntConstant(6, IntegerType.I32)
-        val mulCallResult = builder.buildIndirectCall(mulFuncPtr, listOf(const4, const6), IntegerType.I32, "call_result2")
-        builder.buildBr(mergeBlock)
+        val mulCallResult = builder.insertIndirectCall(mulFuncPtr, listOf(const4, const6), IntegerType.I32, "call_result2")
+        builder.insertBr(mergeBlock)
         
         // Merge block
         builder.positionAtEnd(mergeBlock)
-        val finalResult = builder.buildPhi(IntegerType.I32, listOf(
+        val finalResult = builder.insertPhi(IntegerType.I32, listOf(
             Pair(addCallResult, useAddBlock),
             Pair(mulCallResult, mulBlock)
         ), "result")
-        builder.buildRet(finalResult)
+        builder.insertRet(finalResult)
     }
 }

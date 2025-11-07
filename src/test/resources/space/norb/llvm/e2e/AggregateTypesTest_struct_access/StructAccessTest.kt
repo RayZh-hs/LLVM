@@ -57,12 +57,12 @@ object StructAccessTest {
         
         // Get element pointer for the second field (index 1): gep { i32, i64, float }, ptr, 0, 1
         val gepIndices = listOf(IntConstant(0, IntegerType.I32), IntConstant(1, IntegerType.I32))
-        val fieldPtr = builder.buildGep(structType, structPtr, gepIndices, "field_ptr")
+        val fieldPtr = builder.insertGep(structType, structPtr, gepIndices, "field_ptr")
         
         // Load the field
-        val field = builder.buildLoad(IntegerType.I64, fieldPtr, "field")
+        val field = builder.insertLoad(IntegerType.I64, fieldPtr, "field")
         
         // Return the field
-        builder.buildRet(field)
+        builder.insertRet(field)
     }
 }

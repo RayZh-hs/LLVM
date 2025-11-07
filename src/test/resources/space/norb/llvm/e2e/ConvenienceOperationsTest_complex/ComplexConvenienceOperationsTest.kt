@@ -45,12 +45,12 @@ object ComplexConvenienceOperationsTest {
         val arg1 = function.parameters[1]
         
         // Create a sequence of convenience operations
-        val notArg0 = builder.buildNot(arg0, "not_arg0")  // not_arg0 = ~arg0
-        val negArg1 = builder.buildNeg(arg1, "neg_arg1")  // neg_arg1 = -arg1
-        val temp = builder.buildAnd(notArg0, negArg1, "temp")  // temp = not_arg0 & neg_arg1
-        val result = builder.buildNot(temp, "result")  // result = ~temp
+        val notArg0 = builder.insertNot(arg0, "not_arg0")  // not_arg0 = ~arg0
+        val negArg1 = builder.insertNeg(arg1, "neg_arg1")  // neg_arg1 = -arg1
+        val temp = builder.insertAnd(notArg0, negArg1, "temp")  // temp = not_arg0 & neg_arg1
+        val result = builder.insertNot(temp, "result")  // result = ~temp
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

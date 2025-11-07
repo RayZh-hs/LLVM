@@ -46,9 +46,9 @@ object DoubleAddTest {
         val b = function.parameters[1]
         
         // Perform addition: a + b
-        val result = builder.buildAdd(a, b, "result")
+        val result = builder.insertAdd(a, b, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

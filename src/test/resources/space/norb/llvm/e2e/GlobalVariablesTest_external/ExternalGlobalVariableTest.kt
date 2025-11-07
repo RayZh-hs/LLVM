@@ -55,9 +55,9 @@ object ExternalGlobalVariableTest {
         builder.positionAtEnd(entryBlock)
         
         // Load the global variable
-        val loadedValue = builder.buildLoad(IntegerType.I32, globalVar, "loaded_value")
+        val loadedValue = builder.insertLoad(IntegerType.I32, globalVar, "loaded_value")
         
         // Return the loaded value
-        builder.buildRet(loadedValue)
+        builder.insertRet(loadedValue)
     }
 }

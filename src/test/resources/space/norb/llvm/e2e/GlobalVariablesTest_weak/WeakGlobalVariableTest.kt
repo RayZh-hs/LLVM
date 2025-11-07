@@ -55,9 +55,9 @@ object WeakGlobalVariableTest {
         builder.positionAtEnd(entryBlock)
         
         // Load the weak global variable
-        val loadedValue = builder.buildLoad(IntegerType.I32, weakGlobal, "loaded_value")
+        val loadedValue = builder.insertLoad(IntegerType.I32, weakGlobal, "loaded_value")
         
         // Return the loaded value
-        builder.buildRet(loadedValue)
+        builder.insertRet(loadedValue)
     }
 }

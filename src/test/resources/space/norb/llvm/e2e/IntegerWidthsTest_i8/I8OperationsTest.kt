@@ -51,11 +51,11 @@ object I8OperationsTest {
         val arg1 = function.parameters[1]
         
         // Create operations with i8 values
-        val temp1 = builder.buildAdd(arg0, arg1, "temp1")  // temp1 = a + b
-        val temp2 = builder.buildAnd(temp1, IntConstant(15, IntegerType.I8), "temp2")  // temp2 = temp1 & 15
-        val result = builder.buildXor(temp2, IntConstant(255, IntegerType.I8), "result")  // result = temp2 ^ 255
+        val temp1 = builder.insertAdd(arg0, arg1, "temp1")  // temp1 = a + b
+        val temp2 = builder.insertAnd(temp1, IntConstant(15, IntegerType.I8), "temp2")  // temp2 = temp1 & 15
+        val result = builder.insertXor(temp2, IntConstant(255, IntegerType.I8), "result")  // result = temp2 ^ 255
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

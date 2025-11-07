@@ -65,12 +65,12 @@ object ArrayOfStructsTest {
             index, 
             IntConstant(0, IntegerType.I32)
         )
-        val fieldPtr = builder.buildGep(arrayType, arrayPtr, gepIndices, "field_ptr")
+        val fieldPtr = builder.insertGep(arrayType, arrayPtr, gepIndices, "field_ptr")
         
         // Load the field
-        val field = builder.buildLoad(IntegerType.I32, fieldPtr, "field")
+        val field = builder.insertLoad(IntegerType.I32, fieldPtr, "field")
         
         // Return the field
-        builder.buildRet(field)
+        builder.insertRet(field)
     }
 }

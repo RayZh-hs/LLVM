@@ -46,12 +46,12 @@ object I128OperationsTest {
         val arg1 = function.parameters[1]
         
         // Create operations with i128 values
-        val temp1 = builder.buildMul(arg0, arg1, "temp1")  // temp1 = a * b
-        val temp2 = builder.buildAdd(temp1, IntConstant(1L, IntegerType.I128), "temp2")  // temp2 = temp1 + 1
-        val temp3 = builder.buildOr(temp2, IntConstant(-1L, IntegerType.I128), "temp3")  // temp3 = temp2 | -1 (all bits set)
-        val result = builder.buildAnd(temp3, IntConstant(-1L, IntegerType.I128), "result")  // result = temp3 & mask
+        val temp1 = builder.insertMul(arg0, arg1, "temp1")  // temp1 = a * b
+        val temp2 = builder.insertAdd(temp1, IntConstant(1L, IntegerType.I128), "temp2")  // temp2 = temp1 + 1
+        val temp3 = builder.insertOr(temp2, IntConstant(-1L, IntegerType.I128), "temp3")  // temp3 = temp2 | -1 (all bits set)
+        val result = builder.insertAnd(temp3, IntConstant(-1L, IntegerType.I128), "result")  // result = temp3 & mask
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

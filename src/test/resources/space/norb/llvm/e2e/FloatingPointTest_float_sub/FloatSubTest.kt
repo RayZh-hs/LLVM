@@ -46,9 +46,9 @@ object FloatSubTest {
         val b = function.parameters[1]
         
         // Perform subtraction: a - b
-        val result = builder.buildSub(a, b, "result")
+        val result = builder.insertSub(a, b, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

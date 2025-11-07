@@ -47,12 +47,12 @@ object ComplexDoubleOperationsTest {
         val arg2 = function.parameters[2]
         
         // Create complex double operations
-        val temp1 = builder.buildMul(arg0, arg1, "temp1")  // temp1 = a * b
-        val temp2 = builder.buildAdd(temp1, arg2, "temp2")  // temp2 = temp1 + c
+        val temp1 = builder.insertMul(arg0, arg1, "temp1")  // temp1 = a * b
+        val temp2 = builder.insertAdd(temp1, arg2, "temp2")  // temp2 = temp1 + c
         val const1 = FloatConstant(0.5, FloatingPointType.DoubleType)
-        val result = builder.buildMul(temp2, const1, "result")  // result = temp2 * 0.5
+        val result = builder.insertMul(temp2, const1, "result")  // result = temp2 * 0.5
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

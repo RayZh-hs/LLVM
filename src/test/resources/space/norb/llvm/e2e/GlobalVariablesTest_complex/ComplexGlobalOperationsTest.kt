@@ -67,17 +67,17 @@ object ComplexGlobalOperationsTest {
         val arg = function.parameters[0]
         
         // Load global variables
-        val counter = builder.buildLoad(IntegerType.I32, global1, "counter")
-        val multiplier = builder.buildLoad(IntegerType.I32, global2, "multiplier")
+        val counter = builder.insertLoad(IntegerType.I32, global1, "counter")
+        val multiplier = builder.insertLoad(IntegerType.I32, global2, "multiplier")
         
         // Perform operations
-        val temp1 = builder.buildAdd(counter, arg, "temp1")
-        val result = builder.buildMul(temp1, multiplier, "result")
+        val temp1 = builder.insertAdd(counter, arg, "temp1")
+        val result = builder.insertMul(temp1, multiplier, "result")
         
         // Store the new counter value
-        builder.buildStore(temp1, global1)
+        builder.insertStore(temp1, global1)
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

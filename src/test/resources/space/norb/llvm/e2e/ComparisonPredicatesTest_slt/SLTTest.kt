@@ -46,9 +46,9 @@ object SLTTest {
         val arg1 = function.parameters[1]
         
         // Create SLT comparison
-        val result = builder.buildICmp(IcmpPredicate.SLT, arg0, arg1, "result")
+        val result = builder.insertICmp(IcmpPredicate.SLT, arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

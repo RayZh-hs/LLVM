@@ -50,9 +50,9 @@ object BitcastIntToPointerTest {
         val arg0 = function.parameters[0]
         
         // Create bitcast instruction (i64 to ptr)
-        val result = builder.buildBitcast(arg0, PointerType, "result")
+        val result = builder.insertBitcast(arg0, PointerType, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

@@ -50,9 +50,9 @@ object SDivTest {
         val arg1 = function.parameters[1]
         
         // Create sdiv instruction
-        val result = builder.buildSDiv(arg0, arg1, "result")
+        val result = builder.insertSDiv(arg0, arg1, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

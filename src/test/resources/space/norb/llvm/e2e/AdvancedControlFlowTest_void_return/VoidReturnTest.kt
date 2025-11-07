@@ -40,6 +40,6 @@ object VoidReturnTest {
         
         // Entry block - create void return
         builder.positionAtEnd(entryBlock)
-        builder.buildRetVoid()
+        builder.insertRetVoid()
     }
 }

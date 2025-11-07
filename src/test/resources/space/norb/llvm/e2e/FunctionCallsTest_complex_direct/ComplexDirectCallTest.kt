@@ -39,8 +39,8 @@ object ComplexDirectCallTest {
         builder.positionAtEnd(multiplyBlock)
         val a = multiplyFunction.parameters[0]
         val b = multiplyFunction.parameters[1]
-        val result = builder.buildMul(a, b, "result")
-        builder.buildRet(result)
+        val result = builder.insertMul(a, b, "result")
+        builder.insertRet(result)
         
         // Create another helper function: i32 @calculate(i32 %x, i32 %y, i32 %z)
         val calculateFunctionType = FunctionType(
@@ -63,10 +63,10 @@ object ComplexDirectCallTest {
         val z = calculateFunction.parameters[2]
         
         // Call multiply(x, y)
-        val mulResult = builder.buildCall(multiplyFunction, listOf(x, y), "mul_result")
+        val mulResult = builder.insertCall(multiplyFunction, listOf(x, y), "mul_result")
         // Add z to the result
-        val finalResult = builder.buildAdd(mulResult, z, "final_result")
-        builder.buildRet(finalResult)
+        val finalResult = builder.insertAdd(mulResult, z, "final_result")
+        builder.insertRet(finalResult)
         
         // Create main function: i32 @main()
         val mainFunctionType = FunctionType(
@@ -86,7 +86,7 @@ object ComplexDirectCallTest {
         val const2 = BuilderUtils.getIntConstant(2, IntegerType.I32)
         val const3 = BuilderUtils.getIntConstant(3, IntegerType.I32)
         val const4 = BuilderUtils.getIntConstant(4, IntegerType.I32)
-        val callResult = builder.buildCall(calculateFunction, listOf(const2, const3, const4), "call_result")
-        builder.buildRet(callResult)
+        val callResult = builder.insertCall(calculateFunction, listOf(const2, const3, const4), "call_result")
+        builder.insertRet(callResult)
     }
 }

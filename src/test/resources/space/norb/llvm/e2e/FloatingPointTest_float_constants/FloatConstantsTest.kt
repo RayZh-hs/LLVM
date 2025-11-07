@@ -44,11 +44,11 @@ object FloatConstantsTest {
         // Create float constants and operations
         val const1 = FloatConstant(3.14, FloatingPointType.FloatType)
         val const2 = FloatConstant(2.71, FloatingPointType.FloatType)
-        val temp1 = builder.buildAdd(const1, const2, "temp1")
+        val temp1 = builder.insertAdd(const1, const2, "temp1")
         val const3 = FloatConstant(1.0, FloatingPointType.FloatType)
-        val result = builder.buildMul(temp1, const3, "result")
+        val result = builder.insertMul(temp1, const3, "result")
         
         // Return the result
-        builder.buildRet(result)
+        builder.insertRet(result)
     }
 }

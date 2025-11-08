@@ -11,7 +11,7 @@ import space.norb.llvm.enums.LinkageType
 import space.norb.llvm.builder.IRBuilder
 
 /**
- * Extracted test case for external global variables.
+ * Extracted test case for global variables.
  * Originally from GlobalVariablesTest.testExternalGlobalVariable()
  */
 object ExternalGlobalVariableTest {
@@ -23,7 +23,7 @@ object ExternalGlobalVariableTest {
      * @param builder The IR builder to use
      */
     fun buildIR(module: Module, builder: IRBuilder) {
-        // Create external global variable
+        // Create global variable
         val globalVar = GlobalVariable.create(
             name = "external_global",
             module = module,

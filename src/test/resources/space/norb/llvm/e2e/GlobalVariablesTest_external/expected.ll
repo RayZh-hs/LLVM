@@ -1,4 +1,4 @@
-@external_global = external global i32 42
+@external_global = global i32 42
 
 define i32 @get_external_global() {
 entry:

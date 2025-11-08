@@ -170,11 +170,22 @@ class GetElementPtrInst(
                     val structType = currentType as StructType
                     val fieldIndex = getStructFieldIndex(indexValue)
                     
-                    if (fieldIndex < 0 || fieldIndex >= structType.elementTypes.size) {
-                        throw IllegalArgumentException("Struct field index $fieldIndex out of bounds for struct with ${structType.elementTypes.size} fields")
+                    // Handle both anonymous and named structs
+                    val elementTypes = when (structType) {
+                        is StructType.AnonymousStructType -> structType.elementTypes
+                        is StructType.NamedStructType -> {
+                            if (structType.isOpaque()) {
+                                throw IllegalArgumentException("Cannot index into opaque struct type '${structType.name}'")
+                            }
+                            structType.elementTypes!!
+                        }
                     }
                     
-                    currentType = structType.elementTypes[fieldIndex]
+                    if (fieldIndex < 0 || fieldIndex >= elementTypes.size) {
+                        throw IllegalArgumentException("Struct field index $fieldIndex out of bounds for struct with ${elementTypes.size} fields")
+                    }
+                    
+                    currentType = elementTypes[fieldIndex]
                 }
                 else -> {
                     // For primitive types, further indexing is not valid
@@ -272,8 +283,19 @@ class GetElementPtrInst(
             fieldIndex: Int,
             inBounds: Boolean = true
         ): GetElementPtrInst {
-            if (fieldIndex < 0 || fieldIndex >= structType.elementTypes.size) {
-                throw IllegalArgumentException("Field index $fieldIndex out of bounds for struct with ${structType.elementTypes.size} fields")
+            // Handle both anonymous and named structs
+            val elementTypes = when (structType) {
+                is StructType.AnonymousStructType -> structType.elementTypes
+                is StructType.NamedStructType -> {
+                    if (structType.isOpaque()) {
+                        throw IllegalArgumentException("Cannot access field of opaque struct type '${structType.name}'")
+                    }
+                    structType.elementTypes!!
+                }
+            }
+            
+            if (fieldIndex < 0 || fieldIndex >= elementTypes.size) {
+                throw IllegalArgumentException("Field index $fieldIndex out of bounds for struct with ${elementTypes.size} fields")
             }
             
             val method = if (inBounds) ::createInBounds else ::create

@@ -87,11 +87,14 @@ data class ArrayType(val numElements: Int, val elementType: Type) : Type() {
     override fun getPrimitiveSizeInBits(): Int? = null
 }
 
-data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = false) : Type() {
-    override fun toString(): String {
-        val elements = elementTypes.joinToString(", ") { it.toString() }
-        return if (isPacked) "<{ $elements }>" else "{ $elements }"
-    }
+/**
+ * Sealed hierarchy representing all struct types in LLVM IR.
+ * 
+ * This hierarchy supports both named and anonymous structs:
+ * - Anonymous structs are defined by their structure (element types and packing)
+ * - Named structs are identified by their name and may be opaque (no elements defined yet)
+ */
+sealed class StructType : Type() {
     override fun isPrimitiveType(): Boolean = false
     override fun isDerivedType(): Boolean = true
     override fun isIntegerType(): Boolean = false
@@ -101,4 +104,120 @@ data class StructType(val elementTypes: List<Type>, val isPacked: Boolean = fals
     override fun isArrayType(): Boolean = false
     override fun isStructType(): Boolean = true
     override fun getPrimitiveSizeInBits(): Int? = null
+    
+    /**
+     * Returns the definition string representation for this struct type.
+     * For named structs, this returns the definition form (e.g., "%name = type { i32, i64 }").
+     * For anonymous structs, this returns the inline form (e.g., "{ i32, i64 }").
+     */
+    abstract fun toDefinitionString(): String
+    
+    /**
+     * Returns the inline usage string representation for this struct type.
+     * For named structs, this returns the name reference (e.g., "%name").
+     * For anonymous structs, this returns the inline form (e.g., "{ i32, i64 }").
+     */
+    abstract fun toInlineString(): String
+    
+    /**
+     * Anonymous struct type defined by its element types and packing.
+     * 
+     * Equality is based on structural equality - two anonymous structs are equal
+     * if they have the same element types in the same order and the same packing.
+     */
+    data class AnonymousStructType(
+        val elementTypes: List<Type>, 
+        val isPacked: Boolean = false
+    ) : StructType() {
+        
+        override fun toString(): String = toInlineString()
+        
+        override fun toDefinitionString(): String {
+            val elements = elementTypes.joinToString(", ") { it.toString() }
+            return if (isPacked) "<{ $elements }>" else "{ $elements }"
+        }
+        
+        override fun toInlineString(): String = toDefinitionString()
+    }
+    
+    /**
+     * Named struct type identified by a unique name.
+     * 
+     * Named structs may be opaque (no elements defined yet) or complete
+     * (with defined element types). Equality is based on name equality.
+     */
+    data class NamedStructType(
+        val name: String,
+        val elementTypes: List<Type>? = null, // null for opaque structs
+        val isPacked: Boolean = false
+    ) : StructType() {
+        
+        init {
+            require(name.isNotBlank()) { "Struct name cannot be blank" }
+            require(elementTypes == null || elementTypes.isNotEmpty()) { 
+                "Element types must be null for opaque structs or non-empty for complete structs" 
+            }
+        }
+        
+        /**
+         * Checks if this named struct is opaque (has no element types defined).
+         */
+        fun isOpaque(): Boolean = elementTypes == null
+        
+        /**
+         * Checks if this named struct is complete (has element types defined).
+         */
+        fun isComplete(): Boolean = elementTypes != null
+        
+        override fun toString(): String = toInlineString()
+        
+        override fun toDefinitionString(): String {
+            val elements = elementTypes?.joinToString(", ") { it.toString() } ?: ""
+            val body = if (isOpaque()) {
+                "opaque"
+            } else {
+                if (isPacked) "<{ $elements }>" else "{ $elements }"
+            }
+            return "%$name = type $body"
+        }
+        
+        override fun toInlineString(): String = "%$name"
+        
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is NamedStructType) return false
+            return name == other.name
+        }
+        
+        override fun hashCode(): Int {
+            return name.hashCode()
+        }
+    }
+}
+
+/**
+ * Factory function for creating anonymous struct types.
+ * This maintains backward compatibility with existing code.
+ */
+@Deprecated("Use StructType.AnonymousStructType constructor directly", ReplaceWith("StructType.AnonymousStructType(elementTypes, isPacked)"))
+fun StructType(elementTypes: List<Type>, isPacked: Boolean = false): StructType.AnonymousStructType {
+    return StructType.AnonymousStructType(elementTypes, isPacked)
+}
+
+/**
+ * Factory function for creating named struct types.
+ */
+fun createNamedStructType(
+    name: String, 
+    elementTypes: List<Type>? = null, 
+    isPacked: Boolean = false
+): StructType.NamedStructType {
+    return StructType.NamedStructType(name, elementTypes, isPacked)
+}
+
+/**
+ * Factory function for creating opaque named struct types.
+ */
+fun createOpaqueStructType(name: String): StructType.NamedStructType {
+    return StructType.NamedStructType(name, null, false)
 }

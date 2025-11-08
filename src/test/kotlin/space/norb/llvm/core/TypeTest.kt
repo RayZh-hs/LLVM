@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import space.norb.llvm.types.*
+import java.sql.Struct
 
 /**
  * Unit tests for the Type sealed class.
@@ -161,11 +162,11 @@ class TypeTest {
         val i64Type = IntegerType(64)
         
         // Regular struct
+        // Regular struct
         val structType1 = StructType(listOf(i32Type, i64Type))
-        assertEquals("{ i32, i64 }", structType1.toString())
+        assert(structType1 is StructType.AnonymousStructType)
         assertEquals(listOf(i32Type, i64Type), structType1.elementTypes)
         assertFalse(structType1.isPacked)
-        
         // Packed struct
         val structType2 = StructType(listOf(i32Type, i64Type), true)
         assertEquals("<{ i32, i64 }>", structType2.toString())

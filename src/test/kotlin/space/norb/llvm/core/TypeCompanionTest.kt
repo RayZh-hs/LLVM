@@ -150,10 +150,10 @@ class TypeCompanionTest {
         val i32 = Type.getIntegerType(32)
         val i64 = Type.getIntegerType(64)
         
-        val structType = Type.getStructType(listOf(i32, i64))
+        val structType = Type.getStructType(listOf(i32, i64)) as StructType.AnonymousStructType
         assertTrue(structType is StructType, "getStructType should return StructType")
         assertEquals("{ i32, i64 }", structType.toString())
-        assertEquals(listOf(i32, i64), (structType as StructType).elementTypes)
+        assertEquals(listOf(i32, i64), structType.elementTypes)
         assertFalse(structType.isPacked)
     }
 }

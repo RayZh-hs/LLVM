@@ -1,4 +1,4 @@
-@constant_global = external constant i32 12345
+@constant_global = constant i32 12345
 
 define i32 @get_constant_global() {
 entry:

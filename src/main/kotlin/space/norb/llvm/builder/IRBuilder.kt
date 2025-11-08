@@ -121,7 +121,8 @@ class IRBuilder(val module: Module) {
     }
     
     fun createBasicBlock(name: String, function: Function): BasicBlock {
-        return BasicBlock(name, function)
+        val block = BasicBlock(name, function)
+        return block
     }
     
     // Terminator methods

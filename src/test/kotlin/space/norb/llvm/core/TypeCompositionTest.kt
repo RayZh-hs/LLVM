@@ -65,7 +65,7 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Pointer to struct types should work correctly")
         fun testPointerToStruct() {
-            val structType = StructType(listOf(TypeUtils.I32, TypeUtils.I64))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I32, TypeUtils.I64))
             
             val structPtr = Type.getPointerType()
             assertEquals("ptr", structPtr.toString(), "Pointer to struct should have correct representation")
@@ -107,7 +107,7 @@ class TypeCompositionTest {
         @DisplayName("Function types with complex parameter types should work correctly")
         fun testComplexParameterFunction() {
             val i32Array = ArrayType(10, TypeUtils.I32)
-            val structType = StructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
             
             val i32Ptr = Type.getPointerType()
             val funcPtrType = Type.getPointerType()
@@ -131,7 +131,7 @@ class TypeCompositionTest {
             val arrayType = ArrayType(5, ArrayType(10, TypeUtils.I32))
             
             val floatPtr = Type.getPointerType()
-            val structType = StructType(listOf(TypeUtils.I32, floatPtr))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I32, floatPtr))
             val funcType = FunctionType(arrayType, listOf(structType))
             
             assertEquals("[5 x [10 x i32]] ({ i32, ptr })", funcType.toString())
@@ -204,7 +204,7 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Arrays of complex element types should work correctly")
         fun testComplexElementArrays() {
-            val structType = StructType(listOf(TypeUtils.I32, TypeUtils.I64))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I32, TypeUtils.I64))
             val structArray = ArrayType(3, structType)
             
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I32))
@@ -232,7 +232,7 @@ class TypeCompositionTest {
         fun testStructContainingArrays() {
             val i32Array = ArrayType(10, TypeUtils.I32)
             val floatArray = ArrayType(5, TypeUtils.FLOAT)
-            val structType = StructType(listOf(TypeUtils.I64, i32Array, floatArray))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I64, i32Array, floatArray))
             
             assertEquals("{ i64, [10 x i32], [5 x float] }", structType.toString())
             assertEquals(3, structType.elementTypes.size)
@@ -247,9 +247,9 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Structs containing other structs should work correctly")
         fun testStructContainingStructs() {
-            val innerStruct1 = StructType(listOf(TypeUtils.I8, TypeUtils.I16))
-            val innerStruct2 = StructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
-            val outerStruct = StructType(listOf(TypeUtils.I32, innerStruct1, innerStruct2))
+            val innerStruct1 = StructType.AnonymousStructType(listOf(TypeUtils.I8, TypeUtils.I16))
+            val innerStruct2 = StructType.AnonymousStructType(listOf(TypeUtils.FLOAT, TypeUtils.DOUBLE))
+            val outerStruct = StructType.AnonymousStructType(listOf(TypeUtils.I32, innerStruct1, innerStruct2))
             
             assertEquals("{ i8, i16 }", innerStruct1.toString())
             assertEquals("{ float, double }", innerStruct2.toString())
@@ -263,10 +263,10 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Deeply nested structs should work correctly")
         fun testDeeplyNestedStructs() {
-            val level1Struct = StructType(listOf(TypeUtils.I8))
-            val level2Struct = StructType(listOf(TypeUtils.I16, level1Struct))
-            val level3Struct = StructType(listOf(TypeUtils.I32, level2Struct))
-            val level4Struct = StructType(listOf(TypeUtils.I64, level3Struct))
+            val level1Struct = StructType.AnonymousStructType(listOf(TypeUtils.I8))
+            val level2Struct = StructType.AnonymousStructType(listOf(TypeUtils.I16, level1Struct))
+            val level3Struct = StructType.AnonymousStructType(listOf(TypeUtils.I32, level2Struct))
+            val level4Struct = StructType.AnonymousStructType(listOf(TypeUtils.I64, level3Struct))
             
             assertEquals("{ i8 }", level1Struct.toString())
             assertEquals("{ i16, { i8 } }", level2Struct.toString())
@@ -274,19 +274,19 @@ class TypeCompositionTest {
             assertEquals("{ i64, { i32, { i16, { i8 } } } }", level4Struct.toString())
             
             // Test deep nesting access
-            val deepestStruct = level4Struct.elementTypes[1] as StructType
-            val deeperStruct = deepestStruct.elementTypes[1] as StructType
-            val deepStruct = deeperStruct.elementTypes[1] as StructType
+            val deepestStruct = level4Struct.elementTypes[1] as StructType.AnonymousStructType
+            val deeperStruct = deepestStruct.elementTypes[1] as StructType.AnonymousStructType
+            val deepStruct = deeperStruct.elementTypes[1] as StructType.AnonymousStructType
             assertEquals(TypeUtils.I8, deepStruct.elementTypes[0])
         }
 
         @Test
         @DisplayName("Packed nested structs should work correctly")
         fun testPackedNestedStructs() {
-            val innerPacked = StructType(listOf(TypeUtils.I8, TypeUtils.I16), true)
-            val innerUnpacked = StructType(listOf(TypeUtils.I32, TypeUtils.I64), false)
-            val outerPacked = StructType(listOf(innerPacked, innerUnpacked), true)
-            val outerUnpacked = StructType(listOf(innerPacked, innerUnpacked), false)
+            val innerPacked = StructType.AnonymousStructType(listOf(TypeUtils.I8, TypeUtils.I16), true)
+            val innerUnpacked = StructType.AnonymousStructType(listOf(TypeUtils.I32, TypeUtils.I64), false)
+            val outerPacked = StructType.AnonymousStructType(listOf(innerPacked, innerUnpacked), true)
+            val outerUnpacked = StructType.AnonymousStructType(listOf(innerPacked, innerUnpacked), false)
             
             assertEquals("<{ i8, i16 }>", innerPacked.toString())
             assertEquals("{ i32, i64 }", innerUnpacked.toString())
@@ -307,7 +307,7 @@ class TypeCompositionTest {
         @Test
         @DisplayName("Function returning pointer to struct should work correctly")
         fun testFunctionReturningPointerToStruct() {
-            val structType = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
             
             val structPtr = Type.getPointerType()
             val funcType = FunctionType(structPtr, listOf(TypeUtils.I8, TypeUtils.I16))
@@ -354,7 +354,7 @@ class TypeCompositionTest {
         fun testComplexNestedComposition() {
             // Create a complex type: pointer to array of structs containing function pointers
             val innerFuncType = FunctionType(TypeUtils.I32, listOf(TypeUtils.I8))
-            val innerStruct = StructType(listOf(TypeUtils.I64, Type.getPointerType()))
+            val innerStruct = StructType.AnonymousStructType(listOf(TypeUtils.I64, Type.getPointerType()))
             val structArray = ArrayType(3, innerStruct)
             
             // Test with un-typed pointers (default mode)
@@ -378,13 +378,13 @@ class TypeCompositionTest {
         @DisplayName("Function with complex parameters and return type should work correctly")
         fun testFunctionWithComplexParametersAndReturn() {
             // Create complex parameter types
-            val structType = StructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
+            val structType = StructType.AnonymousStructType(listOf(TypeUtils.I32, TypeUtils.FLOAT))
             val structArray = ArrayType(5, structType)
             val funcType = FunctionType(TypeUtils.VOID, listOf(TypeUtils.I8))
             
             val structArrayPtr = Type.getPointerType()
             val funcPtr = Type.getPointerType()
-            val complexStruct = StructType(listOf(TypeUtils.I64, structArrayPtr, funcPtr))
+            val complexStruct = StructType.AnonymousStructType(listOf(TypeUtils.I64, structArrayPtr, funcPtr))
             
             // Create function with complex parameters and return type
             val complexFuncType = FunctionType(

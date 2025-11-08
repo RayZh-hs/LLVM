@@ -68,10 +68,27 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitModule(module: Module) {
         output.appendLine("; Module: ${module.name}")
-        // Print global variables first
+        
+        // Emit struct definitions first
+        emitStructDefinitions(module)
+        
+        // Print global variables
         module.globalVariables.forEach { visitGlobalVariable(it) }
         // Then print functions
         module.functions.forEach { visitFunction(it) }
+    }
+    /**
+     * Emits struct definitions for all named struct types in the module.
+     * Anonymous structs are not emitted here as they appear inline.
+     */
+    private fun emitStructDefinitions(module: Module) {
+        val namedStructs = module.getAllNamedStructTypes()
+        if (namedStructs.isNotEmpty()) {
+            output.appendLine()
+            namedStructs.forEach { structType ->
+                output.appendLine(structType.toDefinitionString())
+            }
+        }
     }
     
     override fun visitFunction(function: Function) {
@@ -105,10 +122,6 @@ class IRPrinter : IRVisitor<Unit> {
         output.appendLine("${indent()}${block.name}:")
         indentLevel++
         block.instructions.forEach { it.accept(this) }
-        // Only print terminator if it's not already in the instructions list
-        if (block.terminator != null && !block.instructions.contains(block.terminator!!)) {
-            block.terminator?.accept(this)
-        }
         indentLevel--
     }
     
@@ -123,7 +136,11 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable) {
         val linkageStr = when (globalVariable.linkage.name) {
-            "EXTERNAL" -> "external "
+            "EXTERNAL" -> {
+                // For EXTERNAL linkage, don't use "external" prefix - treat as default linkage
+                ""
+            }
+            "INTERNAL" -> "internal "
             else -> "${globalVariable.linkage.name.lowercase()} "
         }
         
@@ -139,7 +156,8 @@ class IRPrinter : IRVisitor<Unit> {
         val initializerStr = if (globalVariable.hasInitializer()) {
             " ${formatValueName(globalVariable.initializer!!)}"
         } else {
-            // Both external and non-external globals without initializers use zeroinitializer
+            // For EXTERNAL linkage globals without explicit initializers, provide zeroinitializer
+            // but don't mark them as "external" declarations
             " zeroinitializer"
         }
         

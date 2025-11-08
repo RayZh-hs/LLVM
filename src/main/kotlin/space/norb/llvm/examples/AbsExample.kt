@@ -32,10 +32,10 @@ fun main() {
             val entryBlock = builder.createBasicBlock("entry", this).apply {
                 builder.positionAtEnd(this)
                 val cmp = builder.insertICmp(
-                    pred = IcmpPredicate.NE, lhs = param, rhs = IntConstant(
+                    pred = IcmpPredicate.SGT, lhs = param, rhs = IntConstant(
                         0L,
                         TypeUtils.I32 as IntegerType
-                    ), name = "cmp"
+                    )
                 )
                 builder.insertCondBr(
                     condition = cmp,

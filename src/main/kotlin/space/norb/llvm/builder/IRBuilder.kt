@@ -32,6 +32,7 @@ import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.enums.IcmpPredicate
+import space.norb.llvm.utils.Renamer
 
 /**
  * Builder for constructing LLVM IR.
@@ -143,76 +144,90 @@ class IRBuilder(val module: Module) {
         return insertInstruction(br) as BranchInst
     }
     
-    fun insertSwitch(condition: Value, defaultDest: BasicBlock, cases: List<Pair<Value, BasicBlock>>, name: String = ""): SwitchInst {
-        val sw = SwitchInst.create(if (name.isEmpty()) "switch" else name, VoidType, condition, defaultDest, cases)
+    fun insertSwitch(condition: Value, defaultDest: BasicBlock, cases: List<Pair<Value, BasicBlock>>, name: String? = null): SwitchInst {
+        val rename = name ?: Renamer.another()
+        val sw = SwitchInst.create(rename, VoidType, condition, defaultDest, cases)
         return insertInstruction(sw) as SwitchInst
     }
     
     // Binary operations
-    fun insertAdd(lhs: Value, rhs: Value, name: String = ""): AddInst {
-        val add = AddInst(if (name.isEmpty()) "add" else name, lhs.type, lhs, rhs)
+    fun insertAdd(lhs: Value, rhs: Value, name: String? = null): AddInst {
+        val rename = name ?: Renamer.another()
+        val add = AddInst(rename, lhs.type, lhs, rhs)
         return insertInstruction(add) as AddInst
     }
     
-    fun insertSub(lhs: Value, rhs: Value, name: String = ""): SubInst {
-        val sub = SubInst.create(if (name.isEmpty()) "sub" else name, lhs, rhs)
+    fun insertSub(lhs: Value, rhs: Value, name: String? = null): SubInst {
+        val rename = name ?: Renamer.another()
+        val sub = SubInst.create(rename, lhs, rhs)
         return insertInstruction(sub) as SubInst
     }
     
-    fun insertMul(lhs: Value, rhs: Value, name: String = ""): MulInst {
-        val mul = MulInst.create(if (name.isEmpty()) "mul" else name, lhs, rhs)
+    fun insertMul(lhs: Value, rhs: Value, name: String? = null): MulInst {
+        val rename = name ?: Renamer.another()
+        val mul = MulInst.create(rename, lhs, rhs)
         return insertInstruction(mul) as MulInst
     }
     
-    fun insertAnd(lhs: Value, rhs: Value, name: String = ""): AndInst {
-        val and = AndInst.create(if (name.isEmpty()) "and" else name, lhs, rhs)
+    fun insertAnd(lhs: Value, rhs: Value, name: String? = null): AndInst {
+        val rename = name ?: Renamer.another()
+        val and = AndInst.create(rename, lhs, rhs)
         return insertInstruction(and) as AndInst
     }
     
-    fun insertOr(lhs: Value, rhs: Value, name: String = ""): OrInst {
-        val or = OrInst.create(if (name.isEmpty()) "or" else name, lhs, rhs)
+    fun insertOr(lhs: Value, rhs: Value, name: String? = null): OrInst {
+        val rename = name ?: Renamer.another()
+        val or = OrInst.create(rename, lhs, rhs)
         return insertInstruction(or) as OrInst
     }
     
-    fun insertXor(lhs: Value, rhs: Value, name: String = ""): XorInst {
-        val xor = XorInst.create(if (name.isEmpty()) "xor" else name, lhs, rhs)
+    fun insertXor(lhs: Value, rhs: Value, name: String? = null): XorInst {
+        val rename = name ?: Renamer.another()
+        val xor = XorInst.create(rename, lhs, rhs)
         return insertInstruction(xor) as XorInst
     }
     
-    fun insertSDiv(lhs: Value, rhs: Value, name: String = ""): SDivInst {
-        val sdiv = SDivInst.create(if (name.isEmpty()) "sdiv" else name, lhs, rhs)
+    fun insertSDiv(lhs: Value, rhs: Value, name: String? = null): SDivInst {
+        val rename = name ?: Renamer.another()
+        val sdiv = SDivInst.create(rename, lhs, rhs)
         return insertInstruction(sdiv) as SDivInst
     }
     
     // Cast operations
-    fun insertBitcast(value: Value, destType: Type, name: String = ""): BitcastInst {
-        val bitcast = BitcastInst.create(if (name.isEmpty()) "bitcast" else name, value, destType)
+    fun insertBitcast(value: Value, destType: Type, name: String? = null): BitcastInst {
+        val rename = name ?: Renamer.another()
+        val bitcast = BitcastInst.create(rename, value, destType)
         return insertInstruction(bitcast) as BitcastInst
     }
     
-    fun insertSExt(value: Value, destType: IntegerType, name: String = ""): SExtInst {
-        val sext = SExtInst.create(if (name.isEmpty()) "sext" else name, value, destType)
+    fun insertSExt(value: Value, destType: IntegerType, name: String? = null): SExtInst {
+        val rename = name ?: Renamer.another()
+        val sext = SExtInst.create(rename, value, destType)
         return insertInstruction(sext) as SExtInst
     }
     
-    fun insertZExt(value: Value, destType: IntegerType, name: String = ""): ZExtInst {
-        val zext = ZExtInst.create(if (name.isEmpty()) "zext" else name, value, destType)
+    fun insertZExt(value: Value, destType: IntegerType, name: String? = null): ZExtInst {
+        val rename = name ?: Renamer.another()
+        val zext = ZExtInst.create(rename, value, destType)
         return insertInstruction(zext) as ZExtInst
     }
     
-    fun insertTrunc(value: Value, destType: IntegerType, name: String = ""): TruncInst {
-        val trunc = TruncInst.create(if (name.isEmpty()) "trunc" else name, value, destType)
+    fun insertTrunc(value: Value, destType: IntegerType, name: String? = null): TruncInst {
+        val rename = name ?: Renamer.another()
+        val trunc = TruncInst.create(rename, value, destType)
         return insertInstruction(trunc) as TruncInst
     }
     
     // Memory operations
-    fun insertAlloca(allocatedType: Type, name: String = ""): AllocaInst {
-        val alloca = AllocaInst(if (name.isEmpty()) "alloca" else name, allocatedType)
+    fun insertAlloca(allocatedType: Type, name: String? = null): AllocaInst {
+        val rename = name ?: Renamer.another()
+        val alloca = AllocaInst(rename, allocatedType)
         return insertInstruction(alloca) as AllocaInst
     }
     
-    fun insertLoad(loadedType: Type, address: Value, name: String = ""): LoadInst {
-        val load = LoadInst(if (name.isEmpty()) "load" else name, loadedType, address)
+    fun insertLoad(loadedType: Type, address: Value, name: String? = null): LoadInst {
+        val rename = name ?: Renamer.another()
+        val load = LoadInst(rename, loadedType, address)
         return insertInstruction(load) as LoadInst
     }
     
@@ -221,43 +236,48 @@ class IRBuilder(val module: Module) {
         return insertInstruction(store) as StoreInst
     }
     
-    fun insertGep(elementType: Type, address: Value, indices: List<Value>, name: String = ""): GetElementPtrInst {
-        val gep = GetElementPtrInst(if (name.isEmpty()) "gep" else name, elementType, address, indices)
+    fun insertGep(elementType: Type, address: Value, indices: List<Value>, name: String? = null): GetElementPtrInst {
+        val rename = name ?: Renamer.another()
+        val gep = GetElementPtrInst(rename, elementType, address, indices)
         return insertInstruction(gep) as GetElementPtrInst
     }
     
     // Simplified methods for untyped pointer usage
-    fun insertLoad(address: Value, loadedType: Type, name: String = ""): LoadInst {
+    fun insertLoad(address: Value, loadedType: Type, name: String? = null): LoadInst {
         return insertLoad(loadedType, address, name)
     }
     
-    fun insertGep(address: Value, elementType: Type, indices: List<Value>, name: String = ""): GetElementPtrInst {
+    fun insertGep(address: Value, elementType: Type, indices: List<Value>, name: String? = null): GetElementPtrInst {
         return insertGep(elementType, address, indices, name)
     }
     
     // Other operations
-    fun insertCall(function: Function, args: List<Value>, name: String = ""): CallInst {
-        val call = CallInst.createDirectCall(if (name.isEmpty()) "call" else name, function, args)
+    fun insertCall(function: Function, args: List<Value>, name: String? = null): CallInst {
+        val rename = name ?: Renamer.another()
+        val call = CallInst.createDirectCall(rename, function, args)
         return insertInstruction(call) as CallInst
     }
     
-    fun insertIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String = ""): CallInst {
-        val call = CallInst.createIndirectCall(if (name.isEmpty()) "call" else name, returnType, funcPtr, args)
+    fun insertIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String? = null): CallInst {
+        val rename = name ?: Renamer.another()
+        val call = CallInst.createIndirectCall(rename, returnType, funcPtr, args)
         return insertInstruction(call) as CallInst
     }
     
-    fun insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String = ""): ICmpInst {
-        val icmp = ICmpInst.create(if (name.isEmpty()) "icmp" else name, pred, lhs, rhs)
+    fun insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String? = null): ICmpInst {
+        val rename = name ?: Renamer.another()
+        val icmp = ICmpInst.create(rename, pred, lhs, rhs)
         return insertInstruction(icmp) as ICmpInst
     }
     
-    fun insertPhi(type: Type, incomingValues: List<Pair<Value, BasicBlock>>, name: String = ""): PhiNode {
-        val phi = PhiNode.create(if (name.isEmpty()) "phi" else name, type, incomingValues.map { Pair(it.first, it.second) })
+    fun insertPhi(type: Type, incomingValues: List<Pair<Value, BasicBlock>>, name: String? = null): PhiNode {
+        val rename = name ?: Renamer.another()
+        val phi = PhiNode.create(rename, type, incomingValues.map { Pair(it.first, it.second) })
         return insertInstruction(phi) as PhiNode
     }
     
     // Convenience methods for common operations
-    fun insertNot(value: Value, name: String = ""): XorInst {
+    fun insertNot(value: Value, name: String? = null): XorInst {
         val negOne = when {
             value.type.isIntegerType() -> {
                 BuilderUtils.getIntConstant(-1, value.type as IntegerType)
@@ -267,7 +287,7 @@ class IRBuilder(val module: Module) {
         return insertXor(value, negOne, name)
     }
     
-    fun insertNeg(value: Value, name: String = ""): SubInst {
+    fun insertNeg(value: Value, name: String? = null): SubInst {
         val zero = when {
             value.type.isIntegerType() -> BuilderUtils.getIntConstant(0, value.type as IntegerType)
             value.type.isFloatingPointType() -> BuilderUtils.getFloatConstant(0.0, value.type as FloatingPointType)

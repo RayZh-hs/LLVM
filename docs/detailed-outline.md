@@ -322,6 +322,25 @@ class Function(
     }
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null
+    
+    /**
+     * Insert a new basic block into this function.
+     *
+     * @param name The name of the basic block
+     * @param setAsEntrypoint Whether to set this block as the entry point.
+     *                        If true, this block becomes the entryBlock.
+     *                        If this is the first block being added, it defaults to being the entrypoint.
+     * @return The created BasicBlock
+     */
+    fun insertBasicBlock(name: String, setAsEntrypoint: Boolean = false): BasicBlock { /* implementation */ }
+    
+    /**
+     * Convenience overload for insertBasicBlock that defaults setAsEntrypoint to false.
+     *
+     * @param name The name of the basic block
+     * @return The created BasicBlock
+     */
+    fun insertBasicBlock(name: String): BasicBlock { /* implementation */ }
 }
 ```
 
@@ -421,7 +440,8 @@ class IRBuilder(val module: Module) {
     
     // IR Construction methods
     fun createFunction(name: String, type: FunctionType): Function { /* implementation */ }
-    fun createBasicBlock(name: String, function: Function): BasicBlock { /* implementation */ }
+    @Deprecated("Use Function.insertBasicBlock instead", ReplaceWith("function.insertBasicBlock(name)"))
+    fun insertBasicBlock(name: String, function: Function): BasicBlock { /* implementation */ }
     
     // Terminator methods
     fun insertRet(value: Value?): ReturnInst { /* implementation */ }

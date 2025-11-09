@@ -33,16 +33,13 @@ object IfElseTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val thenBlock = builder.createBasicBlock("then", function)
-        val elseBlock = builder.createBasicBlock("else", function)
-        val mergeBlock = builder.createBasicBlock("merge", function)
+        val entryBlock = function.insertBasicBlock("entry")
+        val thenBlock = function.insertBasicBlock("then")
+        val elseBlock = function.insertBasicBlock("else")
+        val mergeBlock = function.insertBasicBlock("merge")
         
-        function.basicBlocks.addAll(listOf(entryBlock, thenBlock, elseBlock, mergeBlock))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        // Note: insertBasicBlock() automatically adds blocks to function.basicBlocks
+        // and sets entryBlock if it's the first block
         
         // Entry block
         builder.positionAtEnd(entryBlock)

@@ -32,16 +32,13 @@ object ComplexControlFlowTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val computeBlock = builder.createBasicBlock("compute", function)
-        val cleanupBlock = builder.createBasicBlock("cleanup", function)
-        val exitBlock = builder.createBasicBlock("exit", function)
+        val entryBlock = function.insertBasicBlock("entry")
+        val computeBlock = function.insertBasicBlock("compute")
+        val cleanupBlock = function.insertBasicBlock("cleanup")
+        val exitBlock = function.insertBasicBlock("exit")
         
-        function.basicBlocks.addAll(listOf(entryBlock, computeBlock, cleanupBlock, exitBlock))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        // Note: insertBasicBlock() automatically adds blocks to function.basicBlocks
+        // and sets entryBlock if it's the first block
         
         // Entry block - unconditional branch to compute
         builder.positionAtEnd(entryBlock)

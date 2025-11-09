@@ -62,8 +62,7 @@ val addFunction = builder.createFunction(
 )
 
 // Create basic blocks
-val entryBlock = builder.createBasicBlock("entry", addFunction)
-addFunction.basicBlocks.add(entryBlock)
+val entryBlock = builder.insertBasicBlock("entry", addFunction)
 
 // Position builder at the end of entry block
 builder.positionAtEnd(entryBlock)
@@ -177,11 +176,9 @@ val absFunction = builder.createFunction(
     FunctionType(IntegerType(32), listOf(IntegerType(32)))
 )
 
-val entryBlock = builder.createBasicBlock("entry", absFunction)
-val positiveBlock = builder.createBasicBlock("positive", absFunction)
-val negativeBlock = builder.createBasicBlock("negative", absFunction)
-
-absFunction.basicBlocks.addAll(listOf(entryBlock, positiveBlock, negativeBlock))
+val entryBlock = builder.insertBasicBlock("entry", absFunction)
+val positiveBlock = builder.insertBasicBlock("positive", absFunction)
+val negativeBlock = builder.insertBasicBlock("negative", absFunction)
 
 // Entry block
 builder.positionAtEnd(entryBlock)

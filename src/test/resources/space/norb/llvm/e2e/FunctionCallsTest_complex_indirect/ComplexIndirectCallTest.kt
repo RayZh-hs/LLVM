@@ -33,9 +33,7 @@ object ComplexIndirectCallTest {
         module.functions.add(addFunction)
         
         // Create basic block for add function
-        val addEntryBlock = builder.createBasicBlock("entry", addFunction)
-        addFunction.basicBlocks.add(addEntryBlock)
-        addFunction.entryBlock = addEntryBlock
+        val addEntryBlock = addFunction.insertBasicBlock("entry")
         
         // Build add function
         builder.positionAtEnd(addEntryBlock)
@@ -54,9 +52,7 @@ object ComplexIndirectCallTest {
         module.functions.add(multiplyFunction)
         
         // Create basic block for multiply function
-        val multiplyBlock = builder.createBasicBlock("entry", multiplyFunction)
-        multiplyFunction.basicBlocks.add(multiplyBlock)
-        multiplyFunction.entryBlock = multiplyBlock
+        val multiplyBlock = multiplyFunction.insertBasicBlock("entry")
         
         // Build multiply function
         builder.positionAtEnd(multiplyBlock)
@@ -74,13 +70,10 @@ object ComplexIndirectCallTest {
         module.functions.add(mainFunction)
         
         // Create basic blocks for main function
-        val entryBlock = builder.createBasicBlock("entry", mainFunction)
-        val useAddBlock = builder.createBasicBlock("use_add", mainFunction)
-        val mulBlock = builder.createBasicBlock("use_mul", mainFunction)
-        val mergeBlock = builder.createBasicBlock("merge", mainFunction)
-        
-        mainFunction.basicBlocks.addAll(listOf(entryBlock, useAddBlock, mulBlock, mergeBlock))
-        mainFunction.entryBlock = entryBlock
+        val entryBlock = mainFunction.insertBasicBlock("entry")
+        val useAddBlock = mainFunction.insertBasicBlock("use_add")
+        val mulBlock = mainFunction.insertBasicBlock("use_mul")
+        val mergeBlock = mainFunction.insertBasicBlock("merge")
         
         // Build main function
         builder.positionAtEnd(entryBlock)

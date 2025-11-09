@@ -19,17 +19,17 @@ fun main() {
         ).apply {
             val param = this.parameters[0]
 
-            val trueBlock = builder.createBasicBlock("trueBlock", this).apply {
+            val trueBlock = this.insertBasicBlock("trueBlock").apply {
                 builder.positionAtEnd(this)
                 builder.insertRet(param)
             }
-            val falseBlock = builder.createBasicBlock("falseBlock", this).apply {
+            val falseBlock = this.insertBasicBlock("falseBlock").apply {
                 builder.positionAtEnd(this)
                 val negVal = builder.insertNeg(param, name = "neg")
                 builder.insertRet(negVal)
             }
 
-            val entryBlock = builder.createBasicBlock("entry", this).apply {
+            val entryBlock = this.insertBasicBlock("entry").apply {
                 builder.positionAtEnd(this)
                 val cmp = builder.insertICmp(
                     pred = IcmpPredicate.SGT, lhs = param, rhs = IntConstant(

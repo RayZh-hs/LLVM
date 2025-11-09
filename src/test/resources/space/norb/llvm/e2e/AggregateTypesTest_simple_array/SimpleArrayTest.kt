@@ -35,10 +35,7 @@ object SimpleArrayTest {
         module.functions.add(function)
         
         // Create entry block
-        val entryBlock = builder.createBasicBlock("entry", function)
-        
-        // Add the basic block to the function
-        function.basicBlocks.add(entryBlock)
+        val entryBlock = function.insertBasicBlock("entry")
         
         // Set the entry block if not already set
         if (function.entryBlock == null) {

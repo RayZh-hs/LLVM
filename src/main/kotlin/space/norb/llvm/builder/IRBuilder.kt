@@ -120,8 +120,14 @@ class IRBuilder(val module: Module) {
         return Function(name, functionType, module)
     }
     
-    fun createBasicBlock(name: String, function: Function): BasicBlock {
+    @Deprecated("Use Function.insertBasicBlock instead", ReplaceWith("function.insertBasicBlock(name)"))
+    fun insertBasicBlock(name: String, function: Function): BasicBlock {
         val block = BasicBlock(name, function)
+        // Automatically add the block to the function's basic blocks list
+        if (function.basicBlocks.isEmpty()) {
+            function.entryBlock = block
+        }
+        function.basicBlocks.add(block)
         return block
     }
     

@@ -28,17 +28,12 @@ val function = builder.createFunction("function_name", functionType)
 module.functions.add(function)
 
 // Create basic blocks
-val entryBlock = builder.createBasicBlock("entry", function)
-val thenBlock = builder.createBasicBlock("then", function)
-val elseBlock = builder.createBasicBlock("else", function)
+val entryBlock = function.insertBasicBlock("entry", setAsEntrypoint = true)
+val thenBlock = function.insertBasicBlock("then")
+val elseBlock = function.insertBasicBlock("else")
 
-// Add blocks to function
-function.basicBlocks.addAll(listOf(entryBlock, thenBlock, elseBlock))
-
-// Set entry block
-if (function.entryBlock == null) {
-    function.entryBlock = entryBlock
-}
+// Note: The first block added to a function automatically becomes the entrypoint
+// unless setAsEntrypoint is explicitly set to false
 
 // Position builder at end of block
 builder.positionAtEnd(entryBlock)
@@ -168,10 +163,10 @@ val indirectCall = builder.insertIndirectCall(
 
 ```kotlin
 // Create blocks
-val entryBlock = builder.createBasicBlock("entry", function)
-val thenBlock = builder.createBasicBlock("then", function)
-val elseBlock = builder.createBasicBlock("else", function)
-val mergeBlock = builder.createBasicBlock("merge", function)
+val entryBlock = function.insertBasicBlock("entry", setAsEntrypoint = true)
+val thenBlock = function.insertBasicBlock("then")
+val elseBlock = function.insertBasicBlock("else")
+val mergeBlock = function.insertBasicBlock("merge")
 
 // Entry block
 builder.positionAtEnd(entryBlock)
@@ -210,9 +205,7 @@ val function = builder.createFunction("add", functionType)
 module.functions.add(function)
 
 // Create entry block
-val entryBlock = builder.createBasicBlock("entry", function)
-function.basicBlocks.add(entryBlock)
-function.entryBlock = entryBlock
+val entryBlock = function.insertBasicBlock("entry", setAsEntrypoint = true)
 
 // Build function body
 builder.positionAtEnd(entryBlock)

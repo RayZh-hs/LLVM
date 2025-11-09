@@ -31,9 +31,7 @@ object ComplexDirectCallTest {
         module.functions.add(multiplyFunction)
         
         // Create basic block for multiply function
-        val multiplyBlock = builder.createBasicBlock("entry", multiplyFunction)
-        multiplyFunction.basicBlocks.add(multiplyBlock)
-        multiplyFunction.entryBlock = multiplyBlock
+        val multiplyBlock = multiplyFunction.insertBasicBlock("entry")
         
         // Build multiply function
         builder.positionAtEnd(multiplyBlock)
@@ -52,9 +50,7 @@ object ComplexDirectCallTest {
         module.functions.add(calculateFunction)
         
         // Create basic block for calculate function
-        val calculateBlock = builder.createBasicBlock("entry", calculateFunction)
-        calculateFunction.basicBlocks.add(calculateBlock)
-        calculateFunction.entryBlock = calculateBlock
+        val calculateBlock = calculateFunction.insertBasicBlock("entry")
         
         // Build calculate function that calls multiply
         builder.positionAtEnd(calculateBlock)
@@ -77,9 +73,7 @@ object ComplexDirectCallTest {
         module.functions.add(mainFunction)
         
         // Create basic block for main function
-        val mainBlock = builder.createBasicBlock("entry", mainFunction)
-        mainFunction.basicBlocks.add(mainBlock)
-        mainFunction.entryBlock = mainBlock
+        val mainBlock = mainFunction.insertBasicBlock("entry")
         
         // Build main function that calls calculate
         builder.positionAtEnd(mainBlock)

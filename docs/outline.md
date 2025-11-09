@@ -114,7 +114,10 @@ A single, callable unit of code.
     *   `parameters: List<Argument>`
     *   `basicBlocks: MutableList<BasicBlock>`
     *   `entryBlock: BasicBlock?`
-*   **Description:** Contains a list of parameters and a body composed of `BasicBlock`s.
+*   **Methods:**
+    *   `insertBasicBlock(name: String, setAsEntrypoint: Boolean = false): BasicBlock`
+    *   `insertBasicBlock(name: String): BasicBlock` (convenience overload)
+*   **Description:** Contains a list of parameters and a body composed of `BasicBlock`s. The first block added automatically becomes the entrypoint unless explicitly overridden.
 
 #### 4. `Argument`
 
@@ -205,7 +208,7 @@ This is the primary user-facing class for constructing the IR. It simplifies the
 *   **Public Methods (IR Construction):**
     *   **Functions & Blocks:**
         *   `createFunction(name: String, type: FunctionType): Function`
-        *   `createBasicBlock(name: String, function: Function): BasicBlock`
+        *   `insertBasicBlock(name: String, function: Function): BasicBlock` (Deprecated: Use `function.insertBasicBlock(name)` instead)
     *   **Terminators:**
         *   `insertRet(value: Value?)`
         *   `insertBr(target: BasicBlock)`

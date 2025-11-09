@@ -32,17 +32,14 @@ object SwitchTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val case1Block = builder.createBasicBlock("case1", function)
-        val case2Block = builder.createBasicBlock("case2", function)
-        val defaultBlock = builder.createBasicBlock("default", function)
-        val mergeBlock = builder.createBasicBlock("merge", function)
+        val entryBlock = function.insertBasicBlock("entry")
+        val case1Block = function.insertBasicBlock("case1")
+        val case2Block = function.insertBasicBlock("case2")
+        val defaultBlock = function.insertBasicBlock("default")
+        val mergeBlock = function.insertBasicBlock("merge")
         
-        function.basicBlocks.addAll(listOf(entryBlock, case1Block, case2Block, defaultBlock, mergeBlock))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        // Note: insertBasicBlock() automatically adds blocks to function.basicBlocks
+        // and sets entryBlock if it's the first block
         
         // Entry block
         builder.positionAtEnd(entryBlock)

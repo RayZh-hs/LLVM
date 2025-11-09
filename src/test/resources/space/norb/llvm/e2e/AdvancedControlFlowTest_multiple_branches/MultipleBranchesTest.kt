@@ -32,16 +32,13 @@ object MultipleBranchesTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val block1 = builder.createBasicBlock("block1", function)
-        val block2 = builder.createBasicBlock("block2", function)
-        val block3 = builder.createBasicBlock("block3", function)
+        val entryBlock = function.insertBasicBlock("entry")
+        val block1 = function.insertBasicBlock("block1")
+        val block2 = function.insertBasicBlock("block2")
+        val block3 = function.insertBasicBlock("block3")
         
-        function.basicBlocks.addAll(listOf(entryBlock, block1, block2, block3))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        // Note: insertBasicBlock() automatically adds blocks to function.basicBlocks
+        // and sets entryBlock if it's the first block
         
         // Entry block - branch to block1
         builder.positionAtEnd(entryBlock)

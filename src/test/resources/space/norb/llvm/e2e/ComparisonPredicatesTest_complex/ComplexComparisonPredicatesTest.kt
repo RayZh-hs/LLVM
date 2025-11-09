@@ -33,8 +33,7 @@ object ComplexComparisonPredicatesTest {
         module.functions.add(function)
         
         // Create entry block
-        val entryBlock = builder.createBasicBlock("entry", function)
-        function.basicBlocks.add(entryBlock)
+        val entryBlock = function.insertBasicBlock("entry")
         
         if (function.entryBlock == null) {
             function.entryBlock = entryBlock
@@ -55,20 +54,17 @@ object ComplexComparisonPredicatesTest {
         val condition = builder.insertAnd(cmp1, cmp2, "condition")
         
         // Create then block
-        val thenBlock = builder.createBasicBlock("then", function)
-        function.basicBlocks.add(thenBlock)
+        val thenBlock = function.insertBasicBlock("then")
         builder.positionAtEnd(thenBlock)
         val thenResult = builder.insertAdd(arg0, arg2, "then_result")
         
         // Create else block
-        val elseBlock = builder.createBasicBlock("else", function)
-        function.basicBlocks.add(elseBlock)
+        val elseBlock = function.insertBasicBlock("else")
         builder.positionAtEnd(elseBlock)
         val elseResult = builder.insertSub(arg0, arg2, "else_result")
         
         // Create merge block
-        val mergeBlock = builder.createBasicBlock("merge", function)
-        function.basicBlocks.add(mergeBlock)
+        val mergeBlock = function.insertBasicBlock("merge")
         
         // Add branches to then and else blocks
         builder.positionAtEnd(thenBlock)

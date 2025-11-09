@@ -27,9 +27,7 @@ object PackedStructEmissionTest {
         module.functions.add(function)  // Add function to module
         
         // Create function body
-        val entryBlock = builder.createBasicBlock("entry", function)
-        function.basicBlocks.add(entryBlock)
-        function.entryBlock = entryBlock
+        val entryBlock = function.insertBasicBlock("entry")
         builder.positionAtEnd(entryBlock)
         
         // Get function parameter

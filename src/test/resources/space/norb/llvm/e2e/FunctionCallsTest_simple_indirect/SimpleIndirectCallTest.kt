@@ -32,9 +32,7 @@ object SimpleIndirectCallTest {
         module.functions.add(subtractFunction)
         
         // Create basic block for subtract function
-        val subtractBlock = builder.createBasicBlock("entry", subtractFunction)
-        subtractFunction.basicBlocks.add(subtractBlock)
-        subtractFunction.entryBlock = subtractBlock
+        val subtractBlock = subtractFunction.insertBasicBlock("entry")
         
         // Build subtract function
         builder.positionAtEnd(subtractBlock)
@@ -52,9 +50,7 @@ object SimpleIndirectCallTest {
         module.functions.add(mainFunction)
         
         // Create basic block for main function
-        val mainBlock = builder.createBasicBlock("entry", mainFunction)
-        mainFunction.basicBlocks.add(mainBlock)
-        mainFunction.entryBlock = mainBlock
+        val mainBlock = mainFunction.insertBasicBlock("entry")
         
         // Build main function that uses indirect call
         builder.positionAtEnd(mainBlock)

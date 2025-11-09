@@ -34,15 +34,9 @@ object VoidWithBranchesTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val block1 = builder.createBasicBlock("block1", function)
-        val block2 = builder.createBasicBlock("block2", function)
-        
-        function.basicBlocks.addAll(listOf(entryBlock, block1, block2))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        val entryBlock = function.insertBasicBlock("entry")
+        val block1 = function.insertBasicBlock("block1")
+        val block2 = function.insertBasicBlock("block2")
         
         // Entry block - compare argument and branch
         builder.positionAtEnd(entryBlock)

@@ -58,4 +58,30 @@ class Function(
         this.basicBlocks.addAll(blocks)
         return this
     }
+    
+    /**
+     * Insert a new basic block into this function.
+     *
+     * @param name The name of the basic block
+     * @param setAsEntrypoint Whether to set this block as the entry point.
+     *                        If true, this block becomes the entryBlock.
+     *                        If this is the first block being added, it defaults to being the entrypoint.
+     * @return The created BasicBlock
+     */
+    fun insertBasicBlock(name: String, setAsEntrypoint: Boolean = false): BasicBlock {
+        val block = BasicBlock(name, this)
+        
+        // Check if this is the first block being added
+        val isFirstBlock = basicBlocks.isEmpty()
+        
+        // Add the block to the function's basic blocks list
+        basicBlocks.add(block)
+        
+        // Set as entrypoint if requested or if this is the first block
+        if (setAsEntrypoint || isFirstBlock) {
+            entryBlock = block
+        }
+        
+        return block
+    }
 }

@@ -32,14 +32,8 @@ object UnconditionalBranchTest {
         module.functions.add(function)
         
         // Create basic blocks
-        val entryBlock = builder.createBasicBlock("entry", function)
-        val targetBlock = builder.createBasicBlock("target", function)
-        
-        function.basicBlocks.addAll(listOf(entryBlock, targetBlock))
-        
-        if (function.entryBlock == null) {
-            function.entryBlock = entryBlock
-        }
+        val entryBlock = function.insertBasicBlock("entry")
+        val targetBlock = function.insertBasicBlock("target")
         
         // Entry block - create unconditional branch
         builder.positionAtEnd(entryBlock)

@@ -32,8 +32,7 @@ object I128OperationsTest {
         module.functions.add(function)
         
         // Create entry block
-        val entryBlock = builder.createBasicBlock("entry", function)
-        function.basicBlocks.add(entryBlock)
+        val entryBlock = function.insertBasicBlock("entry")
         
         if (function.entryBlock == null) {
             function.entryBlock = entryBlock

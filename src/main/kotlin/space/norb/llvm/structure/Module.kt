@@ -1,10 +1,14 @@
 package space.norb.llvm.structure
 
+import space.norb.llvm.builder.IRBuilder
+import space.norb.llvm.core.Type
+import space.norb.llvm.types.FunctionType
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.values.Metadata
 import space.norb.llvm.types.StructType
 import space.norb.llvm.types.createNamedStructType
 import space.norb.llvm.types.createOpaqueStructType
+import space.norb.llvm.visitors.IRPrinter
 
 /**
  * LLVM module containing functions, global variables, metadata, and struct types.
@@ -33,6 +37,30 @@ class Module(val name: String) {
     
     override fun toString(): String {
         return "Module(name=$name)"
+    }
+
+    // IR Printing Shorthand
+    fun toIRString(): String {
+        val irPrinter = IRPrinter()
+        return irPrinter.print(this)
+    }
+
+    // Function management APIs
+
+    fun registerFunction(function: Function): Function {
+        functions.add(function)
+        return function
+    }
+
+    fun registerFunction(name: String, type: FunctionType): Function {
+        val function = Function(name, type, this)
+        functions.add(function)
+        return function
+    }
+
+    fun registerFunction(name: String, returnType: Type, parameterTypes: List<Type>, isVarArg: Boolean = false): Function {
+        val functionType = FunctionType(returnType, parameterTypes, isVarArg)
+        return registerFunction(name, functionType)
     }
     
     // Struct type management APIs

@@ -156,8 +156,7 @@ fun testAddFunction() {
             module.functions.add(function)
             
             // Create entry block
-            val entryBlock = builder.createBasicBlock("entry", function)
-            function.basicBlocks.add(entryBlock)
+            val entryBlock = builder.insertBasicBlock("entry", function)
             
             if (function.entryBlock == null) {
                 function.entryBlock = entryBlock

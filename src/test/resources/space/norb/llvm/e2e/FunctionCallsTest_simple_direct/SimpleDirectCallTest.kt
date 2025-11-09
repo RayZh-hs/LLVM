@@ -31,9 +31,7 @@ object SimpleDirectCallTest {
         module.functions.add(addFunction)
         
         // Create basic block for add function
-        val addBlock = builder.createBasicBlock("entry", addFunction)
-        addFunction.basicBlocks.add(addBlock)
-        addFunction.entryBlock = addBlock
+        val addBlock = addFunction.insertBasicBlock("entry")
         
         // Build add function
         builder.positionAtEnd(addBlock)
@@ -51,9 +49,7 @@ object SimpleDirectCallTest {
         module.functions.add(mainFunction)
         
         // Create basic block for main function
-        val mainBlock = builder.createBasicBlock("entry", mainFunction)
-        mainFunction.basicBlocks.add(mainBlock)
-        mainFunction.entryBlock = mainBlock
+        val mainBlock = mainFunction.insertBasicBlock("entry")
         
         // Build main function that calls add
         builder.positionAtEnd(mainBlock)

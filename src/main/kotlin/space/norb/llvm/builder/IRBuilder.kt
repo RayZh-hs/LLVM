@@ -231,7 +231,7 @@ class IRBuilder(val module: Module) {
         val alloca = AllocaInst(rename, allocatedType)
         return insertInstruction(alloca) as AllocaInst
     }
-    
+
     fun insertLoad(loadedType: Type, address: Value, name: String? = null): LoadInst {
         val rename = name ?: Renamer.another()
         val load = LoadInst(rename, loadedType, address)
@@ -248,16 +248,7 @@ class IRBuilder(val module: Module) {
         val gep = GetElementPtrInst(rename, elementType, address, indices)
         return insertInstruction(gep) as GetElementPtrInst
     }
-    
-    // Simplified methods for untyped pointer usage
-    fun insertLoad(address: Value, loadedType: Type, name: String? = null): LoadInst {
-        return insertLoad(loadedType, address, name)
-    }
-    
-    fun insertGep(address: Value, elementType: Type, indices: List<Value>, name: String? = null): GetElementPtrInst {
-        return insertGep(elementType, address, indices, name)
-    }
-    
+
     // Other operations
     fun insertCall(function: Function, args: List<Value>, name: String? = null): CallInst {
         val rename = name ?: Renamer.another()

@@ -45,6 +45,13 @@ class Module(val name: String) {
         return irPrinter.print(this)
     }
 
+    // Global variable management APIs
+
+    fun registerGlobalVariable(globalVariable: GlobalVariable): GlobalVariable {
+        globalVariables.add(globalVariable)
+        return globalVariable
+    }
+
     // Function management APIs
 
     fun registerFunction(function: Function): Function {

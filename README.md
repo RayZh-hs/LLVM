@@ -46,8 +46,10 @@ dependencies {
 ### Basic Usage
 
 ```kotlin
-import space.norb.llvm.*
+import space.norb.llvm.structure.*
 import space.norb.llvm.types.*
+import space.norb.llvm.builder.IRBuilder
+import space.norb.llvm.values.constants.IntConstant
 
 // Create a module
 val module = Module("example")
@@ -56,38 +58,36 @@ val module = Module("example")
 val builder = IRBuilder(module)
 
 // Define a simple function that adds two integers
-val addFunction = builder.createFunction(
-    "add",
-    FunctionType(IntegerType(32), listOf(IntegerType(32), IntegerType(32)))
-)
-
-// Create basic blocks
-val entryBlock = builder.insertBasicBlock("entry", addFunction)
-
-// Position builder at the end of entry block
-builder.positionAtEnd(entryBlock)
-
-// Get function parameters
-val a = addFunction.parameters[0]
-val b = addFunction.parameters[1]
-
-// Add the two parameters
-val result = builder.insertAdd(a, b, "result")
-
-// Return the result
-builder.insertRet(result)
+val addFunction = module.registerFunction(
+    name = "add",
+    returnType = TypeUtils.I32,
+    paramTypes = listOf(TypeUtils.I32, TypeUtils.I32)
+).apply {
+    // Create basic block and set as entry point
+    val entryBlock = this.insertBasicBlock("entry", setAsEntrypoint = true)
+    builder.positionAtEnd(entryBlock)
+    
+    // Get function parameters
+    val a = this.parameters[0]
+    val b = this.parameters[1]
+    
+    // Add the two parameters
+    val result = builder.insertAdd(a, b, "result")
+    
+    // Return the result
+    builder.insertRet(result)
+}
 
 // Print the generated IR
-val printer = IRPrinter()
-println(printer.print(module))
+println(module.toIRString())
 ```
 
 This generates the following LLVM IR:
 
 ```llvm
-define i32 @add(i32 %arg0, i32 %arg1) {
+define i32 @add(i32 %0, i32 %1) {
 entry:
-  %result = add i32 %arg0, %arg1
+  %result = add i32 %0, %1
   ret i32 %result
 }
 ```
@@ -110,7 +110,9 @@ src/
 │   │   └── other/          # Other instructions (calls, comparisons, phi)
 │   ├── builder/            # IR construction utilities
 │   ├── visitors/           # Visitor pattern implementations
-│   └── enums/              # Enumerations and constants
+│   ├── enums/              # Enumerations and constants
+│   ├── utils/              # Utility functions and extensions
+│   └── examples/           # Usage examples
 └── test/kotlin/            # Comprehensive test suite
 ```
 
@@ -133,13 +135,6 @@ src/
 - ✅ Functions with parameters and basic blocks
 - ✅ Basic blocks with instruction sequences
 - ✅ Global variables with various linkage types
-
-## Documentation
-
-- [📖 Detailed Design Outline](docs/detailed-outline.md) - Comprehensive class layout and design
-- [🗺️ Implementation Roadmap](docs/roadmap.md) - Phased implementation plan
-- [📋 Project Outline](docs/outline.md) - High-level design philosophy
-- [🔄 Migration Guide](docs/ptr-migration-todo.md) - Pointer model migration details
 
 ## Building and Testing
 
@@ -167,65 +162,13 @@ src/
 
 ## Examples
 
-### Function with Control Flow
+The project includes several comprehensive examples in the [`src/main/kotlin/space/norb/llvm/examples`](src/main/kotlin/space/norb/llvm/examples) directory:
 
-```kotlin
-// Create a function that returns the absolute value of an integer
-val absFunction = builder.createFunction(
-    "abs",
-    FunctionType(IntegerType(32), listOf(IntegerType(32)))
-)
+- **[`AbsExample.kt`](src/main/kotlin/space/norb/llvm/examples/AbsExample.kt)** - Demonstrates control flow with conditional branches and basic block management
+- **[`HelloWorldExample.kt`](src/main/kotlin/space/norb/llvm/examples/HelloWorldExample.kt)** - Shows how to work with global variables and string constants
+- **[`StructExample.kt`](src/main/kotlin/space/norb/llvm/examples/StructExample.kt)** - Illustrates struct type registration, memory allocation, and field access
 
-val entryBlock = builder.insertBasicBlock("entry", absFunction)
-val positiveBlock = builder.insertBasicBlock("positive", absFunction)
-val negativeBlock = builder.insertBasicBlock("negative", absFunction)
-
-// Entry block
-builder.positionAtEnd(entryBlock)
-val param = absFunction.parameters[0]
-val isNegative = builder.insertICmp(IcmpPredicate.SLT, param, BuilderUtils.getIntConstant(0, IntegerType(32)), "isneg")
-builder.insertCondBr(isNegative, negativeBlock, positiveBlock)
-
-// Positive block
-builder.positionAtEnd(positiveBlock)
-builder.insertRet(param)
-
-// Negative block
-builder.positionAtEnd(negativeBlock)
-val negated = builder.insertNeg(param, "neg")
-builder.insertRet(negated)
-```
-
-### Working with Arrays and Structs
-
-```kotlin
-// Define a struct type
-val personType = StructType(listOf(
-    IntegerType(32),  // age
-    PointerType()     // name (string pointer)
-))
-
-// Create a global array of persons
-val personArrayType = ArrayType(10, personType)
-val globalPeople = GlobalVariable(
-    "people",
-    PointerType(),
-    module,
-    null, // initializer
-    false, // isConstant
-    LinkageType.INTERNAL
-)
-module.globalVariables.add(globalPeople)
-
-// Access array element
-val index = BuilderUtils.getIntConstant(2, IntegerType(32))
-val elementPtr = builder.insertGep(
-    personType,
-    globalPeople,
-    listOf(BuilderUtils.getIntConstant(0, IntegerType(32)), index),
-    "element_ptr"
-)
-```
+These examples demonstrate the current API patterns and best practices for generating LLVM IR with Kotlin-LLVM.
 
 ## Contributing
 

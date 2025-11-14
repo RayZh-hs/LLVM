@@ -1,6 +1,7 @@
 package space.norb.llvm.structure
 
 import space.norb.llvm.builder.IRBuilder
+import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.values.globals.GlobalVariable
@@ -46,9 +47,22 @@ class Module(val name: String) {
         return irPrinter.print(this)
     }
 
+    fun emitIR() = toIRString()
+
     // Global variable management APIs
 
     fun registerGlobalVariable(globalVariable: GlobalVariable): GlobalVariable {
+        globalVariables.add(globalVariable)
+        return globalVariable
+    }
+
+    fun registerGlobalVariable(
+        name: String,
+        initialValue: Constant? = null,
+        isConstant: Boolean = false,
+        linkage: LinkageType = LinkageType.EXTERNAL,
+    ): GlobalVariable {
+        val globalVariable = GlobalVariable.create(name, this, initialValue, isConstant, linkage)
         globalVariables.add(globalVariable)
         return globalVariable
     }

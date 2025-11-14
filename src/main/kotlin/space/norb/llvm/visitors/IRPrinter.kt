@@ -35,6 +35,7 @@ import space.norb.llvm.instructions.base.BinaryInst
 import space.norb.llvm.instructions.base.MemoryInst
 import space.norb.llvm.instructions.base.CastInst
 import space.norb.llvm.instructions.base.OtherInst
+import space.norb.llvm.enums.LinkageType
 
 /**
  * Visitor for printing LLVM IR to string format.
@@ -94,6 +95,14 @@ class IRPrinter : IRVisitor<Unit> {
     override fun visitFunction(function: Function) {
         output.appendLine()
         
+        // Check for invalid external declarations with bodies
+        if (function.isDeclaration && function.basicBlocks.isNotEmpty()) {
+            throw IllegalArgumentException("External function '${function.name}' cannot have a body. External functions must be declarations only.")
+        }
+        
+        val isExternalDeclaration = function.isDeclaration ||
+            (function.linkage == LinkageType.EXTERNAL && function.basicBlocks.isEmpty())
+        
         // Build function signature
         val returnTypeStr = if (function.returnType.isPointerType()) {
             "ptr" // Use un-typed pointer syntax
@@ -101,20 +110,92 @@ class IRPrinter : IRVisitor<Unit> {
             function.returnType.toString()
         }
         
-        val paramsStr = function.parameters.joinToString(", ") { param ->
-            val paramTypeStr = if (param.type.isPointerType()) {
-                "ptr" // Use un-typed pointer syntax
-            } else {
-                param.type.toString()
+        val paramsStr = if (function.type.isVarArg && function.parameters.isNotEmpty()) {
+            // Handle vararg functions: add parameters first, then ...
+            val namedParams = function.parameters.joinToString(", ") { param ->
+                val paramTypeStr = if (param.type.isPointerType()) {
+                    "ptr" // Use un-typed pointer syntax
+                } else {
+                    param.type.toString()
+                }
+                "$paramTypeStr %${param.name}" // Include parameter names with % prefix
             }
-            "$paramTypeStr %${param.name}"
+            "$namedParams, ..."
+        } else if (function.type.isVarArg) {
+            // Vararg with no named parameters
+            "..."
+        } else {
+            // Regular function
+            function.parameters.joinToString(", ") { param ->
+                val paramTypeStr = if (param.type.isPointerType()) {
+                    "ptr" // Use un-typed pointer syntax
+                } else {
+                    param.type.toString()
+                }
+                "$paramTypeStr %${param.name}" // Include parameter names with % prefix
+            }
         }
         
-        output.appendLine("define $returnTypeStr @${function.name}($paramsStr) {")
-        indentLevel++
-        function.basicBlocks.forEach { visitBasicBlock(it) }
-        indentLevel--
-        output.appendLine("}")
+        // Handle linkage
+        val linkageStr = when (function.linkage.name) {
+            "EXTERNAL" -> if (isExternalDeclaration) {
+                "declare "
+            } else {
+                "define "
+            }
+            "INTERNAL" -> "internal define "
+            "PRIVATE" -> "private define "
+            "LINK_ONCE" -> "linkonce define "
+            "WEAK" -> "weak define "
+            "COMMON" -> "common define "
+            "APPENDING" -> "appending define "
+            "EXTERN_WEAK" -> "extern_weak "
+            "AVAILABLE_EXTERNALLY" -> "available_externally define "
+            "DLL_IMPORT" -> "dllimport define "
+            "DLL_EXPORT" -> "dllexport define "
+            "EXTERNAL_WEAK" -> "extern_weak "
+            "GHOST" -> "ghost define "
+            "LINKER_PRIVATE" -> "linker_private define "
+            "LINKER_PRIVATE_WEAK" -> "linker_private_weak define "
+            else -> "define " // Default to define
+        }
+        
+        // For external declarations (no body), don't include parameter names and don't include the body braces
+        if (isExternalDeclaration) {
+            // For external declarations, parameter names should not be included
+            val declareParamsStr = if (function.type.isVarArg && function.parameters.isNotEmpty()) {
+                // Handle vararg functions: add parameter types first, then ...
+                val paramTypes = function.parameters.joinToString(", ") { param ->
+                    val paramTypeStr = if (param.type.isPointerType()) {
+                        "ptr" // Use un-typed pointer syntax
+                    } else {
+                        param.type.toString()
+                    }
+                    paramTypeStr // No parameter names for declarations
+                }
+                "$paramTypes, ..."
+            } else if (function.type.isVarArg) {
+                // Vararg with no named parameters
+                "..."
+            } else {
+                // Regular function
+                function.parameters.joinToString(", ") { param ->
+                    val paramTypeStr = if (param.type.isPointerType()) {
+                        "ptr" // Use un-typed pointer syntax
+                    } else {
+                        param.type.toString()
+                    }
+                    paramTypeStr // No parameter names for declarations
+                }
+            }
+            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($declareParamsStr)")
+        } else {
+            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($paramsStr) {")
+            indentLevel++
+            function.basicBlocks.forEach { visitBasicBlock(it) }
+            indentLevel--
+            output.appendLine("}")
+        }
     }
     
     override fun visitBasicBlock(block: BasicBlock) {

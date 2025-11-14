@@ -48,6 +48,22 @@ val function2 = module.registerFunction(
     returnType = IntegerType.I32,
     parameterTypes = listOf(IntegerType.I32, IntegerType.I32)
 )
+
+// Register function with specific linkage type
+val internalFunction = module.registerFunction(
+    name = "internal_helper",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(IntegerType.I32),
+    linkage = LinkageType.INTERNAL
+)
+
+// Declare external function (like printf) that will be linked later
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true
+)
 ```
 
 ### Global Variable Management
@@ -130,6 +146,86 @@ val paramName = param1.name
 val paramType = param1.type
 val paramIndex = param1.index
 val parentFunction = param1.function
+```
+
+### Function Linkage
+```kotlin
+// Functions support different linkage types
+val externalFunc = module.registerFunction(
+    name = "external_func",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(IntegerType.I32),
+    linkage = LinkageType.EXTERNAL  // Default - visible to other modules
+)
+
+val internalFunc = module.registerFunction(
+    name = "internal_helper",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(IntegerType.I32),
+    linkage = LinkageType.INTERNAL  // Visible only within this module
+)
+
+val privateFunc = module.registerFunction(
+    name = "private_impl",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(IntegerType.I32),
+    linkage = LinkageType.PRIVATE   // Even more restricted than INTERNAL
+)
+
+// External function declarations (for functions like printf, malloc, etc.)
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true
+)
+
+// External functions without bodies are emitted as declarations
+// External functions with bodies are emitted as definitions
+```
+
+#### Linkage Types
+- **EXTERNAL**: Default linkage, visible to other modules
+- **INTERNAL**: Visible only within the defining module
+- **PRIVATE**: Even more restricted than INTERNAL
+- **LINK_ONCE**: Merged with other definitions during linking
+- **WEAK**: Weak linkage, can be overridden by non-weak definitions
+- **COMMON**: Common linkage for tentative definitions
+- **APPENDING**: Appended to during linking
+- **EXTERN_WEAK**: External weak linkage
+- **AVAILABLE_EXTERNALLY**: Available but not emitted
+- **DLL_IMPORT/DLL_EXPORT**: DLL-specific linkage
+- **EXTERNAL_WEAK**: Alias for EXTERN_WEAK
+- **GHOST**: Ghost linkage (rarely used)
+- **LINKER_PRIVATE/LINKER_PRIVATE_WEAK**: Linker-private linkage
+
+#### External Function Declarations
+```kotlin
+// Declare common C library functions
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true
+)
+
+val malloc = module.declareExternalFunction(
+    name = "malloc",
+    returnType = PointerType,
+    parameterTypes = listOf(IntegerType.I64)
+)
+
+val free = module.declareExternalFunction(
+    name = "free",
+    returnType = VoidType,
+    parameterTypes = listOf(PointerType)
+)
+
+val strcpy = module.declareExternalFunction(
+    name = "strcpy",
+    returnType = PointerType,
+    parameterTypes = listOf(PointerType, PointerType)
+)
 ```
 
 ### Basic Block Management

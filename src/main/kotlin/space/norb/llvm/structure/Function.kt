@@ -4,6 +4,7 @@ import space.norb.llvm.core.Type
 import space.norb.llvm.core.Value
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.visitors.IRVisitor
+import space.norb.llvm.enums.LinkageType
 
 /**
  * Function in LLVM IR.
@@ -11,7 +12,9 @@ import space.norb.llvm.visitors.IRVisitor
 class Function(
     override val name: String,
     override val type: FunctionType,
-    val module: Module
+    val module: Module,
+    val linkage: LinkageType = LinkageType.EXTERNAL,
+    val isDeclaration: Boolean = false
 ) : Value {
     val returnType: Type = type.returnType
     val parameters: List<Argument> = type.paramTypes.mapIndexed { index, paramType ->
@@ -25,11 +28,20 @@ class Function(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Function) return false
-        return name == other.name && type == other.type && module == other.module
+        return name == other.name &&
+            type == other.type &&
+            module == other.module &&
+            linkage == other.linkage &&
+            isDeclaration == other.isDeclaration
     }
     
     override fun hashCode(): Int {
-        return 31 * name.hashCode() + type.hashCode() + module.hashCode()
+        var result = name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + module.hashCode()
+        result = 31 * result + linkage.hashCode()
+        result = 31 * result + isDeclaration.hashCode()
+        return result
     }
     
     override fun toString(): String {

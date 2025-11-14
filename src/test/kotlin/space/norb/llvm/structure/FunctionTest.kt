@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.types.VoidType
+import space.norb.llvm.enums.LinkageType
 
 /**
  * Unit tests for Function.
@@ -298,5 +299,44 @@ class FunctionTest {
         assertFalse(function.type.isIntegerType(), "Function type should not be an integer type")
         assertFalse(function.type.isFloatingPointType(), "Function type should not be a floating-point type")
         assertFalse(function.type.isPointerType(), "Function type should not be a pointer type")
+    }
+    
+    @Test
+    @DisplayName("Function should have default EXTERNAL linkage")
+    fun testFunctionDefaultLinkage() {
+        val name = "testFunction"
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val function = Function(name, functionType, module)
+        
+        assertEquals(LinkageType.EXTERNAL, function.linkage, "Function should have EXTERNAL linkage by default")
+    }
+    
+    @Test
+    @DisplayName("Function should accept linkage parameter")
+    fun testFunctionWithLinkage() {
+        val name = "testFunction"
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        
+        val externalFunction = Function(name + "_external", functionType, module, LinkageType.EXTERNAL)
+        val internalFunction = Function(name + "_internal", functionType, module, LinkageType.INTERNAL)
+        val privateFunction = Function(name + "_private", functionType, module, LinkageType.PRIVATE)
+        
+        assertEquals(LinkageType.EXTERNAL, externalFunction.linkage, "Function should have EXTERNAL linkage")
+        assertEquals(LinkageType.INTERNAL, internalFunction.linkage, "Function should have INTERNAL linkage")
+        assertEquals(LinkageType.PRIVATE, privateFunction.linkage, "Function should have PRIVATE linkage")
+    }
+    
+    @Test
+    @DisplayName("Function equality should consider linkage")
+    fun testFunctionEqualityByLinkage() {
+        val name = "testFunction"
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        
+        val function1 = Function(name, functionType, module, LinkageType.EXTERNAL)
+        val function2 = Function(name, functionType, module, LinkageType.EXTERNAL)
+        val function3 = Function(name, functionType, module, LinkageType.INTERNAL)
+        
+        assertEquals(function1, function2, "Functions with same linkage should be equal")
+        assertNotEquals(function1, function3, "Functions with different linkage should not be equal")
     }
 }

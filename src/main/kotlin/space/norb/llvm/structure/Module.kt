@@ -9,6 +9,7 @@ import space.norb.llvm.types.StructType
 import space.norb.llvm.types.createNamedStructType
 import space.norb.llvm.types.createOpaqueStructType
 import space.norb.llvm.visitors.IRPrinter
+import space.norb.llvm.enums.LinkageType
 
 /**
  * LLVM module containing functions, global variables, metadata, and struct types.
@@ -59,15 +60,54 @@ class Module(val name: String) {
         return function
     }
 
-    fun registerFunction(name: String, type: FunctionType): Function {
-        val function = Function(name, type, this)
+    fun registerFunction(
+        name: String,
+        type: FunctionType,
+        linkage: LinkageType = LinkageType.EXTERNAL,
+        isDeclaration: Boolean = false
+    ): Function {
+        val function = Function(name, type, this, linkage, isDeclaration)
         functions.add(function)
         return function
     }
 
-    fun registerFunction(name: String, returnType: Type, parameterTypes: List<Type>, isVarArg: Boolean = false): Function {
+    fun registerFunction(
+        name: String,
+        returnType: Type,
+        parameterTypes: List<Type>,
+        isVarArg: Boolean = false,
+        linkage: LinkageType = LinkageType.EXTERNAL,
+        isDeclaration: Boolean = false
+    ): Function {
         val functionType = FunctionType(returnType, parameterTypes, isVarArg)
-        return registerFunction(name, functionType)
+        return registerFunction(name, functionType, linkage, isDeclaration)
+    }
+    
+    /**
+     * Declares an external function (like printf) that will be linked later.
+     * This is a convenience method for declaring functions with EXTERNAL linkage.
+     *
+     * @param name The name of the external function
+     * @param type The function type
+     * @return The declared function
+     */
+    fun declareExternalFunction(name: String, type: FunctionType): Function {
+        return registerFunction(name, type, LinkageType.EXTERNAL, isDeclaration = true)
+    }
+    
+    /**
+     * Declares an external function (like printf) that will be linked later.
+     * This is a convenience method for declaring functions with EXTERNAL linkage.
+     *
+     * @param name The name of the external function
+     * @param returnType The return type of the function
+     * @param parameterTypes The parameter types of the function
+     * @param isVarArg Whether the function is variadic
+     * @return The declared function
+     */
+    fun declareExternalFunction(name: String, returnType: Type, parameterTypes: List<Type>, isVarArg: Boolean = false): Function {
+        val functionType = FunctionType(returnType, parameterTypes, isVarArg)
+        return declareExternalFunction(name, functionType)
     }
     
     // Struct type management APIs

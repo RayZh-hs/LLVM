@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.BeforeEach
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.VoidType
+import space.norb.llvm.types.PointerType
 import space.norb.llvm.values.constants.IntConstant
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.enums.LinkageType
@@ -261,5 +263,126 @@ class ModuleTest {
     fun testModuleToString() {
         val toString = module.toString()
         assertTrue(toString.contains("testModule"), "toString should contain the module name")
+    }
+    
+    @Test
+    @DisplayName("Module should register functions with linkage")
+    fun testModuleRegisterFunctionWithLinkage() {
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        
+        val externalFunction = module.registerFunction("external_func", functionType, LinkageType.EXTERNAL)
+        val internalFunction = module.registerFunction("internal_func", functionType, LinkageType.INTERNAL)
+        val privateFunction = module.registerFunction("private_func", functionType, LinkageType.PRIVATE)
+        
+        assertEquals(3, module.functions.size, "Module should have three functions")
+        assertEquals(LinkageType.EXTERNAL, externalFunction.linkage, "Function should have EXTERNAL linkage")
+        assertEquals(LinkageType.INTERNAL, internalFunction.linkage, "Function should have INTERNAL linkage")
+        assertEquals(LinkageType.PRIVATE, privateFunction.linkage, "Function should have PRIVATE linkage")
+        
+        assertTrue(module.functions.contains(externalFunction), "Module should contain external function")
+        assertTrue(module.functions.contains(internalFunction), "Module should contain internal function")
+        assertTrue(module.functions.contains(privateFunction), "Module should contain private function")
+    }
+    
+    @Test
+    @DisplayName("Module should register functions with linkage using parameter types")
+    fun testModuleRegisterFunctionWithLinkageAndParameterTypes() {
+        val externalFunction = module.registerFunction(
+            name = "external_func",
+            returnType = IntegerType.I32,
+            parameterTypes = listOf(IntegerType.I32),
+            linkage = LinkageType.EXTERNAL
+        )
+        
+        val internalFunction = module.registerFunction(
+            name = "internal_func",
+            returnType = IntegerType.I32,
+            parameterTypes = listOf(IntegerType.I32),
+            linkage = LinkageType.INTERNAL
+        )
+        
+        assertEquals(2, module.functions.size, "Module should have two functions")
+        assertEquals(LinkageType.EXTERNAL, externalFunction.linkage, "Function should have EXTERNAL linkage")
+        assertEquals(LinkageType.INTERNAL, internalFunction.linkage, "Function should have INTERNAL linkage")
+    }
+    
+    @Test
+    @DisplayName("Module should declare external functions")
+    fun testModuleDeclareExternalFunction() {
+        val printfType = FunctionType(IntegerType.I32, listOf(PointerType), isVarArg = true)
+        val printf = module.declareExternalFunction("printf", printfType)
+        
+        assertEquals(1, module.functions.size, "Module should have one function")
+        assertEquals("printf", printf.name, "Function should have correct name")
+        assertEquals(printfType, printf.type, "Function should have correct type")
+        assertEquals(LinkageType.EXTERNAL, printf.linkage, "Function should have EXTERNAL linkage")
+        assertTrue(module.functions.contains(printf), "Module should contain the function")
+    }
+    
+    @Test
+    @DisplayName("Module should declare external functions using parameter types")
+    fun testModuleDeclareExternalFunctionWithParameterTypes() {
+        val printf = module.declareExternalFunction(
+            name = "printf",
+            returnType = IntegerType.I32,
+            parameterTypes = listOf(PointerType),
+            isVarArg = true
+        )
+        
+        val malloc = module.declareExternalFunction(
+            name = "malloc",
+            returnType = PointerType,
+            parameterTypes = listOf(IntegerType.I64)
+        )
+        
+        val free = module.declareExternalFunction(
+            name = "free",
+            returnType = VoidType,
+            parameterTypes = listOf(PointerType)
+        )
+        
+        assertEquals(3, module.functions.size, "Module should have three functions")
+        
+        // Test printf
+        assertEquals("printf", printf.name, "printf should have correct name")
+        assertEquals(IntegerType.I32, printf.returnType, "printf should have correct return type")
+        assertEquals(1, printf.parameters.size, "printf should have one parameter")
+        assertEquals(PointerType, printf.parameters[0].type, "printf parameter should be pointer type")
+        assertEquals(LinkageType.EXTERNAL, printf.linkage, "printf should have EXTERNAL linkage")
+        
+        // Test malloc
+        assertEquals("malloc", malloc.name, "malloc should have correct name")
+        assertEquals(PointerType, malloc.returnType, "malloc should have correct return type")
+        assertEquals(1, malloc.parameters.size, "malloc should have one parameter")
+        assertEquals(IntegerType.I64, malloc.parameters[0].type, "malloc parameter should be i64")
+        assertEquals(LinkageType.EXTERNAL, malloc.linkage, "malloc should have EXTERNAL linkage")
+        
+        // Test free
+        assertEquals("free", free.name, "free should have correct name")
+        assertEquals(VoidType, free.returnType, "free should have correct return type")
+        assertEquals(1, free.parameters.size, "free should have one parameter")
+        assertEquals(PointerType, free.parameters[0].type, "free parameter should be pointer type")
+        assertEquals(LinkageType.EXTERNAL, free.linkage, "free should have EXTERNAL linkage")
+    }
+    
+    @Test
+    @DisplayName("Module registerFunction should default to EXTERNAL linkage")
+    fun testModuleRegisterFunctionDefaultLinkage() {
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val function = module.registerFunction("test_func", functionType)
+        
+        assertEquals(LinkageType.EXTERNAL, function.linkage, "Function should have EXTERNAL linkage by default")
+    }
+    
+    @Test
+    @DisplayName("Module registerFunction with parameter types should default to EXTERNAL linkage")
+    fun testModuleRegisterFunctionWithParameterTypesDefaultLinkage() {
+        val function = module.registerFunction(
+            name = "test_func",
+            returnType = IntegerType.I32,
+            parameterTypes = listOf(IntegerType.I32)
+        )
+        
+        assertEquals(LinkageType.EXTERNAL, function.linkage, "Function should have EXTERNAL linkage by default")
     }
 }

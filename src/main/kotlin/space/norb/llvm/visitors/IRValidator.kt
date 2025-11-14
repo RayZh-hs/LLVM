@@ -64,11 +64,20 @@ class IRValidator : IRVisitor<Boolean> {
             addError("Function name cannot be empty")
         }
         
+        // External declarations must not have bodies
+        if (function.isDeclaration) {
+            if (function.basicBlocks.isNotEmpty()) {
+                addError("External function '${function.name}' cannot have a body. External functions must be declarations only.")
+            }
+            return errors.isEmpty()
+        }
+        
         if (function.basicBlocks.isEmpty()) {
             addError("Function ${function.name} must have at least one basic block")
         }
         
         function.basicBlocks.forEach { visitBasicBlock(it) }
+        
         return errors.isEmpty()
     }
     

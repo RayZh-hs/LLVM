@@ -7,6 +7,8 @@ import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.values.constants.IntConstant
 import space.norb.llvm.enums.LinkageType
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.PointerType
+import space.norb.llvm.types.VoidType
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
@@ -236,10 +238,17 @@ class IRPrinterStructTest {
         val globalVar = GlobalVariable.create("testGlobal", module, globalInitializer)
         module.globalVariables.add(globalVar)
         
-        // Add a function
+        // Add a function with INTERNAL linkage (so it can have a body)
         val functionType = FunctionType(IntegerType.I32, listOf(pointStruct))
-        val function = space.norb.llvm.structure.Function("testFunction", functionType, module)
-        module.functions.add(function)
+        val function = module.registerFunction("testFunction", functionType, LinkageType.INTERNAL)
+        
+        // Add a basic block to make it a definition
+        val entryBlock = function.insertBasicBlock("entry")
+        entryBlock.instructions.add(space.norb.llvm.instructions.terminators.ReturnInst.createWithValue(
+            "ret",
+            IntegerType.I32,
+            space.norb.llvm.values.constants.IntConstant(0, IntegerType.I32)
+        ))
         
         // Create an IRPrinter and print the module
         val printer = IRPrinter()
@@ -297,5 +306,180 @@ class IRPrinterStructTest {
         val lines = output.split("\n").filter { it.isNotEmpty() }
         assertEquals(1, lines.size, "Should only have header line")
         assertTrue(lines[0].contains("; Module: anonymous_only"), "Should have correct header")
+    }
+    
+    @Test
+    fun testExternalFunctionDeclaration() {
+        // Create a module with external function declarations
+        val module = Module("external_test")
+        
+        // Declare external functions (like printf, malloc, free)
+        val printf = module.declareExternalFunction(
+            name = "printf",
+            returnType = IntegerType.I32,
+            parameterTypes = listOf(PointerType),
+            isVarArg = true
+        )
+        
+        val malloc = module.declareExternalFunction(
+            name = "malloc",
+            returnType = PointerType,
+            parameterTypes = listOf(IntegerType.I64)
+        )
+        
+        // Create an IRPrinter and print the module
+        val printer = IRPrinter()
+        val output = printer.print(module)
+        
+        println("Generated IR for external functions:")
+        println(output)
+        
+        // Verify that external functions are declared correctly
+        assertTrue(output.contains("declare i32 @printf(ptr, ...)"), "printf should be declared as external")
+        assertTrue(output.contains("declare ptr @malloc(i64)"), "malloc should be declared as external")
+        
+        // Should not contain function bodies (no braces)
+        assertFalse(output.contains("define i32 @printf"), "printf should not be defined")
+        assertFalse(output.contains("define ptr @malloc"), "malloc should not be defined")
+        assertFalse(output.contains("{"), "Should not contain function body braces")
+        assertFalse(output.contains("}"), "Should not contain function body braces")
+    }
+    
+    @Test
+    fun testFunctionWithDifferentLinkageTypes() {
+        // Create a module with functions having different linkage types
+        val module = Module("linkage_test")
+        
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        
+        // Create functions with different linkage types
+        // External function should NOT have a body (declaration only)
+        val externalFunc = module.registerFunction("external_func", functionType, LinkageType.EXTERNAL)
+        val internalFunc = module.registerFunction("internal_func", functionType, LinkageType.INTERNAL)
+        val privateFunc = module.registerFunction("private_func", functionType, LinkageType.PRIVATE)
+        
+        // Add basic blocks only to non-external functions
+        // External functions should NOT have bodies according to LLVM-IR rules
+        
+        val internalEntry = internalFunc.insertBasicBlock("entry")
+        internalEntry.instructions.add(space.norb.llvm.instructions.terminators.ReturnInst.createWithValue(
+            "ret",
+            IntegerType.I32,
+            space.norb.llvm.values.constants.IntConstant(0, IntegerType.I32)
+        ))
+        
+        val privateEntry = privateFunc.insertBasicBlock("entry")
+        privateEntry.instructions.add(space.norb.llvm.instructions.terminators.ReturnInst.createWithValue(
+            "ret",
+            IntegerType.I32,
+            space.norb.llvm.values.constants.IntConstant(0, IntegerType.I32)
+        ))
+        
+        // Create an IRPrinter and print the module
+        val printer = IRPrinter()
+        val output = printer.print(module)
+        
+        println("Generated IR for different linkage types:")
+        println(output)
+        
+        // Verify that functions are declared/defined with correct linkage
+        assertTrue(output.contains("declare i32 @external_func(i32)"), "External function should be declared (not defined)")
+        assertTrue(Regex("internal define i32 @internal_func\\(i32 %\\w+\\)").containsMatchIn(output),
+            "Internal function should have internal linkage with named parameters")
+        assertTrue(Regex("private define i32 @private_func\\(i32 %\\w+\\)").containsMatchIn(output),
+            "Private function should have private linkage with named parameters")
+        
+        // Only internal and private functions should have function bodies (braces)
+        assertTrue(output.contains("{"), "Should contain function body braces for internal/private functions")
+        assertTrue(output.contains("}"), "Should contain function body braces for internal/private functions")
+    }
+    
+    @Test
+    fun testExternalFunctionWithoutBody() {
+        // Create a module with external function that has no body
+        val module = Module("external_no_body")
+        
+        // Create external function without adding basic blocks
+        val functionType = FunctionType(VoidType, listOf(IntegerType.I32))
+        val externalFunc = module.registerFunction("external_no_body", functionType, LinkageType.EXTERNAL)
+        
+        // Create an IRPrinter and print the module
+        val printer = IRPrinter()
+        val output = printer.print(module)
+        
+        println("Generated IR for external function without body:")
+        println(output)
+        
+        // Should be declared, not defined
+        assertTrue(output.contains("declare void @external_no_body(i32)"), "External function without body should be declared")
+        assertFalse(output.contains("define void @external_no_body(i32)"), "External function without body should not be defined")
+        assertFalse(output.contains("{"), "Should not contain function body braces")
+        assertFalse(output.contains("}"), "Should not contain function body braces")
+    }
+    
+    @Test
+    fun testExternalFunctionWithBodyShouldFail() {
+        // Create a module with external function that has a body (should fail validation)
+        val module = Module("external_with_body")
+        
+        // Create external function and add basic blocks
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val externalFunc = module.declareExternalFunction("external_with_body", functionType)
+        
+        // Add basic block to make it a definition (this should be invalid for external functions)
+        val entryBlock = externalFunc.insertBasicBlock("entry")
+        entryBlock.instructions.add(space.norb.llvm.instructions.terminators.ReturnInst.createWithValue(
+            "ret",
+            IntegerType.I32,
+            space.norb.llvm.values.constants.IntConstant(42, IntegerType.I32)
+        ))
+        
+        // Create an IRPrinter and attempt to print the module
+        val printer = IRPrinter()
+        
+        // Should throw an exception when trying to print external function with body
+        try {
+            val output = printer.print(module)
+            println("Generated IR for external function with body (should not reach here):")
+            println(output)
+            assertTrue(false, "Expected IllegalArgumentException for external function with body")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(e.message!!.contains("External function 'external_with_body' cannot have a body"),
+                      "Should have proper error message about external function body")
+            println("Correctly caught expected exception: ${e.message}")
+        }
+    }
+    
+    @Test
+    fun testIRValidatorRejectsExternalFunctionWithBody() {
+        // Create a module with external function that has a body
+        val module = Module("validator_test")
+        
+        // Create external function and add basic blocks
+        val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
+        val externalFunc = module.declareExternalFunction("external_with_body", functionType)
+        
+        // Add basic block to make it a definition (this should be invalid for external functions)
+        val entryBlock = externalFunc.insertBasicBlock("entry")
+        entryBlock.instructions.add(space.norb.llvm.instructions.terminators.ReturnInst.createWithValue(
+            "ret",
+            IntegerType.I32,
+            space.norb.llvm.values.constants.IntConstant(42, IntegerType.I32)
+        ))
+        
+        // Create an IRValidator and validate the module
+        val validator = IRValidator()
+        val isValid = validator.validate(module)
+        
+        // Validation should fail
+        assertFalse(isValid, "Validation should fail for external function with body")
+        
+        val errors = validator.getErrors()
+        assertTrue(errors.isNotEmpty(), "Should have validation errors")
+        assertTrue(errors.any { it.contains("External function 'external_with_body' cannot have a body") },
+                  "Should have error about external function body")
+        
+        println("Validation errors (expected):")
+        errors.forEach { println("  - $it") }
     }
 }

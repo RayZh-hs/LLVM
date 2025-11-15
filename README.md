@@ -92,6 +92,30 @@ entry:
 }
 ```
 
+## Function Linkage
+
+Functions can now declare the same linkage variants that LLVM supports, allowing you to control visibility without leaving Kotlin.
+
+```kotlin
+// Internal helper – never exposed outside the module
+val helper = module.registerFunction(
+    name = "helper",
+    returnType = TypeUtils.I32,
+    paramTypes = listOf(TypeUtils.I32),
+    linkage = LinkageType.INTERNAL
+)
+
+// External declaration – emitted as `declare` so it can be resolved at link time
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = TypeUtils.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true
+)
+```
+
+`LinkageType` mirrors the LLVM IR spec (EXTERNAL, INTERNAL, PRIVATE, WEAK, DLL_IMPORT/EXPORT, etc.). Definitions default to `EXTERNAL`, while `declareExternalFunction` keeps declarations external so that they link against existing implementations.
+
 ## Project Structure
 
 ```
@@ -132,7 +156,7 @@ src/
 
 ### Structural Components
 - ✅ Modules with functions and global variables
-- ✅ Functions with parameters and basic blocks
+- ✅ Functions with parameters, basic blocks, and configurable linkage types
 - ✅ Basic blocks with instruction sequences
 - ✅ Global variables with various linkage types
 

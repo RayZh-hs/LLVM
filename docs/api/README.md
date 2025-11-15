@@ -129,6 +129,28 @@ val result = builder.insertAdd(
 )
 ```
 
+### Function Linkage
+Functions can be registered or declared with explicit linkage metadata so you can match LLVM’s visibility semantics without writing raw IR:
+
+```kotlin
+val helper = module.registerFunction(
+    name = "helper",
+    returnType = IntegerType.I32,
+    paramTypes = listOf(IntegerType.I32),
+    linkage = LinkageType.INTERNAL
+)
+
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = IntegerType.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true,
+    linkage = LinkageType.EXTERNAL
+)
+```
+
+See [structure.md#function-linkage](structure.md#function-linkage) for the full table of supported linkage kinds and when to use each one.
+
 ## Common Patterns
 
 ### Function Creation

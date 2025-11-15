@@ -22,9 +22,14 @@ Kotlin-LLVM is a Kotlin codebase that offers type-safe building blocks for const
 ### Key Features
 
 - Type-safe wrappers for LLVM core concepts (modules, functions, blocks, values)
+- Configurable function linkage on declarations and definitions (EXTERNAL, INTERNAL, PRIVATE, WEAK, DLL import/export)
 - Explicit support for the implemented instruction set (arithmetic, comparisons, casts, memory, control flow)
 - Utilities for the un-typed pointer model used by modern LLVM IR
 - IR printer for generating textual LLVM IR from Kotlin data structures
+
+### Function Linkage Documentation
+
+Function builders now mirror LLVM’s linkage matrix so you can choose whether helpers stay local to a module or are resolved at link time. Start with the [Function Linkage reference](examples/README.md#function-linkage-reference) for a quick primer, then dive into the [structure API docs](api/structure.md#function-linkage) for the complete list of supported linkage kinds and usage patterns.
 
 ## Getting Help
 

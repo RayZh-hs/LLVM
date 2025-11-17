@@ -6,7 +6,7 @@
   </p>
   <p align="center">
     <a href="https://kotlinlang.org">
-      <img src="https://img.shields.io/badge/Kotlin-2.2.0-blue.svg" alt="Kotlin Version"/>
+      <img src="https://img.shields.io/badge/Kotlin-1.19.22-blue.svg" alt="Kotlin Version"/>
     </a>
     <a href="https://llvm.org">
       <img src="https://img.shields.io/badge/LLVM%20IR-Untyped%20Pointers-orange.svg" alt="LLVM IR"/>

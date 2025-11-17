@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/RayZh-hs/LLVM/main/public/Kotlin-LLVM.png" alt="Kotlin-LLVM Logo" width="200"/>
   <h1>Kotlin-LLVM</h1>
   <p align="center">
-  Community-driven LLVM IR Generation Framework for Kotlin.
+  Modern LLVM IR Generation Framework for Kotlin.
   </p>
   <p align="center">
     <a href="https://kotlinlang.org">

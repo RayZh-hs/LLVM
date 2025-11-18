@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "space.norb"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.22")
 }
 
 tasks.test {

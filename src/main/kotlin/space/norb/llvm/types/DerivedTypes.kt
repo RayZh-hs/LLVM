@@ -43,10 +43,10 @@ object PointerType : Type() {
 }
 
 data class FunctionType(
-    val returnType: Type,
-    val paramTypes: List<Type>,
-    val isVarArg: Boolean = false,
-    val paramNames: List<String>? = null
+    var returnType: Type,
+    var paramTypes: List<Type>,
+    var isVarArg: Boolean = false,
+    var paramNames: List<String>? = null
 ) : Type() {
     override fun toString(): String {
         val params = paramTypes.joinToString(", ") { it.toString() }
@@ -74,7 +74,7 @@ data class FunctionType(
     }
 }
 
-data class ArrayType(val numElements: Int, val elementType: Type) : Type() {
+data class ArrayType(var numElements: Int, var elementType: Type) : Type() {
     override fun toString(): String = "[$numElements x ${elementType.toString()}]"
     override fun isPrimitiveType(): Boolean = false
     override fun isDerivedType(): Boolean = true

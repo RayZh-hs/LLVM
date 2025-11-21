@@ -41,7 +41,7 @@ Instructions are split by category inside `instructions/`:
 - `binary/` contains `AddInst`, `SubInst`, `MulInst`, `SDivInst`, `AndInst`, `OrInst`, `XorInst`.
 - `memory/` covers `AllocaInst`, `LoadInst`, `StoreInst`, `GetElementPtrInst`.
 - `casts/` implements `TruncInst`, `ZExtInst`, `SExtInst`, `BitcastInst`.
-- `other/` currently includes `CallInst`, `ICmpInst`, `PhiNode`.
+- `other/` currently includes `CallInst`, `ICmpInst`, `PhiNode`, `CommentAttachment`.
 - `terminators/` exposes `ReturnInst`, `BranchInst`, `SwitchInst`.
 
 Every instruction inherits from the base classes in `instructions/base` (`Instruction`, `BinaryInst`, `MemoryInst`, etc.) and participates in the visitor interfaces consumed by the printer and validator.

@@ -27,6 +27,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
 import space.norb.llvm.instructions.base.TerminatorInst
 import space.norb.llvm.instructions.base.BinaryInst
@@ -70,6 +71,7 @@ interface IRVisitor<T> {
     fun visitCallInst(inst: CallInst): T
     fun visitICmpInst(inst: ICmpInst): T
     fun visitPhiNode(inst: PhiNode): T
+    fun visitCommentAttachment(inst: CommentAttachment): T
     
     // Base instruction visitors for generic handling
     fun visitTerminatorInst(inst: TerminatorInst): T

@@ -29,6 +29,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
 import space.norb.llvm.instructions.base.TerminatorInst
 import space.norb.llvm.instructions.base.BinaryInst
@@ -436,6 +437,18 @@ class IRPrinter : IRVisitor<Unit> {
         }
         output.appendLine("${indent()}%${inst.name} = phi ${inst.type} $pairsStr")
     }
+
+    override fun visitCommentAttachment(inst: CommentAttachment) {
+        val lines = inst.comment.lines()
+        if (lines.isEmpty()) {
+            output.appendLine("${indent()};")
+            return
+        }
+        lines.forEach { line ->
+            val suffix = if (line.isEmpty()) "" else " ${line}"
+            output.appendLine("${indent()};${suffix}")
+        }
+    }
     
     override fun visitTerminatorInst(inst: TerminatorInst): Unit = when (inst) {
         is ReturnInst -> visitReturnInst(inst)
@@ -475,6 +488,7 @@ class IRPrinter : IRVisitor<Unit> {
         is CallInst -> visitCallInst(inst)
         is ICmpInst -> visitICmpInst(inst)
         is PhiNode -> visitPhiNode(inst)
+        is CommentAttachment -> visitCommentAttachment(inst)
         else -> throw IllegalArgumentException("Unknown other instruction: ${inst::class.simpleName}")
     }
     

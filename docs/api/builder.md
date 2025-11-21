@@ -33,6 +33,14 @@ builder.positionBefore(instruction)
 builder.clearInsertionPoint()
 ```
 
+### Comment Attachments
+```kotlin
+// Emit a comment in the instruction stream
+builder.insertComment("setup locals and store defaults")
+```
+- Comments are printed in IR prefixed with `;` and keep their position relative to instructions.
+- Multi-line comments are supported; each line is emitted as its own `;` line.
+
 ## Function Creation
 
 ### Creating Functions

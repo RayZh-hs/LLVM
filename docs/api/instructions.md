@@ -273,6 +273,7 @@ All instructions inherit from specific base classes:
 - [`CallInst`](src/main/kotlin/space/norb/llvm/instructions/other/CallInst.kt) - Function call
 - [`ICmpInst`](src/main/kotlin/space/norb/llvm/instructions/other/ICmpInst.kt) - Integer comparison
 - [`PhiNode`](src/main/kotlin/space/norb/llvm/instructions/other/PhiNode.kt) - PHI node
+- [`CommentAttachment`](src/main/kotlin/space/norb/llvm/instructions/other/CommentAttachment.kt) - Emits an inline IR comment (no runtime semantics)
 
 ## Best Practices
 

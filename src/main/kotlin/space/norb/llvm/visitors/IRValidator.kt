@@ -29,6 +29,7 @@ import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
+import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
 import space.norb.llvm.instructions.base.TerminatorInst
 import space.norb.llvm.instructions.base.BinaryInst
@@ -263,6 +264,10 @@ class IRValidator : IRVisitor<Boolean> {
         }
         return errors.isEmpty()
     }
+
+    override fun visitCommentAttachment(inst: CommentAttachment): Boolean {
+        return errors.isEmpty()
+    }
     
     override fun visitTerminatorInst(inst: TerminatorInst): Boolean = when (inst) {
         is ReturnInst -> visitReturnInst(inst)
@@ -314,6 +319,7 @@ class IRValidator : IRVisitor<Boolean> {
         is CallInst -> visitCallInst(inst)
         is ICmpInst -> visitICmpInst(inst)
         is PhiNode -> visitPhiNode(inst)
+        is CommentAttachment -> visitCommentAttachment(inst)
         else -> {
             addError("Unknown other instruction: ${inst::class.simpleName}")
             false

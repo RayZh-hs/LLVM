@@ -25,6 +25,7 @@ import space.norb.llvm.instructions.memory.LoadInst
 import space.norb.llvm.instructions.memory.StoreInst
 import space.norb.llvm.instructions.memory.GetElementPtrInst
 import space.norb.llvm.instructions.other.CallInst
+import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.casts.BitcastInst
@@ -61,6 +62,13 @@ class IRBuilder(val module: Module) {
     fun clearInsertionPoint() {
         currentBlock = null
         insertionPoint = null
+    }
+
+    // Comments and annotations
+    fun insertComment(text: String, name: String? = null): CommentAttachment {
+        val rename = name ?: Renamer.another()
+        val comment = CommentAttachment(rename, text)
+        return insertInstruction(comment) as CommentAttachment
     }
     
     private fun insertInstruction(instruction: Instruction): Instruction {

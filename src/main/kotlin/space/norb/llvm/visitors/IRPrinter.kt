@@ -76,8 +76,19 @@ class IRPrinter : IRVisitor<Unit> {
         
         // Print global variables
         module.globalVariables.forEach { visitGlobalVariable(it) }
-        // Then print functions
-        module.functions.forEach { visitFunction(it) }
+        
+        // Then print functions, ensuring clean separation from previous content
+        module.functions.forEachIndexed { index, function ->
+            val needsSeparator = index > 0 ||
+                module.globalVariables.isNotEmpty() ||
+                module.getAllNamedStructTypes().isNotEmpty()
+            
+            if (needsSeparator) {
+                output.appendLine()
+            }
+            
+            visitFunction(function)
+        }
     }
     /**
      * Emits struct definitions for all named struct types in the module.
@@ -94,8 +105,6 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitFunction(function: Function) {
-        output.appendLine()
-        
         // Check for invalid external declarations with bodies
         if (function.isDeclaration && function.basicBlocks.isNotEmpty()) {
             throw IllegalArgumentException("External function '${function.name}' cannot have a body. External functions must be declarations only.")
@@ -192,15 +201,20 @@ class IRPrinter : IRVisitor<Unit> {
             output.appendLine("${linkageStr}$returnTypeStr @${function.name}($declareParamsStr)")
         } else {
             output.appendLine("${linkageStr}$returnTypeStr @${function.name}($paramsStr) {")
-            indentLevel++
-            function.basicBlocks.forEach { visitBasicBlock(it) }
-            indentLevel--
+            val previousIndent = indentLevel
+            indentLevel = 0
+            function.basicBlocks.forEachIndexed { index, block ->
+                if (index > 0) {
+                    output.appendLine()
+                }
+                visitBasicBlock(block)
+            }
+            indentLevel = previousIndent
             output.appendLine("}")
         }
     }
     
     override fun visitBasicBlock(block: BasicBlock) {
-        output.appendLine()
         output.appendLine("${indent()}${block.name}:")
         indentLevel++
         block.instructions.forEach { it.accept(this) }

@@ -24,5 +24,13 @@ class Renamer {
             else
                 "$baseName.$serial"
         }
+
+        fun clear(baseName: String? = null) {
+            nameCountMap.remove(baseName)
+        }
+
+        fun clearAll() {
+            nameCountMap.clear()
+        }
     }
 }

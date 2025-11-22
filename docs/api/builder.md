@@ -40,6 +40,10 @@ builder.insertComment("setup locals and store defaults")
 ```
 - Comments are printed in IR prefixed with `;` and keep their position relative to instructions.
 - Multi-line comments are supported; each line is emitted as its own `;` line.
+- Inline comments can be attached directly to instructions via `inlineComment`:
+```kotlin
+val sum = builder.insertAdd(a, b, "sum").apply { inlineComment = "a + b" }
+```
 
 ## Function Creation
 

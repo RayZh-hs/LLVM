@@ -14,6 +14,7 @@ abstract class Instruction(
     operands: List<Value>
 ) : User(name, type, operands) {
     lateinit var parent: BasicBlock
+    var inlineComment: String? = null
     
     override fun getParent(): Any? {
         // Instructions belong to basic blocks

@@ -37,4 +37,47 @@ class CommentAttachmentTest {
         val validator = IRValidator()
         assertTrue(validator.validate(module))
     }
+
+    @Test
+    fun `inline comments are printed on the same line`() {
+        val module = Module("inline_comments")
+        val functionType = FunctionType(IntegerType.I32, emptyList())
+        val function = module.registerFunction("with_inline", functionType)
+        val entry = function.insertBasicBlock("entry", setAsEntrypoint = true)
+
+        val builder = IRBuilder(module)
+        builder.positionAtEnd(entry)
+
+        val ret = builder.insertRet(BuilderUtils.getIntConstant(1, IntegerType.I32))
+        ret.inlineComment = "return one"
+
+        val printed = module.toIRString()
+        val retLine = printed.lines().first { it.trimStart().startsWith("ret") }
+        assertTrue(retLine.contains("; return one"))
+    }
+
+    @Test
+    fun `inline comments support multiple lines`() {
+        val module = Module("inline_comments_multiline")
+        val functionType = FunctionType(IntegerType.I32, emptyList())
+        val function = module.registerFunction("with_inline_multiline", functionType)
+        val entry = function.insertBasicBlock("entry", setAsEntrypoint = true)
+
+        val builder = IRBuilder(module)
+        builder.positionAtEnd(entry)
+
+        val sum = builder.insertAdd(
+            BuilderUtils.getIntConstant(2, IntegerType.I32),
+            BuilderUtils.getIntConstant(3, IntegerType.I32),
+            "sum"
+        )
+        sum.inlineComment = "first line\nsecond line"
+        builder.insertRet(sum)
+
+        val lines = module.toIRString().lines()
+        val addIndex = lines.indexOfFirst { it.contains("%sum = add") }
+        assertTrue(addIndex >= 0)
+        assertTrue(lines[addIndex].contains("; first line"))
+        assertTrue(lines.getOrNull(addIndex + 1)?.trimStart() == "; second line")
+    }
 }

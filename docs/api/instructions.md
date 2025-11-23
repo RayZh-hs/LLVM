@@ -22,6 +22,9 @@ val product = builder.insertMul(a, b, "product")
 // Signed Division
 val quotient = builder.insertSDiv(a, b, "quotient")
 
+// Unsigned Division
+val uquotient = builder.insertUDiv(a, b, "uquotient")
+
 // Unsigned Remainder (Modulo)
 val uremResult = builder.insertURem(a, b, "urem")
 

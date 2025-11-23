@@ -15,6 +15,7 @@ import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
@@ -154,6 +155,7 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitSubInst(inst: SubInst): Boolean = validateBinaryInst(inst, "sub")
     override fun visitMulInst(inst: MulInst): Boolean = validateBinaryInst(inst, "mul")
     override fun visitSDivInst(inst: SDivInst): Boolean = validateBinaryInst(inst, "sdiv")
+    override fun visitUDivInst(inst: UDivInst): Boolean = validateBinaryInst(inst, "udiv")
     override fun visitURemInst(inst: URemInst): Boolean = validateBinaryInst(inst, "urem")
     override fun visitSRemInst(inst: SRemInst): Boolean = validateBinaryInst(inst, "srem")
     override fun visitAndInst(inst: AndInst): Boolean = validateBinaryInst(inst, "and")
@@ -294,6 +296,7 @@ class IRValidator : IRVisitor<Boolean> {
         is SubInst -> visitSubInst(inst)
         is MulInst -> visitMulInst(inst)
         is SDivInst -> visitSDivInst(inst)
+        is UDivInst -> visitUDivInst(inst)
         is URemInst -> visitURemInst(inst)
         is SRemInst -> visitSRemInst(inst)
         is AndInst -> visitAndInst(inst)

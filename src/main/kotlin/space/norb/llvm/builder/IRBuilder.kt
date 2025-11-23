@@ -23,6 +23,7 @@ import space.norb.llvm.instructions.binary.LShrInst
 import space.norb.llvm.instructions.binary.AShrInst
 import space.norb.llvm.instructions.binary.ShlInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.memory.AllocaInst
@@ -229,6 +230,12 @@ class IRBuilder(val module: Module) {
         val rename = name ?: Renamer.another()
         val sdiv = SDivInst.create(rename, lhs, rhs)
         return insertInstruction(sdiv) as SDivInst
+    }
+
+    fun insertUDiv(lhs: Value, rhs: Value, name: String? = null): UDivInst {
+        val rename = name ?: Renamer.another()
+        val udiv = UDivInst.create(rename, lhs, rhs)
+        return insertInstruction(udiv) as UDivInst
     }
     
     fun insertURem(lhs: Value, rhs: Value, name: String? = null): URemInst {

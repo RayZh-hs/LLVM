@@ -27,7 +27,11 @@ Kotlin-LLVM is a comprehensive framework for generating LLVM Intermediate Repres
 - **🔧 Type-Safe IR Construction**: Leverages Kotlin's type system to prevent errors during IR construction
 - **🏗️ Fluent Builder Pattern**: Intuitive API for building complex LLVM IR programs
 - **📋 Modern LLVM IR Compliance**: Uses the latest untyped pointer model compatible with modern LLVM toolchains
-- **🎯 Comprehensive Instruction Set**: Support for all major LLVM instruction categories
+- **🎯 Comprehensive Instruction Set**: Support for all major LLVM instruction categories including vector operations
+- **📦 Struct Support**: First-class support for named and anonymous structs
+- **🔀 Advanced Control Flow**: Support for Phi nodes and Switch instructions
+- **💾 Memory Operations**: Complete memory model with alloca, load, store, and GEP
+- **📝 IR Comments**: Ability to attach comments to the generated IR
 - **🔍 Visitor Pattern**: Built-in support for IR analysis, transformation, and printing
 - **✅ Extensive Testing**: Comprehensive test suite with end-to-end validation
 
@@ -92,30 +96,6 @@ entry:
 }
 ```
 
-## Function Linkage
-
-Functions can now declare the same linkage variants that LLVM supports, allowing you to control visibility without leaving Kotlin.
-
-```kotlin
-// Internal helper – never exposed outside the module
-val helper = module.registerFunction(
-    name = "helper",
-    returnType = TypeUtils.I32,
-    paramTypes = listOf(TypeUtils.I32),
-    linkage = LinkageType.INTERNAL
-)
-
-// External declaration – emitted as `declare` so it can be resolved at link time
-val printf = module.declareExternalFunction(
-    name = "printf",
-    returnType = TypeUtils.I32,
-    parameterTypes = listOf(PointerType),
-    isVarArg = true
-)
-```
-
-`LinkageType` mirrors the LLVM IR spec (EXTERNAL, INTERNAL, PRIVATE, WEAK, DLL_IMPORT/EXPORT, etc.). Definitions default to `EXTERNAL`, while `declareExternalFunction` keeps declarations external so that they link against existing implementations.
-
 ## Project Structure
 
 ```
@@ -178,12 +158,6 @@ src/
 ./gradlew test
 ```
 
-### Generate Documentation
-
-```bash
-./gradlew dokkaHtml
-```
-
 ## Examples
 
 The project includes several comprehensive examples in the [`src/main/kotlin/space/norb/llvm/examples`](src/main/kotlin/space/norb/llvm/examples) directory:
@@ -193,6 +167,108 @@ The project includes several comprehensive examples in the [`src/main/kotlin/spa
 - **[`StructExample.kt`](src/main/kotlin/space/norb/llvm/examples/StructExample.kt)** - Illustrates struct type registration, memory allocation, and field access
 
 These examples demonstrate the current API patterns and best practices for generating LLVM IR with Kotlin-LLVM.
+
+## Advanced Usage
+
+## Function Linkage
+
+Functions can now declare the same linkage variants that LLVM supports, allowing you to control visibility without leaving Kotlin.
+
+```kotlin
+// Internal helper – never exposed outside the module
+val helper = module.registerFunction(
+    name = "helper",
+    returnType = TypeUtils.I32,
+    paramTypes = listOf(TypeUtils.I32),
+    linkage = LinkageType.INTERNAL
+)
+
+// External declaration – emitted as `declare` so it can be resolved at link time
+val printf = module.declareExternalFunction(
+    name = "printf",
+    returnType = TypeUtils.I32,
+    parameterTypes = listOf(PointerType),
+    isVarArg = true
+)
+```
+
+`LinkageType` mirrors the LLVM IR spec (EXTERNAL, INTERNAL, PRIVATE, WEAK, DLL_IMPORT/EXPORT, etc.). Definitions default to `EXTERNAL`, while `declareExternalFunction` keeps declarations external so that they link against existing implementations.
+
+### Working with Structs
+
+```kotlin
+val module = Module("StructExample")
+val builder = IRBuilder(module)
+
+// Define a Point struct { i32, i32 }
+val pointType = module.registerNamedStructType(
+    name = "Point",
+    elementTypes = listOf(
+        BuilderUtils.getIntType(32),
+        BuilderUtils.getIntType(32)
+    )
+)
+
+// Create a function that uses the struct
+module.registerFunction(
+    name = "createPoint",
+    returnType = pointType,
+    parameterTypes = listOf(BuilderUtils.getIntType(32), BuilderUtils.getIntType(32))
+).apply {
+    insertBasicBlock("entry").apply {
+        builder.positionAtEnd(this)
+        
+        // Allocate memory for the struct
+        val ptr = builder.insertAlloca(pointType, "point")
+        
+        // Store x and y coordinates
+        val xPtr = builder.insertGep(
+            pointType, 
+            ptr, 
+            listOf(BuilderUtils.getIntConstant(0L, 32), BuilderUtils.getIntConstant(0L, 32)), 
+            "xPtr"
+        )
+        builder.insertStore(parameters[0], xPtr)
+        
+        val yPtr = builder.insertGep(
+            pointType, 
+            ptr, 
+            listOf(BuilderUtils.getIntConstant(0L, 32), BuilderUtils.getIntConstant(1L, 32)), 
+            "yPtr"
+        )
+        builder.insertStore(parameters[1], yPtr)
+        
+        // Load and return
+        val result = builder.insertLoad(pointType, ptr, "result")
+        builder.insertRet(result)
+    }
+}
+```
+
+### Control Flow
+
+```kotlin
+// Switch instruction
+builder.insertSwitch(
+    condition = value,
+    defaultDest = defaultBlock,
+    cases = listOf(
+        Pair(BuilderUtils.getIntConstant(0, 32), case0Block),
+        Pair(BuilderUtils.getIntConstant(1, 32), case1Block)
+    ),
+    name = "switch"
+)
+
+// Phi node
+builder.insertPhi(
+    type = TypeUtils.I32,
+    incomingValues = listOf(
+        Pair(val1, block1),
+        Pair(val2, block2)
+    ),
+    name = "phi"
+)
+```
 
 ## Contributing
 

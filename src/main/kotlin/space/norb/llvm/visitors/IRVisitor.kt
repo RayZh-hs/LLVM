@@ -20,6 +20,7 @@ import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
 import space.norb.llvm.instructions.binary.LShrInst
 import space.norb.llvm.instructions.binary.AShrInst
+import space.norb.llvm.instructions.binary.ShlInst
 import space.norb.llvm.instructions.memory.AllocaInst
 import space.norb.llvm.instructions.memory.LoadInst
 import space.norb.llvm.instructions.memory.StoreInst
@@ -68,6 +69,7 @@ interface IRVisitor<T> {
     fun visitXorInst(inst: XorInst): T
     fun visitLShrInst(inst: LShrInst): T
     fun visitAShrInst(inst: AShrInst): T
+    fun visitShlInst(inst: ShlInst): T
     fun visitAllocaInst(inst: AllocaInst): T
     fun visitLoadInst(inst: LoadInst): T
     fun visitStoreInst(inst: StoreInst): T

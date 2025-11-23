@@ -45,6 +45,9 @@ val lshrResult = builder.insertLShr(a, b, "lshr")
 
 // Arithmetic Shift Right
 val ashrResult = builder.insertAShr(a, b, "ashr")
+
+// Shift Left
+val shlResult = builder.insertShl(a, b, "shl")
 ```
 
 ### Convenience Operations

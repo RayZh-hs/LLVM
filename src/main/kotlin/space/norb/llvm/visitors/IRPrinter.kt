@@ -20,6 +20,8 @@ import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
+import space.norb.llvm.instructions.binary.LShrInst
+import space.norb.llvm.instructions.binary.AShrInst
 import space.norb.llvm.instructions.memory.AllocaInst
 import space.norb.llvm.instructions.memory.LoadInst
 import space.norb.llvm.instructions.memory.StoreInst
@@ -368,6 +370,14 @@ class IRPrinter : IRVisitor<Unit> {
     override fun visitXorInst(inst: XorInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = xor ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
+
+    override fun visitLShrInst(inst: LShrInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = lshr ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+
+    override fun visitAShrInst(inst: AShrInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = ashr ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
     
     override fun visitAllocaInst(inst: AllocaInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = alloca ${inst.allocatedType}")
@@ -511,6 +521,8 @@ class IRPrinter : IRVisitor<Unit> {
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)
+        is LShrInst -> visitLShrInst(inst)
+        is AShrInst -> visitAShrInst(inst)
         else -> throw IllegalArgumentException("Unknown binary instruction: ${inst::class.simpleName}")
     }
     

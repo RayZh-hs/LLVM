@@ -39,6 +39,12 @@ val orResult = builder.insertOr(a, b, "or")
 
 // Bitwise XOR
 val xorResult = builder.insertXor(a, b, "xor")
+
+// Logical Shift Right
+val lshrResult = builder.insertLShr(a, b, "lshr")
+
+// Arithmetic Shift Right
+val ashrResult = builder.insertAShr(a, b, "ashr")
 ```
 
 ### Convenience Operations

@@ -20,6 +20,8 @@ import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
+import space.norb.llvm.instructions.binary.LShrInst
+import space.norb.llvm.instructions.binary.AShrInst
 import space.norb.llvm.instructions.memory.AllocaInst
 import space.norb.llvm.instructions.memory.LoadInst
 import space.norb.llvm.instructions.memory.StoreInst
@@ -156,6 +158,8 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitAndInst(inst: AndInst): Boolean = validateBinaryInst(inst, "and")
     override fun visitOrInst(inst: OrInst): Boolean = validateBinaryInst(inst, "or")
     override fun visitXorInst(inst: XorInst): Boolean = validateBinaryInst(inst, "xor")
+    override fun visitLShrInst(inst: LShrInst): Boolean = validateBinaryInst(inst, "lshr")
+    override fun visitAShrInst(inst: AShrInst): Boolean = validateBinaryInst(inst, "ashr")
     
     private fun validateBinaryInst(inst: Any, opName: String): Boolean {
         // Basic validation for binary instructions
@@ -293,6 +297,8 @@ class IRValidator : IRVisitor<Boolean> {
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)
+        is LShrInst -> visitLShrInst(inst)
+        is AShrInst -> visitAShrInst(inst)
         else -> {
             addError("Unknown binary instruction: ${inst::class.simpleName}")
             false

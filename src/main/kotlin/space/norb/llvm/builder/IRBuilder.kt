@@ -19,6 +19,8 @@ import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
+import space.norb.llvm.instructions.binary.LShrInst
+import space.norb.llvm.instructions.binary.AShrInst
 import space.norb.llvm.instructions.binary.SDivInst
 import space.norb.llvm.instructions.binary.URemInst
 import space.norb.llvm.instructions.binary.SRemInst
@@ -197,11 +199,23 @@ class IRBuilder(val module: Module) {
         val or = OrInst.create(rename, lhs, rhs)
         return insertInstruction(or) as OrInst
     }
-    
+
     fun insertXor(lhs: Value, rhs: Value, name: String? = null): XorInst {
         val rename = name ?: Renamer.another()
         val xor = XorInst.create(rename, lhs, rhs)
         return insertInstruction(xor) as XorInst
+    }
+
+    fun insertLShr(lhs: Value, rhs: Value, name: String? = null): LShrInst {
+        val rename = name ?: Renamer.another()
+        val lshr = LShrInst.create(rename, lhs, rhs)
+        return insertInstruction(lshr) as LShrInst
+    }
+
+    fun insertAShr(lhs: Value, rhs: Value, name: String? = null): AShrInst {
+        val rename = name ?: Renamer.another()
+        val ashr = AShrInst.create(rename, lhs, rhs)
+        return insertInstruction(ashr) as AShrInst
     }
     
     fun insertSDiv(lhs: Value, rhs: Value, name: String? = null): SDivInst {

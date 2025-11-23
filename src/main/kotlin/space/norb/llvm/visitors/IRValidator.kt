@@ -17,6 +17,11 @@ import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
 import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.FAddInst
+import space.norb.llvm.instructions.binary.FSubInst
+import space.norb.llvm.instructions.binary.FMulInst
+import space.norb.llvm.instructions.binary.FDivInst
+import space.norb.llvm.instructions.binary.FRemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
@@ -34,6 +39,7 @@ import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
+import space.norb.llvm.instructions.other.FCmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
@@ -158,6 +164,11 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitUDivInst(inst: UDivInst): Boolean = validateBinaryInst(inst, "udiv")
     override fun visitURemInst(inst: URemInst): Boolean = validateBinaryInst(inst, "urem")
     override fun visitSRemInst(inst: SRemInst): Boolean = validateBinaryInst(inst, "srem")
+    override fun visitFAddInst(inst: FAddInst): Boolean = validateBinaryInst(inst, "fadd")
+    override fun visitFSubInst(inst: FSubInst): Boolean = validateBinaryInst(inst, "fsub")
+    override fun visitFMulInst(inst: FMulInst): Boolean = validateBinaryInst(inst, "fmul")
+    override fun visitFDivInst(inst: FDivInst): Boolean = validateBinaryInst(inst, "fdiv")
+    override fun visitFRemInst(inst: FRemInst): Boolean = validateBinaryInst(inst, "frem")
     override fun visitAndInst(inst: AndInst): Boolean = validateBinaryInst(inst, "and")
     override fun visitOrInst(inst: OrInst): Boolean = validateBinaryInst(inst, "or")
     override fun visitXorInst(inst: XorInst): Boolean = validateBinaryInst(inst, "xor")
@@ -268,6 +279,14 @@ class IRValidator : IRVisitor<Boolean> {
         }
         return errors.isEmpty()
     }
+
+    override fun visitFCmpInst(inst: FCmpInst): Boolean {
+        val operands = inst.getOperandsList()
+        if (operands.size < 2) {
+            addError("FCmp instruction must have two operands")
+        }
+        return errors.isEmpty()
+    }
     
     override fun visitPhiNode(inst: PhiNode): Boolean {
         val operands = inst.getOperandsList()
@@ -299,6 +318,11 @@ class IRValidator : IRVisitor<Boolean> {
         is UDivInst -> visitUDivInst(inst)
         is URemInst -> visitURemInst(inst)
         is SRemInst -> visitSRemInst(inst)
+        is FAddInst -> visitFAddInst(inst)
+        is FSubInst -> visitFSubInst(inst)
+        is FMulInst -> visitFMulInst(inst)
+        is FDivInst -> visitFDivInst(inst)
+        is FRemInst -> visitFRemInst(inst)
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)
@@ -336,6 +360,7 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitOtherInst(inst: OtherInst): Boolean = when (inst) {
         is CallInst -> visitCallInst(inst)
         is ICmpInst -> visitICmpInst(inst)
+        is FCmpInst -> visitFCmpInst(inst)
         is PhiNode -> visitPhiNode(inst)
         is CommentAttachment -> visitCommentAttachment(inst)
         else -> {

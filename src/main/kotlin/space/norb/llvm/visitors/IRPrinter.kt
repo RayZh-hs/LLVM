@@ -17,6 +17,11 @@ import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
 import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.FAddInst
+import space.norb.llvm.instructions.binary.FSubInst
+import space.norb.llvm.instructions.binary.FMulInst
+import space.norb.llvm.instructions.binary.FDivInst
+import space.norb.llvm.instructions.binary.FRemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
@@ -34,6 +39,7 @@ import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
+import space.norb.llvm.instructions.other.FCmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
@@ -364,6 +370,26 @@ class IRPrinter : IRVisitor<Unit> {
     override fun visitSRemInst(inst: SRemInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = srem ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
+
+    override fun visitFAddInst(inst: FAddInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = fadd ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+
+    override fun visitFSubInst(inst: FSubInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = fsub ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+
+    override fun visitFMulInst(inst: FMulInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = fmul ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+
+    override fun visitFDivInst(inst: FDivInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = fdiv ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+
+    override fun visitFRemInst(inst: FRemInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = frem ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
     
     override fun visitAndInst(inst: AndInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = and ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
@@ -494,6 +520,11 @@ class IRPrinter : IRVisitor<Unit> {
         val operands = inst.getOperandsList()
         appendInstructionLine(inst, "${indent()}%${inst.name} = icmp ${inst.predicate.toString().lowercase()} ${operands[0].type} ${formatValueName(operands[0])}, ${formatValueName(operands[1])}")
     }
+
+    override fun visitFCmpInst(inst: FCmpInst) {
+        val operands = inst.getOperandsList()
+        appendInstructionLine(inst, "${indent()}%${inst.name} = fcmp ${inst.predicate.toString().lowercase()} ${operands[0].type} ${formatValueName(operands[0])}, ${formatValueName(operands[1])}")
+    }
     
     override fun visitPhiNode(inst: PhiNode) {
         val pairsStr = inst.incomingValues.joinToString(", ") { (value, block) ->
@@ -529,6 +560,11 @@ class IRPrinter : IRVisitor<Unit> {
         is UDivInst -> visitUDivInst(inst)
         is URemInst -> visitURemInst(inst)
         is SRemInst -> visitSRemInst(inst)
+        is FAddInst -> visitFAddInst(inst)
+        is FSubInst -> visitFSubInst(inst)
+        is FMulInst -> visitFMulInst(inst)
+        is FDivInst -> visitFDivInst(inst)
+        is FRemInst -> visitFRemInst(inst)
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)
@@ -557,6 +593,7 @@ class IRPrinter : IRVisitor<Unit> {
     override fun visitOtherInst(inst: OtherInst): Unit = when (inst) {
         is CallInst -> visitCallInst(inst)
         is ICmpInst -> visitICmpInst(inst)
+        is FCmpInst -> visitFCmpInst(inst)
         is PhiNode -> visitPhiNode(inst)
         is CommentAttachment -> visitCommentAttachment(inst)
         else -> throw IllegalArgumentException("Unknown other instruction: ${inst::class.simpleName}")

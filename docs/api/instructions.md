@@ -30,6 +30,29 @@ val uremResult = builder.insertURem(a, b, "urem")
 
 // Signed Remainder (Modulo)
 val sremResult = builder.insertSRem(a, b, "srem")
+
+// Floating-point Addition
+val faddResult = builder.insertFAdd(a, b, "fadd")
+
+// Floating-point Subtraction
+val fsubResult = builder.insertFSub(a, b, "fsub")
+
+// Floating-point Multiplication
+val fmulResult = builder.insertFMul(a, b, "fmul")
+
+// Floating-point Division
+val fdivResult = builder.insertFDiv(a, b, "fdiv")
+
+// Floating-point Remainder
+val fremResult = builder.insertFRem(a, b, "frem")
+
+### Comparison Operations
+```kotlin
+// Integer Comparison
+val icmpResult = builder.insertICmp(IcmpPredicate.EQ, a, b, "icmp")
+
+// Floating-point Comparison
+val fcmpResult = builder.insertFCmp(FcmpPredicate.OEQ, a, b, "fcmp")
 ```
 
 ### Bitwise Operations

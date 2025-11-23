@@ -25,6 +25,11 @@ import space.norb.llvm.instructions.binary.ShlInst
 import space.norb.llvm.instructions.binary.SDivInst
 import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.FAddInst
+import space.norb.llvm.instructions.binary.FSubInst
+import space.norb.llvm.instructions.binary.FMulInst
+import space.norb.llvm.instructions.binary.FDivInst
+import space.norb.llvm.instructions.binary.FRemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.memory.AllocaInst
 import space.norb.llvm.instructions.memory.LoadInst
@@ -33,12 +38,14 @@ import space.norb.llvm.instructions.memory.GetElementPtrInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.instructions.other.ICmpInst
+import space.norb.llvm.instructions.other.FCmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.enums.IcmpPredicate
+import space.norb.llvm.enums.FcmpPredicate
 import space.norb.llvm.utils.Renamer
 
 /**
@@ -249,6 +256,37 @@ class IRBuilder(val module: Module) {
         val srem = SRemInst.create(rename, lhs, rhs)
         return insertInstruction(srem) as SRemInst
     }
+
+    // Floating-point operations
+    fun insertFAdd(lhs: Value, rhs: Value, name: String? = null): FAddInst {
+        val rename = name ?: Renamer.another()
+        val fadd = FAddInst.create(rename, lhs, rhs)
+        return insertInstruction(fadd) as FAddInst
+    }
+
+    fun insertFSub(lhs: Value, rhs: Value, name: String? = null): FSubInst {
+        val rename = name ?: Renamer.another()
+        val fsub = FSubInst.create(rename, lhs, rhs)
+        return insertInstruction(fsub) as FSubInst
+    }
+
+    fun insertFMul(lhs: Value, rhs: Value, name: String? = null): FMulInst {
+        val rename = name ?: Renamer.another()
+        val fmul = FMulInst.create(rename, lhs, rhs)
+        return insertInstruction(fmul) as FMulInst
+    }
+
+    fun insertFDiv(lhs: Value, rhs: Value, name: String? = null): FDivInst {
+        val rename = name ?: Renamer.another()
+        val fdiv = FDivInst.create(rename, lhs, rhs)
+        return insertInstruction(fdiv) as FDivInst
+    }
+
+    fun insertFRem(lhs: Value, rhs: Value, name: String? = null): FRemInst {
+        val rename = name ?: Renamer.another()
+        val frem = FRemInst.create(rename, lhs, rhs)
+        return insertInstruction(frem) as FRemInst
+    }
     
     // Cast operations
     fun insertBitcast(value: Value, destType: Type, name: String? = null): BitcastInst {
@@ -316,6 +354,12 @@ class IRBuilder(val module: Module) {
         val rename = name ?: Renamer.another()
         val icmp = ICmpInst.create(rename, pred, lhs, rhs)
         return insertInstruction(icmp) as ICmpInst
+    }
+
+    fun insertFCmp(pred: FcmpPredicate, lhs: Value, rhs: Value, name: String? = null): FCmpInst {
+        val rename = name ?: Renamer.another()
+        val fcmp = FCmpInst.create(rename, pred, lhs, rhs)
+        return insertInstruction(fcmp) as FCmpInst
     }
     
     fun insertPhi(type: Type, incomingValues: List<Pair<Value, BasicBlock>>, name: String? = null): PhiNode {

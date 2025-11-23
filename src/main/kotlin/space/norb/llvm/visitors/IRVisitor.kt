@@ -15,6 +15,11 @@ import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
 import space.norb.llvm.instructions.binary.UDivInst
 import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.FAddInst
+import space.norb.llvm.instructions.binary.FSubInst
+import space.norb.llvm.instructions.binary.FMulInst
+import space.norb.llvm.instructions.binary.FDivInst
+import space.norb.llvm.instructions.binary.FRemInst
 import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
@@ -32,6 +37,7 @@ import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
+import space.norb.llvm.instructions.other.FCmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.values.Metadata
@@ -66,6 +72,11 @@ interface IRVisitor<T> {
     fun visitUDivInst(inst: UDivInst): T
     fun visitURemInst(inst: URemInst): T
     fun visitSRemInst(inst: SRemInst): T
+    fun visitFAddInst(inst: FAddInst): T
+    fun visitFSubInst(inst: FSubInst): T
+    fun visitFMulInst(inst: FMulInst): T
+    fun visitFDivInst(inst: FDivInst): T
+    fun visitFRemInst(inst: FRemInst): T
     fun visitAndInst(inst: AndInst): T
     fun visitOrInst(inst: OrInst): T
     fun visitXorInst(inst: XorInst): T
@@ -82,6 +93,7 @@ interface IRVisitor<T> {
     fun visitBitcastInst(inst: BitcastInst): T
     fun visitCallInst(inst: CallInst): T
     fun visitICmpInst(inst: ICmpInst): T
+    fun visitFCmpInst(inst: FCmpInst): T
     fun visitPhiNode(inst: PhiNode): T
     fun visitCommentAttachment(inst: CommentAttachment): T
     

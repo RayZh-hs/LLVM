@@ -129,10 +129,12 @@ src/
 
 ### Instructions
 - ✅ **Terminators**: ret, br, switch
-- ✅ **Binary Operations**: add, sub, mul, sdiv, and, or, xor
+- ✅ **Integer Binary Operations**: add, sub, mul, udiv, sdiv, urem, srem
+- ✅ **Bitwise Operations**: and, or, xor, shl, lshr, ashr
+- ✅ **Floating Point Operations**: fadd, fsub, fmul, fdiv, frem, fcmp
 - ✅ **Memory Operations**: alloca, load, store, getelementptr
 - ✅ **Cast Operations**: trunc, zext, sext, bitcast
-- ✅ **Other Operations**: call, icmp, phi
+- ✅ **Other Operations**: call, indirect call, icmp, phi
 
 ### Structural Components
 - ✅ Modules with functions and global variables
@@ -170,7 +172,7 @@ These examples demonstrate the current API patterns and best practices for gener
 
 ## Advanced Usage
 
-## Function Linkage
+### Function Linkage
 
 Functions can now declare the same linkage variants that LLVM supports, allowing you to control visibility without leaving Kotlin.
 
@@ -268,6 +270,29 @@ builder.insertPhi(
     ),
     name = "phi"
 )
+```
+
+### Floating Point Operations
+
+```kotlin
+// Floating point addition
+val sum = builder.insertFAdd(float1, float2, "sum")
+
+// Floating point comparison
+val cmp = builder.insertFCmp(FcmpPredicate.OEQ, float1, float2, "cmp")
+```
+
+### Type Casting
+
+```kotlin
+// Bitcast (e.g., float to i32)
+val asInt = builder.insertBitcast(floatVal, TypeUtils.I32, "asInt")
+
+// Integer extension (i32 to i64)
+val extended = builder.insertSExt(int32Val, TypeUtils.I64, "extended")
+
+// Truncation (i64 to i32)
+val truncated = builder.insertTrunc(int64Val, TypeUtils.I32, "truncated")
 ```
 
 ## Contributing

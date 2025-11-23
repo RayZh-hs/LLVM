@@ -21,6 +21,12 @@ val product = builder.insertMul(a, b, "product")
 
 // Signed Division
 val quotient = builder.insertSDiv(a, b, "quotient")
+
+// Unsigned Remainder (Modulo)
+val uremResult = builder.insertURem(a, b, "urem")
+
+// Signed Remainder (Modulo)
+val sremResult = builder.insertSRem(a, b, "srem")
 ```
 
 ### Bitwise Operations
@@ -42,6 +48,51 @@ val notResult = builder.insertNot(value, "not")
 
 // Negation (using subtraction from zero)
 val negResult = builder.insertNeg(value, "neg")
+```
+
+### Modulo Operations
+```kotlin
+// Unsigned remainder (modulo)
+// Computes the remainder of unsigned integer division
+// Result has the same sign as the dividend (first operand)
+val uremResult = builder.insertURem(a, b, "urem")
+
+// Signed remainder (modulo)
+// Computes the remainder of signed integer division
+// Result has the same sign as the dividend (first operand)
+val sremResult = builder.insertSRem(a, b, "srem")
+```
+
+**Important Notes about Modulo Operations:**
+- Both `urem` and `srem` are **not commutative**: `a % b != b % a`
+- Both are **not associative**: `(a % b) % c != a % (b % c)`
+- Division by zero results in **undefined behavior**
+- For `srem`, the result sign follows the dividend (first operand)
+- For `urem`, operands are treated as unsigned values
+
+**Example Usage:**
+```kotlin
+// Create a function that computes modulo operations
+val functionType = FunctionType(
+    returnType = IntegerType.I32,
+    paramTypes = listOf(IntegerType.I32, IntegerType.I32)
+)
+
+val function = builder.createFunction("modulo_example", functionType)
+val entryBlock = function.insertBasicBlock("entry")
+builder.positionAtEnd(entryBlock)
+
+val a = function.parameters[0]  // First operand
+val b = function.parameters[1]  // Second operand
+
+// Compute signed remainder
+val sremResult = builder.insertSRem(a, b, "srem_result")
+
+// Compute unsigned remainder
+val uremResult = builder.insertURem(a, b, "urem_result")
+
+// Return the signed remainder
+builder.insertRet(sremResult)
 ```
 
 ## Memory Operations
@@ -248,6 +299,8 @@ All instructions inherit from specific base classes:
 - [`SubInst`](src/main/kotlin/space/norb/llvm/instructions/binary/SubInst.kt) - Subtraction
 - [`MulInst`](src/main/kotlin/space/norb/llvm/instructions/binary/MulInst.kt) - Multiplication
 - [`SDivInst`](src/main/kotlin/space/norb/llvm/instructions/binary/SDivInst.kt) - Signed division
+- [`URemInst`](src/main/kotlin/space/norb/llvm/instructions/binary/URemInst.kt) - Unsigned remainder (modulo)
+- [`SRemInst`](src/main/kotlin/space/norb/llvm/instructions/binary/SRemInst.kt) - Signed remainder (modulo)
 - [`AndInst`](src/main/kotlin/space/norb/llvm/instructions/binary/AndInst.kt) - Bitwise AND
 - [`OrInst`](src/main/kotlin/space/norb/llvm/instructions/binary/OrInst.kt) - Bitwise OR
 - [`XorInst`](src/main/kotlin/space/norb/llvm/instructions/binary/XorInst.kt) - Bitwise XOR

@@ -38,7 +38,7 @@ Instructions are the building blocks of LLVM IR:
 - **Binary Operations** - Arithmetic (add, sub, mul, sdiv) and bitwise (and, or, xor)
 - **Memory Operations** - Allocation (alloca), access (load, store), pointer arithmetic (gep)
 - **Control Flow** - Terminators (return, branch, switch) and comparisons (icmp)
-- **Cast Operations** - Type conversions (trunc, zext, sext, bitcast)
+- **Cast Operations** - Type conversions (trunc, zext, sext, bitcast, ptrtoint)
 - **Other Operations** - Function calls, phi nodes
 
 ```kotlin

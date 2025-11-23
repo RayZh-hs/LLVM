@@ -41,6 +41,7 @@ import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.FCmpInst
 import space.norb.llvm.instructions.other.PhiNode
 import space.norb.llvm.instructions.casts.BitcastInst
+import space.norb.llvm.instructions.casts.PtrToIntInst
 import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.TruncInst
@@ -311,6 +312,12 @@ class IRBuilder(val module: Module) {
         val rename = name ?: Renamer.another()
         val trunc = TruncInst.create(rename, value, destType)
         return insertInstruction(trunc) as TruncInst
+    }
+
+    fun insertPtrToInt(value: Value, destType: IntegerType, name: String? = null): PtrToIntInst {
+        val rename = name ?: Renamer.another()
+        val ptrToInt = PtrToIntInst.create(rename, value, destType)
+        return insertInstruction(ptrToInt) as PtrToIntInst
     }
     
     // Memory operations

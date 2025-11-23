@@ -212,6 +212,9 @@ val sext = builder.insertSExt(value, IntegerType.I64, "sext")
 ```kotlin
 // Bitcast between types
 val bitcast = builder.insertBitcast(ptr, PointerType, "bitcast")
+
+// Pointer to integer conversion
+val addr = builder.insertPtrToInt(ptr, IntegerType.I64, "addr")
 ```
 
 ## Other Operations
@@ -356,6 +359,7 @@ All instructions inherit from specific base classes:
 - [`TruncInst`](src/main/kotlin/space/norb/llvm/instructions/casts/TruncInst.kt) - Integer truncation
 - [`ZExtInst`](src/main/kotlin/space/norb/llvm/instructions/casts/ZExtInst.kt) - Zero extension
 - [`SExtInst`](src/main/kotlin/space/norb/llvm/instructions/casts/SExtInst.kt) - Sign extension
+- [`PtrToIntInst`](src/main/kotlin/space/norb/llvm/instructions/casts/PtrToIntInst.kt) - Pointer to integer conversion
 
 #### Other Instructions
 - [`CallInst`](src/main/kotlin/space/norb/llvm/instructions/other/CallInst.kt) - Function call

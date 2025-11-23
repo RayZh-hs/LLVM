@@ -35,6 +35,7 @@ import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
+import space.norb.llvm.instructions.casts.PtrToIntInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.FCmpInst
@@ -91,6 +92,7 @@ interface IRVisitor<T> {
     fun visitZExtInst(inst: ZExtInst): T
     fun visitSExtInst(inst: SExtInst): T
     fun visitBitcastInst(inst: BitcastInst): T
+    fun visitPtrToIntInst(inst: PtrToIntInst): T
     fun visitCallInst(inst: CallInst): T
     fun visitICmpInst(inst: ICmpInst): T
     fun visitFCmpInst(inst: FCmpInst): T

@@ -37,6 +37,7 @@ import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
+import space.norb.llvm.instructions.casts.PtrToIntInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.FCmpInst
@@ -488,6 +489,10 @@ class IRPrinter : IRVisitor<Unit> {
         
         appendInstructionLine(inst, "${indent()}%${inst.name} = bitcast $sourceTypeStr $sourceValueName to $targetTypeStr")
     }
+
+    override fun visitPtrToIntInst(inst: PtrToIntInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = ptrtoint ${inst.value.type} ${formatValueName(inst.value)} to ${inst.type}")
+    }
     
     override fun visitCallInst(inst: CallInst) {
         val callee = inst.callee
@@ -587,6 +592,7 @@ class IRPrinter : IRVisitor<Unit> {
         is ZExtInst -> visitZExtInst(inst)
         is SExtInst -> visitSExtInst(inst)
         is BitcastInst -> visitBitcastInst(inst)
+        is PtrToIntInst -> visitPtrToIntInst(inst)
         else -> throw IllegalArgumentException("Unknown cast instruction: ${inst::class.simpleName}")
     }
     

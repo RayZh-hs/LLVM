@@ -133,7 +133,7 @@ src/
 - ✅ **Bitwise Operations**: and, or, xor, shl, lshr, ashr
 - ✅ **Floating Point Operations**: fadd, fsub, fmul, fdiv, frem, fcmp
 - ✅ **Memory Operations**: alloca, load, store, getelementptr
-- ✅ **Cast Operations**: trunc, zext, sext, bitcast
+- ✅ **Cast Operations**: trunc, zext, sext, bitcast, ptrtoint
 - ✅ **Other Operations**: call, indirect call, icmp, phi
 
 ### Structural Components

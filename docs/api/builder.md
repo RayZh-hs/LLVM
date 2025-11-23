@@ -275,6 +275,9 @@ val sext = builder.insertSExt(value, IntegerType.I64, "sext")
 
 // Bitcast
 val bitcast = builder.insertBitcast(value, PointerType, "bitcast")
+
+// Pointer to integer
+val addr = builder.insertPtrToInt(pointerValue, IntegerType.I64, "addr")
 ```
 
 ## Builder Utilities

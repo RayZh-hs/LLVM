@@ -335,7 +335,7 @@ class ArrayConstantComprehensiveIntegrationTest {
         val pointerElement = builder.insertLoad(PointerType, pointerElementPtr, "pointer_element")
         
         // For this test, we'll just return the int element
-        // In a real implementation, you would use FPToSI and PtrToInt casts
+        // In a real implementation, you would use FPToSI (and PtrToInt, now supported) casts
         builder.insertRet(intElement)
         
         // Verify the IR output
@@ -353,7 +353,7 @@ class ArrayConstantComprehensiveIntegrationTest {
         assertTrue(irOutput.contains("load float"))
         assertTrue(irOutput.contains("load ptr"))
         
-        // Note: FPToSI and PtrToInt instructions are not implemented yet
-        // In a real implementation, these would be used for type conversions
+        // Note: FPToSI is not implemented yet. In a full implementation, that cast would be used
+        // alongside the existing PtrToInt support for type conversions.
     }
 }

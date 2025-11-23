@@ -7,6 +7,7 @@ import space.norb.llvm.structure.Argument
 import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
+import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.PointerType
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
@@ -37,6 +38,7 @@ import space.norb.llvm.instructions.casts.TruncInst
 import space.norb.llvm.instructions.casts.ZExtInst
 import space.norb.llvm.instructions.casts.SExtInst
 import space.norb.llvm.instructions.casts.BitcastInst
+import space.norb.llvm.instructions.casts.PtrToIntInst
 import space.norb.llvm.instructions.other.CallInst
 import space.norb.llvm.instructions.other.ICmpInst
 import space.norb.llvm.instructions.other.FCmpInst
@@ -248,6 +250,7 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitZExtInst(inst: ZExtInst): Boolean = validateCastInst(inst, "zext")
     override fun visitSExtInst(inst: SExtInst): Boolean = validateCastInst(inst, "sext")
     override fun visitBitcastInst(inst: BitcastInst): Boolean = validateBitcastInst(inst)
+    override fun visitPtrToIntInst(inst: PtrToIntInst): Boolean = validatePtrToIntInst(inst)
     
     private fun validateCastInst(inst: Any, opName: String): Boolean {
         // Basic validation for cast instructions
@@ -262,6 +265,21 @@ class IRValidator : IRVisitor<Boolean> {
         // With un-typed pointers, all pointers can be bitcast to each other
         
         return true
+    }
+
+    private fun validatePtrToIntInst(inst: PtrToIntInst): Boolean {
+        if (!inst.value.type.isPointerType()) {
+            addError("PtrToInt source must be a pointer type, got ${inst.value.type}")
+        }
+        if (inst.type !is IntegerType) {
+            addError("PtrToInt destination must be an integer type, got ${inst.type}")
+        } else {
+            val pointerWidth = inst.value.type.getPrimitiveSizeInBits() ?: 0
+            if (inst.type.bitWidth < pointerWidth) {
+                addError("PtrToInt destination width ${inst.type.bitWidth} is smaller than pointer width $pointerWidth")
+            }
+        }
+        return errors.isEmpty()
     }
     
     override fun visitCallInst(inst: CallInst): Boolean {
@@ -351,6 +369,7 @@ class IRValidator : IRVisitor<Boolean> {
         is ZExtInst -> visitZExtInst(inst)
         is SExtInst -> visitSExtInst(inst)
         is BitcastInst -> visitBitcastInst(inst)
+        is PtrToIntInst -> visitPtrToIntInst(inst)
         else -> {
             addError("Unknown cast instruction: ${inst::class.simpleName}")
             false

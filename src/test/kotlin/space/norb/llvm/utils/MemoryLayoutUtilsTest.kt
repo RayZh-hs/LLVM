@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import space.norb.llvm.types.ArrayType
 import space.norb.llvm.types.IntegerType
+import space.norb.llvm.types.PointerType
 import space.norb.llvm.types.StructType
 
 @DisplayName("MemoryLayoutUtils size calculations")
@@ -56,5 +57,16 @@ class MemoryLayoutUtilsTest {
         assertThrows(IllegalArgumentException::class.java) {
             opaqueStruct.getSizeInBytes()
         }
+    }
+
+    @Test
+    fun `pointer size respects target layout`() {
+        val pointer = PointerType
+        assertEquals(8, pointer.getSizeInBytes())
+        assertEquals(4, pointer.getSizeInBytes(32))
+
+        val structWithPointer = StructType.AnonymousStructType(listOf(IntegerType(32), pointer))
+        assertEquals(16, structWithPointer.getSizeInBytes())
+        assertEquals(8, structWithPointer.getSizeInBytes(32))
     }
 }

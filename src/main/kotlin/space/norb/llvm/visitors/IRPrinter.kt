@@ -15,6 +15,8 @@ import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
@@ -347,6 +349,14 @@ class IRPrinter : IRVisitor<Unit> {
         appendInstructionLine(inst, "${indent()}%${inst.name} = sdiv ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
     
+    override fun visitURemInst(inst: URemInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = urem ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+    
+    override fun visitSRemInst(inst: SRemInst) {
+        appendInstructionLine(inst, "${indent()}%${inst.name} = srem ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
+    }
+    
     override fun visitAndInst(inst: AndInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = and ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
@@ -496,6 +506,8 @@ class IRPrinter : IRVisitor<Unit> {
         is SubInst -> visitSubInst(inst)
         is MulInst -> visitMulInst(inst)
         is SDivInst -> visitSDivInst(inst)
+        is URemInst -> visitURemInst(inst)
+        is SRemInst -> visitSRemInst(inst)
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)

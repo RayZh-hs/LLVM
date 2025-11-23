@@ -20,6 +20,8 @@ import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.memory.AllocaInst
 import space.norb.llvm.instructions.memory.LoadInst
 import space.norb.llvm.instructions.memory.StoreInst
@@ -206,6 +208,18 @@ class IRBuilder(val module: Module) {
         val rename = name ?: Renamer.another()
         val sdiv = SDivInst.create(rename, lhs, rhs)
         return insertInstruction(sdiv) as SDivInst
+    }
+    
+    fun insertURem(lhs: Value, rhs: Value, name: String? = null): URemInst {
+        val rename = name ?: Renamer.another()
+        val urem = URemInst.create(rename, lhs, rhs)
+        return insertInstruction(urem) as URemInst
+    }
+    
+    fun insertSRem(lhs: Value, rhs: Value, name: String? = null): SRemInst {
+        val rename = name ?: Renamer.another()
+        val srem = SRemInst.create(rename, lhs, rhs)
+        return insertInstruction(srem) as SRemInst
     }
     
     // Cast operations

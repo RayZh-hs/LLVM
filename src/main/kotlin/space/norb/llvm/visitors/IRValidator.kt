@@ -15,6 +15,8 @@ import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
@@ -149,6 +151,8 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitSubInst(inst: SubInst): Boolean = validateBinaryInst(inst, "sub")
     override fun visitMulInst(inst: MulInst): Boolean = validateBinaryInst(inst, "mul")
     override fun visitSDivInst(inst: SDivInst): Boolean = validateBinaryInst(inst, "sdiv")
+    override fun visitURemInst(inst: URemInst): Boolean = validateBinaryInst(inst, "urem")
+    override fun visitSRemInst(inst: SRemInst): Boolean = validateBinaryInst(inst, "srem")
     override fun visitAndInst(inst: AndInst): Boolean = validateBinaryInst(inst, "and")
     override fun visitOrInst(inst: OrInst): Boolean = validateBinaryInst(inst, "or")
     override fun visitXorInst(inst: XorInst): Boolean = validateBinaryInst(inst, "xor")
@@ -284,6 +288,8 @@ class IRValidator : IRVisitor<Boolean> {
         is SubInst -> visitSubInst(inst)
         is MulInst -> visitMulInst(inst)
         is SDivInst -> visitSDivInst(inst)
+        is URemInst -> visitURemInst(inst)
+        is SRemInst -> visitSRemInst(inst)
         is AndInst -> visitAndInst(inst)
         is OrInst -> visitOrInst(inst)
         is XorInst -> visitXorInst(inst)

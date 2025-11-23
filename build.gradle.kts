@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "space.norb"
-version = "1.2.3"
+version = "1.2.4"
 
 repositories {
     mavenCentral()
@@ -97,15 +97,8 @@ publishing {
 
 // Signing
 signing {
-    val secretKey = System.getenv("OSSRH_GPG_SECRET_KEY")
-    val password = System.getenv("OSSRH_GPG_SECRET_KEY_PASSWORD")
-
-    if (!secretKey.isNullOrBlank() && !password.isNullOrBlank()) {
-        useInMemoryPgpKeys(secretKey, password)
-        sign(publishing.publications["mavenJava"])
-    } else {
-        logger.warn("PGP signing is not configured. Skipping signing.")
-    }
+    useGpgCmd()
+    sign(publishing.publications["mavenJava"])
 }
 
 // Configure upload to Maven Central Portal
@@ -117,4 +110,11 @@ nmcpAggregation {
     }
 
     publishAllProjectsProbablyBreakingProjectIsolation()
+}
+
+// Configure signing to only run on publish
+tasks.withType<Sign>().configureEach {
+    onlyIf {
+        gradle.taskGraph.allTasks.any { it.name == "publishAggregationToCentralPortal" }
+    }
 }

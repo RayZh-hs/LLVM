@@ -13,6 +13,8 @@ import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
 import space.norb.llvm.instructions.binary.SDivInst
+import space.norb.llvm.instructions.binary.URemInst
+import space.norb.llvm.instructions.binary.SRemInst
 import space.norb.llvm.instructions.binary.AndInst
 import space.norb.llvm.instructions.binary.OrInst
 import space.norb.llvm.instructions.binary.XorInst
@@ -57,6 +59,8 @@ interface IRVisitor<T> {
     fun visitSubInst(inst: SubInst): T
     fun visitMulInst(inst: MulInst): T
     fun visitSDivInst(inst: SDivInst): T
+    fun visitURemInst(inst: URemInst): T
+    fun visitSRemInst(inst: SRemInst): T
     fun visitAndInst(inst: AndInst): T
     fun visitOrInst(inst: OrInst): T
     fun visitXorInst(inst: XorInst): T

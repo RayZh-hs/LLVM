@@ -517,8 +517,9 @@ class IRPrinter : IRVisitor<Unit> {
         
         // Format the callee name (will use @ for direct functions, % for indirect)
         val calleeName = formatValueName(callee)
-        
-        appendInstructionLine(inst, "${indent()}%${inst.name} = call $returnTypeStr $calleeName($argsStr)")
+
+        val resultPrefix = if (inst.producesValue()) "%${inst.name} = " else ""
+        appendInstructionLine(inst, "${indent()}${resultPrefix}call $returnTypeStr $calleeName($argsStr)")
     }
     
     override fun visitICmpInst(inst: ICmpInst) {

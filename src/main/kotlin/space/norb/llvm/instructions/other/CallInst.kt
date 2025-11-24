@@ -5,6 +5,7 @@ import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.base.OtherInst
 import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.VoidType
 
 /**
  * Function call instruction.
@@ -62,6 +63,9 @@ class CallInst private constructor(
     val functionType: FunctionType
     
     init {
+        if (type == VoidType && name.isNotEmpty()) {
+            throw IllegalArgumentException("Call instructions returning void cannot have result names")
+        }
         // For indirect calls, we need to handle the case where we don't have function type information
         // The validation should be deferred to the createIndirectCall method
         this.functionType = when {
@@ -128,6 +132,11 @@ class CallInst private constructor(
      * @return The return type of the function
      */
     fun getReturnType(): Type = functionType.returnType
+
+    /**
+     * Checks if this call produces an SSA value.
+     */
+    fun producesValue(): Boolean = type != VoidType
     
     /**
      * Gets the parameter types of the called function.

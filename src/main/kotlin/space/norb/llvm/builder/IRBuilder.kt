@@ -346,15 +346,34 @@ class IRBuilder(val module: Module) {
 
     // Other operations
     fun insertCall(function: Function, args: List<Value>, name: String? = null): CallInst {
-        val rename = name ?: Renamer.another()
-        val call = CallInst.createDirectCall(rename, function, args)
+        val call = if (function.returnType == VoidType) {
+            require(name.isNullOrEmpty()) { "Calls to void-returning functions cannot have result names" }
+            CallInst.createDirectCall("", function, args)
+        } else {
+            val rename = name ?: Renamer.another()
+            CallInst.createDirectCall(rename, function, args)
+        }
         return insertInstruction(call) as CallInst
+    }
+
+    fun insertVoidCall(function: Function, args: List<Value>): CallInst {
+        require(function.returnType == VoidType) { "Function must have void return type for insertVoidCall" }
+        return insertCall(function, args)
     }
     
     fun insertIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String? = null): CallInst {
-        val rename = name ?: Renamer.another()
-        val call = CallInst.createIndirectCall(rename, returnType, funcPtr, args)
+        val call = if (returnType == VoidType) {
+            require(name.isNullOrEmpty()) { "Calls to void-returning functions cannot have result names" }
+            CallInst.createIndirectCall("", returnType, funcPtr, args)
+        } else {
+            val rename = name ?: Renamer.another()
+            CallInst.createIndirectCall(rename, returnType, funcPtr, args)
+        }
         return insertInstruction(call) as CallInst
+    }
+
+    fun insertIndirectVoidCall(funcPtr: Value, args: List<Value>): CallInst {
+        return insertIndirectCall(funcPtr, args, VoidType)
     }
     
     fun insertICmp(pred: IcmpPredicate, lhs: Value, rhs: Value, name: String? = null): ICmpInst {

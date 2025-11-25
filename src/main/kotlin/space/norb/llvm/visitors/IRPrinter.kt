@@ -11,6 +11,7 @@ import space.norb.llvm.core.Value
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
+import space.norb.llvm.instructions.terminators.UnreachableInst
 import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
@@ -344,6 +345,10 @@ class IRPrinter : IRVisitor<Unit> {
         output.appendLine("${indent()}]")
     }
     
+    override fun visitUnreachableInst(inst: UnreachableInst) {
+        appendInstructionLine(inst, "${indent()}unreachable")
+    }
+    
     override fun visitAddInst(inst: AddInst) {
         appendInstructionLine(inst, "${indent()}%${inst.name} = add ${inst.lhs.type} ${formatValueName(inst.lhs)}, ${formatValueName(inst.rhs)}")
     }
@@ -555,6 +560,7 @@ class IRPrinter : IRVisitor<Unit> {
         is ReturnInst -> visitReturnInst(inst)
         is BranchInst -> visitBranchInst(inst)
         is SwitchInst -> visitSwitchInst(inst)
+        is UnreachableInst -> visitUnreachableInst(inst)
         else -> throw IllegalArgumentException("Unknown terminator instruction: ${inst::class.simpleName}")
     }
     

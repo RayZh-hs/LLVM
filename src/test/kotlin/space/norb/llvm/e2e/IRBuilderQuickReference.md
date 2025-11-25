@@ -88,6 +88,9 @@ val switchInst = builder.insertSwitch(
 // Return statements
 builder.insertRet(value)           // Return with value
 builder.insertRetVoid()            // Return void
+
+// Unreachable (for code that should never be reached)
+builder.insertUnreachable()
 ```
 
 ## Memory Operations

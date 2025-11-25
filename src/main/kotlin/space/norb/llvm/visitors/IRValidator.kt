@@ -12,6 +12,7 @@ import space.norb.llvm.types.PointerType
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
+import space.norb.llvm.instructions.terminators.UnreachableInst
 import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
@@ -156,6 +157,11 @@ class IRValidator : IRVisitor<Boolean> {
         if (operands.size < 2) {
             addError("Switch instruction must have condition and default target")
         }
+        return errors.isEmpty()
+    }
+    
+    override fun visitUnreachableInst(inst: UnreachableInst): Boolean {
+        // Unreachable instruction has no semantic constraints
         return errors.isEmpty()
     }
     
@@ -322,6 +328,7 @@ class IRValidator : IRVisitor<Boolean> {
         is ReturnInst -> visitReturnInst(inst)
         is BranchInst -> visitBranchInst(inst)
         is SwitchInst -> visitSwitchInst(inst)
+        is UnreachableInst -> visitUnreachableInst(inst)
         else -> {
             addError("Unknown terminator instruction: ${inst::class.simpleName}")
             false

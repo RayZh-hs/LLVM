@@ -9,6 +9,7 @@ import space.norb.llvm.core.Constant
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
+import space.norb.llvm.instructions.terminators.UnreachableInst
 import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
@@ -66,6 +67,7 @@ interface IRVisitor<T> {
     fun visitReturnInst(inst: ReturnInst): T
     fun visitBranchInst(inst: BranchInst): T
     fun visitSwitchInst(inst: SwitchInst): T
+    fun visitUnreachableInst(inst: UnreachableInst): T
     fun visitAddInst(inst: AddInst): T
     fun visitSubInst(inst: SubInst): T
     fun visitMulInst(inst: MulInst): T

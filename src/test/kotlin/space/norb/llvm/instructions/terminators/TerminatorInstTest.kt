@@ -7,6 +7,9 @@ import space.norb.llvm.structure.Module
 import space.norb.llvm.values.constants.IntConstant
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.VoidType
+import space.norb.llvm.builder.IRBuilder
+import space.norb.llvm.visitors.IRPrinter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -119,5 +122,43 @@ class TerminatorInstTest {
         
         val successors = ret.getSuccessors()
         assertEquals(0, successors.size)
+    }
+    
+    @Test
+    fun testUnreachableInst() {
+        val unreachable = UnreachableInst.create("unreachable", VoidType)
+        
+        assertTrue(unreachable.isFunctionTerminating())
+        
+        val successors = unreachable.getSuccessors()
+        assertEquals(0, successors.size)
+    }
+    
+    @Test
+    fun testInsertUnreachableWithBuilder() {
+        val module = Module("test")
+        val builder = IRBuilder(module)
+        
+        // Create a void function
+        val functionType = FunctionType(VoidType, emptyList())
+        val function = builder.createFunction("test_unreachable", functionType)
+        module.functions.add(function)
+        
+        // Create entry block
+        val entryBlock = function.insertBasicBlock("entry")
+        builder.positionAtEnd(entryBlock)
+        
+        // Insert unreachable instruction
+        val unreachable = builder.insertUnreachable()
+        
+        // Verify the instruction
+        assertTrue(unreachable.isFunctionTerminating())
+        assertEquals(0, unreachable.getSuccessors().size)
+        assertEquals(entryBlock.terminator, unreachable)
+        
+        // Verify IR output contains "unreachable"
+        val printer = IRPrinter()
+        val ir = printer.print(module)
+        assertTrue(ir.contains("unreachable"))
     }
 }

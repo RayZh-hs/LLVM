@@ -7,6 +7,7 @@ import space.norb.llvm.structure.Module
 import space.norb.llvm.values.constants.IntConstant
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.FunctionType
+import space.norb.llvm.types.VoidType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -146,5 +147,22 @@ class TerminatorInstBasicTest {
         val ret = ReturnInst.createVoid("ret", voidType)
         val retSuccessors = ret.getSuccessors()
         assertEquals(0, retSuccessors.size)
+        
+        // Test unreachable successors (should be empty)
+        val unreachable = UnreachableInst.create("unreachable", voidType)
+        val unreachableSuccessors = unreachable.getSuccessors()
+        assertEquals(0, unreachableSuccessors.size)
+    }
+    
+    @Test
+    fun testUnreachableInstFactoryMethod() {
+        val voidType = Type.getVoidType()
+        
+        // Test unreachable creation
+        val unreachable = UnreachableInst.create("unreachable", voidType)
+        assertTrue(unreachable.isFunctionTerminating())
+        
+        val successors = unreachable.getSuccessors()
+        assertEquals(0, successors.size)
     }
 }

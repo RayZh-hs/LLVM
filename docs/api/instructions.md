@@ -278,6 +278,12 @@ val cases = listOf(
 builder.insertSwitch(value, defaultBlock, cases, "switch")
 ```
 
+### Unreachable Instruction
+```kotlin
+// Indicate unreachable code (e.g., after a noreturn call)
+builder.insertUnreachable()
+```
+
 ## Instruction Properties
 
 ### Naming
@@ -347,6 +353,7 @@ All instructions inherit from specific base classes:
 - [`ReturnInst`](src/main/kotlin/space/norb/llvm/instructions/terminators/ReturnInst.kt) - Function return
 - [`BranchInst`](src/main/kotlin/space/norb/llvm/instructions/terminators/BranchInst.kt) - Conditional/unconditional branch
 - [`SwitchInst`](src/main/kotlin/space/norb/llvm/instructions/terminators/SwitchInst.kt) - Multi-way branch
+- [`UnreachableInst`](src/main/kotlin/space/norb/llvm/instructions/terminators/UnreachableInst.kt) - Indicates unreachable code
 
 #### Memory Instructions
 - [`AllocaInst`](src/main/kotlin/space/norb/llvm/instructions/memory/AllocaInst.kt) - Stack allocation

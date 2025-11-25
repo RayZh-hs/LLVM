@@ -13,6 +13,7 @@ import space.norb.llvm.instructions.base.Instruction
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
+import space.norb.llvm.instructions.terminators.UnreachableInst
 import space.norb.llvm.instructions.binary.AddInst
 import space.norb.llvm.instructions.binary.SubInst
 import space.norb.llvm.instructions.binary.MulInst
@@ -177,6 +178,11 @@ class IRBuilder(val module: Module) {
         val rename = name ?: Renamer.another()
         val sw = SwitchInst.create(rename, VoidType, condition, defaultDest, cases)
         return insertInstruction(sw) as SwitchInst
+    }
+    
+    fun insertUnreachable(): UnreachableInst {
+        val unreachable = UnreachableInst.create("unreachable", VoidType)
+        return insertInstruction(unreachable) as UnreachableInst
     }
     
     // Binary operations

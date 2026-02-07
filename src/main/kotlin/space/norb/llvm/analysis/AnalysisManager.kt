@@ -15,6 +15,9 @@ class AnalysisManager(private val module: Module) {
     // Analysis Class -> Analysis Result
     private val cache = mutableMapOf<KClass<*>, AnalysisResult>()
 
+    // Stack to detect circular dependencies
+    private val computingStack = mutableSetOf<KClass<*>>()
+
     // Registry of available analyses
     private val registeredAnalyses = mutableMapOf<KClass<*>, Analysis<*>>()
 
@@ -29,14 +32,22 @@ class AnalysisManager(private val module: Module) {
             return cache[analysisKey] as R
         }
 
-        // 2. If missing, find the provider
-        val provider = registeredAnalyses[analysisKey]
-            ?: throw IllegalStateException("Analysis ${analysisKey.simpleName} not registered.")
+        // 2. Circular dependency check
+        if (analysisKey in computingStack) {
+            throw IllegalStateException("Circular analysis dependency detected: ${analysisKey.simpleName}")
+        }
 
         // 3. Compute and cache
-        val result = provider.compute(module)
-        cache[analysisKey] = result
-        return result as R
+        computingStack.add(analysisKey)
+        try {
+            val provider = registeredAnalyses[analysisKey]
+                ?: throw IllegalStateException("Analysis ${analysisKey.simpleName} not registered.")
+            val result = provider.compute(module, this)
+            cache[analysisKey] = result
+            return result as R
+        } finally {
+            computingStack.remove(analysisKey)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -11,5 +11,5 @@ import space.norb.llvm.structure.Module
 interface Analysis<Result : AnalysisResult> {
     // Unique key to identify this analysis (using class itself)
     val key: KClass<out Analysis<Result>>
-    fun compute(module: Module): Result
+    fun compute(module: Module, am: AnalysisManager): Result
 }

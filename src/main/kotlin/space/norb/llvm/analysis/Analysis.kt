@@ -8,8 +8,8 @@ import space.norb.llvm.structure.Module
  *
  * Analyses should be pure functions of the IR tree, and should not modify the IR tree.
  */
-interface Analysis<Result : AnalysisResult> {
+abstract class Analysis<Result : AnalysisResult> {
     // Unique key to identify this analysis (using class itself)
-    val key: KClass<out Analysis<Result>>
-    fun compute(module: Module, am: AnalysisManager): Result
+    open val key: KClass<out Analysis<Result>> = this::class
+    abstract fun compute(module: Module, am: AnalysisManager): Result
 }

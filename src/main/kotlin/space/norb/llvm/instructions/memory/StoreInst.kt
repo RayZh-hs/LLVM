@@ -14,7 +14,7 @@ import space.norb.llvm.types.PointerType
  *
  * IR output example:
  * ```
- * store i32 42, ptr %ptr      ; Stores to un-typed pointer ptr
+ * store i32 42, ptr %ptr       ; Stores to un-typed pointer ptr
  * store float 3.14, ptr %fptr  ; Stores to un-typed pointer ptr
  * ```
  *

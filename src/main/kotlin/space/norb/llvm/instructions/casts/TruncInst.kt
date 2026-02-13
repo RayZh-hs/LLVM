@@ -19,7 +19,7 @@ import space.norb.llvm.types.IntegerType
  * 
  * Example:
  * ```
- * %trunc = trunc i32 %val to i8  ; Truncate 32-bit value to 8-bit
+ * %trunc = trunc i32 %val to i8    ; Truncate 32-bit value to 8-bit
  * ```
  * 
  * @param name The name of the instruction result

@@ -19,8 +19,8 @@ import space.norb.llvm.values.constants.IntConstant
  *
  * IR output example:
  * ```
- * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5  ; Uses un-typed pointer
- * %fgep = getelementptr float, ptr %fptr, i64 3                 ; Uses un-typed pointer
+ * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5                ; Uses un-typed pointer
+ * %fgep = getelementptr float, ptr %fptr, i64 3                            ; Uses un-typed pointer
  * %inbounds = getelementptr inbounds [10 x i32], ptr %array, i64 0, i64 5  ; In-bounds GEP
  * ```
  *

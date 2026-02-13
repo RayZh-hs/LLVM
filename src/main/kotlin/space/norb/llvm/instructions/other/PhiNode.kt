@@ -5,6 +5,7 @@ import space.norb.llvm.core.Type
 import space.norb.llvm.instructions.base.OtherInst
 import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.structure.BasicBlock
+import space.norb.llvm.structure.BasicBlockId
 
 /**
  * PHI node for SSA form.
@@ -39,15 +40,8 @@ import space.norb.llvm.structure.BasicBlock
 class PhiNode private constructor(
     name: String,
     type: Type,
-    incomingValues: List<Pair<Value, Value>>
+    val incomingValues: List<Pair<Value, BasicBlock>>
 ) : OtherInst(name, type, incomingValues.flatMap { listOf(it.first, it.second) }) {
-    
-    /**
-     * The list of incoming (value, basic block) pairs.
-     * Each pair represents a value that comes from a specific basic block.
-     */
-    val incomingValues: List<Pair<Value, Value>> = incomingValues
-    
     /**
      * The list of incoming values (without their source blocks).
      */
@@ -83,9 +77,9 @@ class PhiNode private constructor(
         }
         
         // Check for duplicate blocks
-        val blockSet = mutableSetOf<Value>()
+        val blockSet = mutableSetOf<BasicBlockId>()
         for ((_, block) in incomingValues) {
-            if (!blockSet.add(block)) {
+            if (!blockSet.add(block.id)) {
                 throw IllegalArgumentException("Duplicate incoming block: ${block.name}")
             }
         }
@@ -197,7 +191,7 @@ class PhiNode private constructor(
      * @return A new PhiNode with the additional incoming value
      * @throws IllegalArgumentException if validation fails
      */
-    fun addIncoming(value: Value, block: Value): PhiNode {
+    fun addIncoming(value: Value, block: BasicBlock): PhiNode {
         val newIncomingValues = incomingValues + Pair(value, block)
         return PhiNode(name, type, newIncomingValues)
     }
@@ -210,7 +204,7 @@ class PhiNode private constructor(
      * @return A new PhiNode with the replaced incoming value
      * @throws IllegalArgumentException if the block is not found or validation fails
      */
-    fun replaceIncomingValueForBlock(block: Value, newValue: Value): PhiNode {
+    fun replaceIncomingValueForBlock(block: BasicBlock, newValue: Value): PhiNode {
         val index = getIncomingValueIndexForBlock(block)
         if (index == -1) {
             throw IllegalArgumentException("No incoming value found for block: ${block.name}")
@@ -268,7 +262,7 @@ class PhiNode private constructor(
          * @return A new PhiNode
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, type: Type, incomingValues: List<Pair<Value, Value>>): PhiNode {
+        fun create(name: String, type: Type, incomingValues: List<Pair<Value, BasicBlock>>): PhiNode {
             return PhiNode(name, type, incomingValues)
         }
         
@@ -282,7 +276,7 @@ class PhiNode private constructor(
          * @param block The basic block from which the value comes
          * @return A new PhiNode with one incoming value
          */
-        fun createSingle(name: String, type: Type, value: Value, block: Value): PhiNode {
+        fun createSingle(name: String, type: Type, value: Value, block: BasicBlock): PhiNode {
             return PhiNode(name, type, listOf(Pair(value, block)))
         }
         
@@ -296,7 +290,7 @@ class PhiNode private constructor(
          * @return A new PhiNode
          * @throws IllegalArgumentException if lists have different sizes or validation fails
          */
-        fun createFromLists(name: String, type: Type, values: List<Value>, blocks: List<Value>): PhiNode {
+        fun createFromLists(name: String, type: Type, values: List<Value>, blocks: List<BasicBlock>): PhiNode {
             if (values.size != blocks.size) {
                 throw IllegalArgumentException(
                     "Values and blocks lists must have the same size: ${values.size} vs ${blocks.size}"

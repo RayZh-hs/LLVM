@@ -5,7 +5,15 @@ import space.norb.llvm.core.Type
 import space.norb.llvm.visitors.IRVisitor
 
 /**
- * Function argument in LLVM IR.
+ * Function Argument
+ *
+ * Represents an argument to a function in LLVM IR. Each argument has a name, type, and is associated with a parent function.
+ * The index property indicates the position of the argument in the function's parameter list.
+ *
+ * @param name The name of the argument, which serves as its identifier within the function.
+ * @param type The type of the argument, which must be a valid LLVM IR type.
+ * @param function The parent function to which this argument belongs.
+ * @param index The position of the argument in the function's parameter list, starting from 0.
  */
 class Argument(
     override val name: String,

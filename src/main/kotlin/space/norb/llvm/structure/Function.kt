@@ -7,7 +7,15 @@ import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.enums.LinkageType
 
 /**
- * Function in LLVM IR.
+ * Function
+ *
+ * Represents a function in LLVM IR. Each function has a name, type, and is associated with a parent module.
+ *
+ * @param name The name of the function, which serves as its identifier within the module.
+ * @param type The function type, which includes the return type and parameter types.
+ * @param module The parent module to which this function belongs.
+ * @param linkage The linkage type of the function, which determines its visibility and linkage behavior.
+ * @param isDeclaration Indicates whether this function is a declaration (i.e., it has no body) or a definition (i.e., it has a body with basic blocks).
  */
 class Function(
     override val name: String,

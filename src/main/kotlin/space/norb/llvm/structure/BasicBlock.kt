@@ -27,8 +27,9 @@ class BasicBlock(
         private var basicBlockId: BasicBlockId = 0UL
         private var basicBlockHashMap = mutableMapOf<BasicBlockId, BasicBlock>()
         private fun register(basicBlock: BasicBlock): BasicBlockId {
-            basicBlockHashMap[basicBlock.id] = basicBlock
-            return basicBlockId++
+            val id = basicBlockId++
+            basicBlockHashMap[id] = basicBlock
+            return id
         }
 
         @Suppress("Unused")

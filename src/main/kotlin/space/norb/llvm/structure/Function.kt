@@ -6,6 +6,8 @@ import space.norb.llvm.types.FunctionType
 import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.enums.LinkageType
 
+typealias FunctionId = ULong
+
 /**
  * Function
  *
@@ -24,39 +26,44 @@ class Function(
     val linkage: LinkageType = LinkageType.EXTERNAL,
     val isDeclaration: Boolean = false
 ) : Value {
+    companion object {
+        private var functionId: FunctionId = 0UL
+        private var functionIdHashmap = mutableMapOf<FunctionId, Function>()
+        private fun register(function: Function): FunctionId {
+            val id = functionId++
+            functionIdHashmap[id] = function
+            return id
+        }
+
+        @Suppress("Unused")
+        fun fromId(id: FunctionId) = functionIdHashmap[id]
+    }
+
     val returnType: Type = type.returnType
     val parameters: List<Argument> = type.paramTypes.mapIndexed { index, paramType ->
         Argument(type.getParameterName(index), paramType, this, index)
     }
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null
+    val id: FunctionId = register(this)
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitFunction(this)
     
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Function) return false
-        return name == other.name &&
-            type == other.type &&
-            module == other.module &&
-            linkage == other.linkage &&
-            isDeclaration == other.isDeclaration
+        return id == other.id
     }
     
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + type.hashCode()
-        result = 31 * result + module.hashCode()
-        result = 31 * result + linkage.hashCode()
-        result = 31 * result + isDeclaration.hashCode()
-        return result
+        throw UnsupportedOperationException("Function hashCode is not supported due to potential mutability and complexity. Use Function.id instead.")
     }
     
     override fun toString(): String {
         return "Function(name=$name, type=$type, module=${module.name})"
     }
     
-    override fun getParent(): Any? {
+    override fun getParent(): Any {
         // Functions belong to modules
         return module
     }

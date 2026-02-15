@@ -134,7 +134,7 @@ class BasicBlockTest {
         
         // Note: This equality test no longer works since now we adopt an identity-based equality for BasicBlock.
         //// assertEquals(basicBlock1, basicBlock2, "BasicBlocks with same properties should be equal")
-        assertEquals(basicBlock1.hashCode(), basicBlock2.hashCode(), "Equal BasicBlocks should have same hash code")
+        //// assertEquals(basicBlock1.hashCode(), basicBlock2.hashCode(), "Equal BasicBlocks should have same hash code")
         
         assertNotEquals(basicBlock1, basicBlock3, "BasicBlocks with different names should not be equal")
     }

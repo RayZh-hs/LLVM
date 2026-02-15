@@ -55,6 +55,13 @@ class AnalysisManager(private val module: Module) {
         cache[analysisKey] = result
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun <R : AnalysisResult> update(analysisKey: KClass<out Analysis<R>>, updater: (R) -> R) {
+        val current = cache[analysisKey] as? R
+            ?: throw IllegalStateException("Analysis result for ${analysisKey.simpleName} not found in cache.")
+        cache[analysisKey] = updater(current)
+    }
+
     /**
      * Called by a Pass to indicate that all analysis results are still valid.
      */

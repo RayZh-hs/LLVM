@@ -2,6 +2,8 @@ package space.norb.llvm.values.globals
 
 import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
+import space.norb.llvm.core.MetadataCapable
+import space.norb.llvm.values.Metadata
 import space.norb.llvm.types.PointerType
 import space.norb.llvm.types.PointerCastingUtils
 import space.norb.llvm.types.TypeUtils
@@ -33,8 +35,22 @@ class GlobalVariable private constructor(
     val isConstantValue: Boolean = false,
     val linkage: LinkageType = LinkageType.EXTERNAL,
     val elementType: Type? = null
-) : Constant(name, type) {
+) : Constant(name, type), MetadataCapable {
     
+    private val metadataAttachments = mutableMapOf<String, Metadata>()
+
+    override fun getAllMetadata(): Map<String, Metadata> = metadataAttachments.toMap()
+
+    override fun getMetadata(kind: String): Metadata? = metadataAttachments[kind]
+
+    override fun setMetadata(kind: String, metadata: Metadata) {
+        metadataAttachments[kind] = metadata
+    }
+
+    override fun removeMetadata(kind: String) {
+        metadataAttachments.remove(kind)
+    }
+
     /**
      * Checks if this global variable has an initializer.
      *

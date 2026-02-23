@@ -2,6 +2,8 @@ package space.norb.llvm.structure
 
 import space.norb.llvm.core.Type
 import space.norb.llvm.core.Value
+import space.norb.llvm.core.MetadataCapable
+import space.norb.llvm.values.Metadata
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.enums.LinkageType
@@ -25,7 +27,7 @@ class Function(
     val module: Module,
     val linkage: LinkageType = LinkageType.EXTERNAL,
     val isDeclaration: Boolean = false
-) : Value {
+) : Value, MetadataCapable {
     companion object {
         private var functionId: FunctionId = 0UL
         private var functionIdHashmap = mutableMapOf<FunctionId, Function>()
@@ -47,6 +49,20 @@ class Function(
     var entryBlock: BasicBlock? = null
     val id: FunctionId = register(this)
     
+    private val metadataAttachments = mutableMapOf<String, Metadata>()
+
+    override fun getAllMetadata(): Map<String, Metadata> = metadataAttachments.toMap()
+
+    override fun getMetadata(kind: String): Metadata? = metadataAttachments[kind]
+
+    override fun setMetadata(kind: String, metadata: Metadata) {
+        metadataAttachments[kind] = metadata
+    }
+
+    override fun removeMetadata(kind: String) {
+        metadataAttachments.remove(kind)
+    }
+
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitFunction(this)
     
     override fun equals(other: Any?): Boolean {

@@ -8,6 +8,7 @@ import space.norb.llvm.values.globals.GlobalVariable
 import space.norb.llvm.core.Constant
 import space.norb.llvm.core.Type
 import space.norb.llvm.core.Value
+import space.norb.llvm.core.MetadataCapable
 import space.norb.llvm.instructions.terminators.ReturnInst
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.instructions.terminators.SwitchInst
@@ -82,17 +83,29 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     private fun indent() = "  ".repeat(indentLevel)
+
+    private fun formatMetadata(capable: MetadataCapable, includeComma: Boolean = false): String {
+        if (!capable.hasMetadata()) return ""
+        val prefix = if (includeComma) ", " else " "
+        return prefix + capable.getAllMetadata().entries.joinToString(", ") { (kind, md) ->
+            "!$kind ${md.toIRString()}"
+        }
+    }
+
     private fun appendInstructionLine(inst: Instruction, line: String) {
+        val metadataStr = formatMetadata(inst, includeComma = true)
+        val fullLine = "$line$metadataStr"
+        
         val inlineComment = inst.inlineComment
         if (inlineComment.isNullOrEmpty()) {
-            output.appendLine(line)
+            output.appendLine(fullLine)
             return
         }
 
         val commentLines = inlineComment.lines()
         val firstLine = commentLines.firstOrNull() ?: ""
         val suffix = if (firstLine.isEmpty()) " ;" else " ; $firstLine"
-        output.appendLine("$line$suffix")
+        output.appendLine("$fullLine$suffix")
 
         if (commentLines.size > 1) {
             commentLines.drop(1).forEach { extra ->
@@ -122,6 +135,14 @@ class IRPrinter : IRVisitor<Unit> {
             }
             
             visitFunction(function)
+        }
+        
+        // Print named metadata at the end
+        if (module.namedMetadata.isNotEmpty()) {
+            output.appendLine()
+            module.namedMetadata.forEach { (name, metadata) ->
+                output.appendLine("!$name = ${metadata.toIRString()}")
+            }
         }
     }
     /**
@@ -232,9 +253,11 @@ class IRPrinter : IRVisitor<Unit> {
                     paramTypeStr // No parameter names for declarations
                 }
             }
-            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($declareParamsStr)")
+            val metadataStr = formatMetadata(function)
+            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($declareParamsStr)${metadataStr}")
         } else {
-            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($paramsStr) {")
+            val metadataStr = formatMetadata(function)
+            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($paramsStr)${metadataStr} {")
             val previousIndent = indentLevel
             indentLevel = 0
             function.basicBlocks.forEachIndexed { index, block ->
@@ -298,7 +321,8 @@ class IRPrinter : IRVisitor<Unit> {
             ""
         }
         
-        output.appendLine("@${globalVariable.name} = ${linkageStr}${constantStr}${globalKeyword}${typeStr}${initializerStr}")
+        val metadataStr = formatMetadata(globalVariable, includeComma = true)
+        output.appendLine("@${globalVariable.name} = ${linkageStr}${constantStr}${globalKeyword}${typeStr}${initializerStr}${metadataStr}")
     }
     
     override fun visitConstant(constant: Constant) {

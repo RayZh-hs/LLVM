@@ -5,6 +5,7 @@ import space.norb.llvm.structure.BasicBlock
 import space.norb.llvm.structure.Function
 import space.norb.llvm.core.Value
 import space.norb.llvm.core.Type
+import space.norb.llvm.values.Metadata
 import space.norb.llvm.types.FunctionType
 import space.norb.llvm.types.VoidType
 import space.norb.llvm.types.IntegerType
@@ -56,6 +57,7 @@ import space.norb.llvm.utils.Renamer
 class IRBuilder(val module: Module) {
     private var currentBlock: BasicBlock? = null
     private var insertionPoint: MutableListIterator<Instruction>? = null
+    private val defaultMetadata = mutableMapOf<String, Metadata>()
     
     // Positioning methods
     fun positionAtEnd(block: BasicBlock) {
@@ -79,6 +81,28 @@ class IRBuilder(val module: Module) {
         insertionPoint = null
     }
 
+    // Metadata management
+    /**
+     * Sets a default metadata attachment for all subsequently created instructions.
+     * @param kind The kind of metadata (e.g., "dbg", "tbaa")
+     * @param metadata The metadata to attach, or null to remove
+     */
+    fun setDefaultMetadata(kind: String, metadata: Metadata?) {
+        if (metadata == null) {
+            defaultMetadata.remove(kind)
+        } else {
+            defaultMetadata[kind] = metadata
+        }
+    }
+    
+    /**
+     * Sets the current debug location for subsequently created instructions.
+     * @param location The metadata node representing the debug location
+     */
+    fun setCurrentDebugLocation(location: Metadata?) {
+        setDefaultMetadata("dbg", location)
+    }
+
     // Comments and annotations
     fun insertComment(text: String, name: String? = null): CommentAttachment {
         val rename = name ?: Renamer.another()
@@ -89,6 +113,11 @@ class IRBuilder(val module: Module) {
     private fun insertInstruction(instruction: Instruction): Instruction {
         val block = currentBlock ?: throw IllegalStateException("No insertion point set")
         
+        // Attach default metadata
+        defaultMetadata.forEach { (kind, md) ->
+            instruction.setMetadata(kind, md)
+        }
+
         // Check if this is a terminator instruction
         if (instruction is space.norb.llvm.instructions.base.TerminatorInst) {
             // Replace existing terminator if any

@@ -88,6 +88,23 @@ val entryBlock = function.insertBasicBlock("entry")
 val param = function.parameters[0]
 ```
 
+### Metadata
+**[Metadata Documentation](metadata.md)** - Program metadata and debug information
+
+Metadata stores additional program information used for debugging and optimization:
+
+- **Metadata Types** - Strings (MDString), Nodes (MDNode), and Constants (ConstantAsMetadata)
+- **Attachments** - Attaching metadata to instructions, functions, and global variables
+- **Named Metadata** - Global module-level metadata nodes
+- **Builder Support** - Default metadata and debug location management
+
+```kotlin
+// Example: Attaching metadata
+val md = MDString("debug_info")
+instruction.setMetadata("dbg", md)
+module.namedMetadata["llvm.module.flags"] = MDNode(listOf(MDString("flag")))
+```
+
 ## API Design Principles
 
 The Kotlin-LLVM API follows these design principles:

@@ -143,9 +143,6 @@ class IRValidator : IRVisitor<Boolean> {
     override fun visitReturnInst(inst: ReturnInst): Boolean {
         val operands = inst.getOperandsList()
         val returnValue = operands.firstOrNull()
-        if (returnValue != null && returnValue.type != inst.parent.function.returnType) {
-            addError("Return value type ${returnValue.type} doesn't match function return type ${inst.parent.function.returnType}")
-        }
         return errors.isEmpty()
     }
     

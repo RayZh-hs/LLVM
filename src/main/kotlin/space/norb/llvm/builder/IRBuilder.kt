@@ -64,18 +64,17 @@ class IRBuilder(val module: Module) {
         currentBlock = block
         insertionPoint = block.instructions.listIterator(block.instructions.size)
     }
-    
-    fun positionBefore(instruction: Instruction) {
-        currentBlock = instruction.parent
-        val iterator = instruction.parent.instructions.listIterator()
-        while (iterator.hasNext()) {
-            if (iterator.next() == instruction) {
-                insertionPoint = iterator
-                break
-            }
-        }
+
+    fun positionAfter(block: BasicBlock, index: Int) {
+        currentBlock = block
+        insertionPoint = block.instructions.listIterator(index + 1)
     }
-    
+
+    fun positionBefore(block: BasicBlock, index: Int) {
+        currentBlock = block
+        insertionPoint = block.instructions.listIterator(index)
+    }
+
     fun clearInsertionPoint() {
         currentBlock = null
         insertionPoint = null
@@ -140,8 +139,7 @@ class IRBuilder(val module: Module) {
                 block.instructions.add(instruction)
             }
         }
-        
-        instruction.parent = block
+
         return instruction
     }
     

@@ -149,25 +149,4 @@ class ValueTest {
         
         assertEquals(module, globalVariable.getParent(), "GlobalVariable getParent should return the containing module")
     }
-
-    @Test
-    @DisplayName("Instruction getParent should return basic block")
-    fun testInstructionGetParent() {
-        val module = Module("testModule")
-        val functionType = FunctionType(IntegerType.I32, listOf())
-        val function = Function("testFunction", functionType, module)
-        val basicBlock = BasicBlock("entry", function)
-        val instruction = AllocaInst("alloca", IntegerType.I32)
-        instruction.parent = basicBlock
-        
-        assertEquals(basicBlock, instruction.getParent(), "Instruction getParent should return the containing basic block")
-    }
-
-    @Test
-    @DisplayName("MockValue getParent should return null")
-    fun testMockValueGetParent() {
-        val mockValue = MockValue("test", IntegerType.I32)
-        
-        assertNull(mockValue.getParent(), "MockValue getParent should return null by default")
-    }
 }

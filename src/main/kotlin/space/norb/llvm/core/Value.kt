@@ -55,7 +55,7 @@ interface Value {
      *
      * @return Unique identifier string
      */
-    fun getIdentifier(): String = if (name.isNotEmpty()) name else "unnamed"
+    fun getIdentifier(): String = name.ifEmpty { "unnamed" }
     
     /**
      * Accepts a visitor for this value.

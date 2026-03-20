@@ -37,4 +37,8 @@ class BasicBlock(
         // Basic blocks belong to functions
         return function
     }
+
+    fun getSuccessors(): List<BasicBlock> {
+        return terminator?.getSuccessors() ?: emptyList()
+    }
 }

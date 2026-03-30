@@ -24,7 +24,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %with_flag = or i32 %value, 1  ; Set the lowest bit
  */
 class OrInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -59,7 +59,7 @@ class OrInst private constructor(
          * @return A new OrInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): OrInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): OrInst {
             return OrInst(name, type, lhs, rhs)
         }
         
@@ -72,7 +72,7 @@ class OrInst private constructor(
          * @return A new OrInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): OrInst {
+        fun create(name: String?, lhs: Value, rhs: Value): OrInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

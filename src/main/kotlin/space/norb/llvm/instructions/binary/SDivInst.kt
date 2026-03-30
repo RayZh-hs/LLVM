@@ -24,7 +24,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = sdiv <4 x i32> %a, %b ; Vector signed division
  */
 class SDivInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -69,7 +69,7 @@ class SDivInst private constructor(
          * @return A new SDivInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): SDivInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): SDivInst {
             return SDivInst(name, type, lhs, rhs)
         }
         
@@ -82,7 +82,7 @@ class SDivInst private constructor(
          * @return A new SDivInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): SDivInst {
+        fun create(name: String?, lhs: Value, rhs: Value): SDivInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

@@ -164,12 +164,12 @@ class BasicBlockTest {
     }
     
     @Test
-    @DisplayName("BasicBlock should handle empty name")
-    fun testBasicBlockEmptyName() {
-        val name = ""
+    @DisplayName("BasicBlock should handle null name")
+    fun testBasicBlockNullName() {
+        val name: String? = null
         val basicBlock = BasicBlock(name, function)
         
-        assertEquals(name, basicBlock.name, "BasicBlock should handle empty name")
+        assertNull(basicBlock.name, "BasicBlock should expose null for unnamed values")
     }
     
     @Test

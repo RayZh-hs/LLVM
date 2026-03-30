@@ -25,7 +25,7 @@ import space.norb.llvm.types.PointerType
  * - Type safety is ensured through explicit type checking
  */
 class LoadInst(
-    name: String,
+    name: String?,
     loadedType: Type,
     pointer: Value
 ) : MemoryInst(name, loadedType, listOf(pointer)) {

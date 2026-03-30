@@ -14,7 +14,7 @@ import space.norb.llvm.visitors.IRVisitor
  * - Conditional: transfers control to one of two destinations based on a condition
  */
 class BranchInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     operands: List<Value>
 ) : TerminatorInst(name, type, operands) {
@@ -84,7 +84,7 @@ class BranchInst private constructor(
          * @param destination The destination basic block
          * @return An unconditional branch instruction
          */
-        fun createUnconditional(name: String, type: Type, destination: Value): BranchInst {
+        fun createUnconditional(name: String?, type: Type, destination: Value): BranchInst {
             require(destination is BasicBlock) { "Destination must be a BasicBlock" }
             return BranchInst(name, type, listOf(destination))
         }
@@ -100,7 +100,7 @@ class BranchInst private constructor(
          * @return A conditional branch instruction
          */
         fun createConditional(
-            name: String,
+            name: String?,
             type: Type,
             condition: Value,
             trueDestination: Value,

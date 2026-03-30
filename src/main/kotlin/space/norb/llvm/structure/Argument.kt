@@ -8,7 +8,7 @@ import space.norb.llvm.visitors.IRVisitor
  * Function argument in LLVM IR.
  */
 class Argument(
-    override val name: String,
+    override val name: String?,
     override val type: Type,
     val function: Function,
     val index: Int
@@ -22,7 +22,7 @@ class Argument(
     }
     
     override fun hashCode(): Int {
-        return 31 * name.hashCode() + type.hashCode() + function.hashCode() + index
+        return 31 * (name?.hashCode() ?: 0) + type.hashCode() + function.hashCode() + index
     }
     
     override fun toString(): String {

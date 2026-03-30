@@ -27,7 +27,7 @@ import space.norb.llvm.types.IntegerType
  * @param value The source value to zero-extend (must be integer type)
  */
 class ZExtInst(
-    name: String,
+    name: String?,
     type: Type,
     value: Value
 ) : CastInst(name, type, value) {
@@ -91,7 +91,7 @@ class ZExtInst(
          * @return A new ZExtInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destType: IntegerType): ZExtInst {
+        fun create(name: String?, value: Value, destType: IntegerType): ZExtInst {
             return ZExtInst(name, destType, value)
         }
         
@@ -104,7 +104,7 @@ class ZExtInst(
          * @return A new ZExtInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destBits: Int): ZExtInst {
+        fun create(name: String?, value: Value, destBits: Int): ZExtInst {
             val destType = IntegerType(destBits)
             return ZExtInst(name, destType, value)
         }

@@ -10,7 +10,7 @@ import space.norb.llvm.visitors.IRVisitor
  * Basic block in LLVM IR.
  */
 class BasicBlock(
-    override val name: String,
+    override val name: String?,
     val function: Function
 ) : Value {
     override val type: LabelType = LabelType
@@ -26,7 +26,7 @@ class BasicBlock(
     }
     
     override fun hashCode(): Int {
-        return 31 * name.hashCode() + function.hashCode()
+        return 31 * (name?.hashCode() ?: 0) + function.hashCode()
     }
     
     override fun toString(): String {
@@ -36,5 +36,9 @@ class BasicBlock(
     override fun getParent(): Any? {
         // Basic blocks belong to functions
         return function
+    }
+
+    fun getSuccessors(): List<BasicBlock> {
+        return terminator?.getSuccessors() ?: emptyList()
     }
 }

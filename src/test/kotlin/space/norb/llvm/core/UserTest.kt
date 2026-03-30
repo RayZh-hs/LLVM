@@ -151,6 +151,27 @@ class UserTest {
     }
 
     @Test
+    @DisplayName("getOperandIndex should return operand index when present")
+    fun testGetOperandIndexFound() {
+        val operand1 = MockValue("operand1", IntegerType.I32)
+        val operand2 = MockValue("operand2", IntegerType.I64)
+        val user = MockUser("testUser", IntegerType.I32, listOf(operand1, operand2))
+
+        assertEquals(0, user.getOperandIndex(operand1), "getOperandIndex should return the first matching index")
+        assertEquals(1, user.getOperandIndex(operand2), "getOperandIndex should return the second matching index")
+    }
+
+    @Test
+    @DisplayName("getOperandIndex should return null when missing")
+    fun testGetOperandIndexMissing() {
+        val operand1 = MockValue("operand1", IntegerType.I32)
+        val missing = MockValue("missing", IntegerType.I32)
+        val user = MockUser("testUser", IntegerType.I32, listOf(operand1))
+
+        assertNull(user.getOperandIndex(missing), "getOperandIndex should return null when the operand is absent")
+    }
+
+    @Test
     @DisplayName("operands list should work with empty operands")
     fun testOperandsEmpty() {
         val name = "testUser"

@@ -12,7 +12,7 @@ import space.norb.llvm.enums.LinkageType
  * Function in LLVM IR.
  */
 class Function(
-    override val name: String,
+    override val name: String?,
     override val type: FunctionType,
     val module: Module,
     val linkage: LinkageType = LinkageType.EXTERNAL,
@@ -52,7 +52,7 @@ class Function(
     }
     
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = (name?.hashCode() ?: 0)
         result = 31 * result + type.hashCode()
         result = 31 * result + module.hashCode()
         result = 31 * result + linkage.hashCode()
@@ -96,7 +96,7 @@ class Function(
      *                        If this is the first block being added, it defaults to being the entrypoint.
      * @return The created BasicBlock
      */
-    fun insertBasicBlock(name: String, setAsEntrypoint: Boolean = false): BasicBlock {
+    fun insertBasicBlock(name: String?, setAsEntrypoint: Boolean = false): BasicBlock {
         val block = BasicBlock(name, this)
         
         // Check if this is the first block being added

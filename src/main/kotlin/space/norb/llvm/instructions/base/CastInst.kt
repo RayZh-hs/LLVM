@@ -26,7 +26,7 @@ import space.norb.llvm.visitors.IRVisitor
  * - FPExtInst: extends floating-point to larger type
  */
 abstract class CastInst(
-    name: String,
+    name: String?,
     override val type: Type,
     val value: Value
 ) : Instruction(name, type, listOf(value)) {

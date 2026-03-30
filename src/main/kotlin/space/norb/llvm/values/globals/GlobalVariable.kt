@@ -28,7 +28,7 @@ import space.norb.llvm.enums.LinkageType
  * - Type information is preserved through the initializer or explicit type parameter
  */
 class GlobalVariable private constructor(
-    override val name: String,
+    override val name: String?,
     override val type: Type,
     val module: Module,
     val initializer: Constant? = null,
@@ -93,7 +93,7 @@ class GlobalVariable private constructor(
      * @return The hash code for this GlobalVariable
      */
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = (name?.hashCode() ?: 0)
         result = 31 * result + type.hashCode()
         result = 31 * result + module.hashCode()
         result = 31 * result + (initializer?.hashCode() ?: 0)
@@ -130,7 +130,7 @@ class GlobalVariable private constructor(
          * @return A global variable with an un-typed pointer
          */
         fun create(
-            name: String,
+            name: String?,
             module: Module,
             initializer: Constant? = null,
             isConstantValue: Boolean = false,
@@ -173,7 +173,7 @@ class GlobalVariable private constructor(
          * @return A global variable with an un-typed pointer
          */
         fun createWithElementType(
-            name: String,
+            name: String?,
             elementType: Type,
             module: Module,
             initializer: Constant? = null,

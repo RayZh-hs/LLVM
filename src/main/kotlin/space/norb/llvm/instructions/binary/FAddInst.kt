@@ -21,7 +21,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = fadd <4 x float> %a, %b ; Vector floating-point addition
  */
 class FAddInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -36,7 +36,7 @@ class FAddInst private constructor(
     override fun isAssociative(): Boolean = false // Floating point is generally not associative
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): FAddInst {
+        fun create(name: String?, lhs: Value, rhs: Value): FAddInst {
             if (!lhs.type.isFloatingPointType() && !lhs.type.isVectorOfFloatingPointType()) {
                  // Note: isVectorOfFloatingPointType might not exist yet, checking Type.kt later. 
                  // For now, relying on isFloatingPointType or generic check.

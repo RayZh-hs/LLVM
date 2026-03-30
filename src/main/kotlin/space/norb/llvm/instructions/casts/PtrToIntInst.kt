@@ -27,7 +27,7 @@ import space.norb.llvm.visitors.IRVisitor
  * @param value The source pointer value to convert
  */
 class PtrToIntInst(
-    name: String,
+    name: String?,
     type: Type,
     value: Value
 ) : CastInst(name, type, value) {
@@ -76,14 +76,14 @@ class PtrToIntInst(
         /**
          * Creates a new PtrToIntInst with proper validation.
          */
-        fun create(name: String, value: Value, destType: IntegerType): PtrToIntInst {
+        fun create(name: String?, value: Value, destType: IntegerType): PtrToIntInst {
             return PtrToIntInst(name, destType, value)
         }
 
         /**
          * Creates a new PtrToIntInst by specifying the destination width.
          */
-        fun create(name: String, value: Value, destBitWidth: Int): PtrToIntInst {
+        fun create(name: String?, value: Value, destBitWidth: Int): PtrToIntInst {
             val destType = IntegerType(destBitWidth)
             return PtrToIntInst(name, destType, value)
         }

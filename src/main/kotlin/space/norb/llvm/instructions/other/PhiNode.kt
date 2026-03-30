@@ -37,7 +37,7 @@ import space.norb.llvm.structure.BasicBlock
  * - Pure operation with no side effects
  */
 class PhiNode private constructor(
-    name: String,
+    name: String?,
     type: Type,
     incomingValues: List<Pair<Value, Value>>
 ) : OtherInst(name, type, incomingValues.flatMap { listOf(it.first, it.second) }) {
@@ -181,11 +181,10 @@ class PhiNode private constructor(
      * Gets the index of the incoming value from the specified block.
      *
      * @param block The basic block to search for
-     * @return The index of the incoming value, or -1 if not found
+     * @return The index of the incoming value, or `null` if not found
      */
-    fun getIncomingValueIndexForBlock(block: Value): Int {
-        return incomingValues.indexOfFirst { it.second == block }
-    }
+    fun getIncomingValueIndexForBlock(block: Value): Int? =
+        incomingValues.indexOfFirst { it.second == block }.takeIf { it >= 0 }
     
     /**
      * Adds a new incoming value to this PHI node.
@@ -212,10 +211,8 @@ class PhiNode private constructor(
      */
     fun replaceIncomingValueForBlock(block: Value, newValue: Value): PhiNode {
         val index = getIncomingValueIndexForBlock(block)
-        if (index == -1) {
-            throw IllegalArgumentException("No incoming value found for block: ${block.name}")
-        }
-        
+            ?: throw IllegalArgumentException("No incoming value found for block: ${block.name}")
+
         val newIncomingValues = incomingValues.toMutableList()
         newIncomingValues[index] = Pair(newValue, block)
         return PhiNode(name, type, newIncomingValues)
@@ -268,7 +265,7 @@ class PhiNode private constructor(
          * @return A new PhiNode
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, type: Type, incomingValues: List<Pair<Value, Value>>): PhiNode {
+        fun create(name: String?, type: Type, incomingValues: List<Pair<Value, Value>>): PhiNode {
             return PhiNode(name, type, incomingValues)
         }
         
@@ -282,7 +279,7 @@ class PhiNode private constructor(
          * @param block The basic block from which the value comes
          * @return A new PhiNode with one incoming value
          */
-        fun createSingle(name: String, type: Type, value: Value, block: Value): PhiNode {
+        fun createSingle(name: String?, type: Type, value: Value, block: Value): PhiNode {
             return PhiNode(name, type, listOf(Pair(value, block)))
         }
         
@@ -296,7 +293,7 @@ class PhiNode private constructor(
          * @return A new PhiNode
          * @throws IllegalArgumentException if lists have different sizes or validation fails
          */
-        fun createFromLists(name: String, type: Type, values: List<Value>, blocks: List<Value>): PhiNode {
+        fun createFromLists(name: String?, type: Type, values: List<Value>, blocks: List<Value>): PhiNode {
             if (values.size != blocks.size) {
                 throw IllegalArgumentException(
                     "Values and blocks lists must have the same size: ${values.size} vs ${blocks.size}"

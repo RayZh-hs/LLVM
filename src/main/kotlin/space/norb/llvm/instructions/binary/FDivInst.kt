@@ -21,7 +21,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = fdiv float %a, %b
  */
 class FDivInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -36,7 +36,7 @@ class FDivInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): FDivInst {
+        fun create(name: String?, lhs: Value, rhs: Value): FDivInst {
             if (!lhs.type.isFloatingPointType()) {
                 throw IllegalArgumentException("FDivInst only supports floating-point types, got ${lhs.type}")
             }

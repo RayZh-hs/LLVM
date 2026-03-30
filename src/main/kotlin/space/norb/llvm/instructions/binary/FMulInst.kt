@@ -21,7 +21,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = fmul float %a, %b
  */
 class FMulInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -36,7 +36,7 @@ class FMulInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): FMulInst {
+        fun create(name: String?, lhs: Value, rhs: Value): FMulInst {
             if (!lhs.type.isFloatingPointType()) {
                 throw IllegalArgumentException("FMulInst only supports floating-point types, got ${lhs.type}")
             }

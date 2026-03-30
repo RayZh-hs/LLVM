@@ -24,7 +24,7 @@ class ValueTest {
      * Mock implementation of Value for testing purposes.
      */
     private data class MockValue(
-        override val name: String,
+        override val name: String?,
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
@@ -55,13 +55,13 @@ class ValueTest {
     }
 
     @Test
-    @DisplayName("Value should handle empty name")
-    fun testValueEmptyName() {
-        val testName = ""
+    @DisplayName("Value should handle null name")
+    fun testValueNullName() {
+        val testName: String? = null
         val testType = VoidType
         val value = MockValue(testName, testType)
         
-        assertEquals(testName, value.name, "Value should handle empty name")
+        assertNull(value.name, "Value should expose null for unnamed values")
     }
 
     @Test

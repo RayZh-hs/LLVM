@@ -23,7 +23,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = shl <4 x i32> %a, %b ; Vector shift left
  */
 class ShlInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -38,7 +38,7 @@ class ShlInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): ShlInst {
+        fun create(name: String?, lhs: Value, rhs: Value): ShlInst {
             return ShlInst(name, lhs.type, lhs, rhs)
         }
     }

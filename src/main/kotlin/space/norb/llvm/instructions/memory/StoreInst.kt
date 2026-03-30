@@ -25,7 +25,7 @@ import space.norb.llvm.types.PointerType
  * - Type safety is ensured through explicit type checking
  */
 class StoreInst(
-    name: String,
+    name: String?,
     storedType: Type,
     value: Value,
     pointer: Value

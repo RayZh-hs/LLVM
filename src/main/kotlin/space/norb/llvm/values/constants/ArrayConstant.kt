@@ -15,12 +15,12 @@ import space.norb.llvm.types.ArrayType
  *
  * @property elements The list of constant elements in the array
  * @property type The ArrayType representing this array's type
- * @property name Optional name for this constant (defaults to empty string)
+ * @property name Optional name for this constant (`null` when unnamed)
  */
 data class ArrayConstant(
     val elements: List<Constant>,
     override val type: ArrayType,
-    override val name: String = ""
+    override val name: String? = null
 ) : Constant(name, type) {
     
     init {

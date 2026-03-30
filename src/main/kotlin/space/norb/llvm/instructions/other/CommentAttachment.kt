@@ -11,7 +11,7 @@ import space.norb.llvm.visitors.IRVisitor
  * operands, side effects, or runtime semantics.
  */
 class CommentAttachment(
-    name: String,
+    name: String?,
     val comment: String
 ) : OtherInst(name, VoidType, emptyList()) {
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitCommentAttachment(this)

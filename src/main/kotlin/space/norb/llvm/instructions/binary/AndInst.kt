@@ -24,7 +24,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %masked = and i32 %value, 255  ; Mask to get low 8 bits
  */
 class AndInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -59,7 +59,7 @@ class AndInst private constructor(
          * @return A new AndInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): AndInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): AndInst {
             return AndInst(name, type, lhs, rhs)
         }
         
@@ -72,7 +72,7 @@ class AndInst private constructor(
          * @return A new AndInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): AndInst {
+        fun create(name: String?, lhs: Value, rhs: Value): AndInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

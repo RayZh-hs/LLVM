@@ -205,13 +205,13 @@ class GlobalVariableTest {
     }
     
     @Test
-    @DisplayName("GlobalVariable should handle empty name")
-    fun testGlobalVariableEmptyName() {
-        val name = ""
+    @DisplayName("GlobalVariable should handle null name")
+    fun testGlobalVariableNullName() {
+        val name: String? = null
         val initializer = IntConstant(42, IntegerType.I32)
         val globalVariable = GlobalVariable.create(name, module, initializer)
         
-        assertEquals(name, globalVariable.name, "GlobalVariable should handle empty name")
+        assertNull(globalVariable.name, "GlobalVariable should expose null for unnamed values")
     }
     
     @Test

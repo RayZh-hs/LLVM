@@ -30,7 +30,7 @@ import space.norb.llvm.types.PointerType
  * @param value The source value to bitcast
  */
 class BitcastInst(
-    name: String,
+    name: String?,
     type: Type,
     value: Value
 ) : CastInst(name, type, value) {
@@ -127,7 +127,7 @@ class BitcastInst(
          * @return A new BitcastInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destType: Type): BitcastInst {
+        fun create(name: String?, value: Value, destType: Type): BitcastInst {
             return BitcastInst(name, destType, value)
         }
         
@@ -139,7 +139,7 @@ class BitcastInst(
          * @return A new BitcastInst instance that casts to the un-typed pointer type
          * @throws IllegalArgumentException if validation fails
          */
-        fun createPointerCast(name: String, value: Value): BitcastInst {
+        fun createPointerCast(name: String?, value: Value): BitcastInst {
             return BitcastInst(name, PointerType, value)
         }
         
@@ -151,7 +151,7 @@ class BitcastInst(
          * @return A new BitcastInst instance that casts to pointer type
          * @throws IllegalArgumentException if validation fails
          */
-        fun createIntToPointerCast(name: String, value: Value): BitcastInst {
+        fun createIntToPointerCast(name: String?, value: Value): BitcastInst {
             return BitcastInst(name, PointerType, value)
         }
         
@@ -164,7 +164,7 @@ class BitcastInst(
          * @return A new BitcastInst instance that casts to integer type
          * @throws IllegalArgumentException if validation fails
          */
-        fun createPointerToIntCast(name: String, value: Value, intType: Type): BitcastInst {
+        fun createPointerToIntCast(name: String?, value: Value, intType: Type): BitcastInst {
             return BitcastInst(name, intType, value)
         }
     }

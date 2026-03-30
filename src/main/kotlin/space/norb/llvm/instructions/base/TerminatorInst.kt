@@ -19,7 +19,7 @@ import space.norb.llvm.visitors.IRVisitor
  * - UnreachableInst: indicates unreachable code
  */
 abstract class TerminatorInst(
-    name: String,
+    name: String?,
     type: Type,
     operands: List<Value>
 ) : Instruction(name, type, operands) {

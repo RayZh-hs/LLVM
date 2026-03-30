@@ -27,7 +27,7 @@ import space.norb.llvm.visitors.IRVisitor
  * - FreezeInst: freeze instruction for poison values
  */
 abstract class OtherInst(
-    name: String,
+    name: String?,
     type: Type,
     operands: List<Value>
 ) : Instruction(name, type, operands) {

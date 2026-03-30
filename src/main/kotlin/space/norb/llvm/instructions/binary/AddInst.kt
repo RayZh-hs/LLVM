@@ -9,7 +9,7 @@ import space.norb.llvm.visitors.IRVisitor
  * Addition instruction.
  */
 class AddInst(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value

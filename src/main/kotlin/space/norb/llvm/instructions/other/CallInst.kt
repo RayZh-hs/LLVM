@@ -37,7 +37,7 @@ import space.norb.llvm.types.VoidType
  * - May read from and write to memory
  */
 class CallInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     callee: Value,
     args: List<Value>,
@@ -63,7 +63,7 @@ class CallInst private constructor(
     val functionType: FunctionType
     
     init {
-        if (type == VoidType && name.isNotEmpty()) {
+        if (type == VoidType && !name.isNullOrEmpty()) {
             throw IllegalArgumentException("Call instructions returning void cannot have result names")
         }
         // For indirect calls, we need to handle the case where we don't have function type information
@@ -192,7 +192,7 @@ class CallInst private constructor(
          * @return A new CallInst for a direct function call
          * @throws IllegalArgumentException if argument validation fails
          */
-        fun createDirectCall(name: String, callee: Value, args: List<Value>): CallInst {
+        fun createDirectCall(name: String?, callee: Value, args: List<Value>): CallInst {
             val functionType = callee.type as? FunctionType
                 ?: throw IllegalArgumentException("Direct calls require function values")
             return CallInst(name, functionType.returnType, callee, args, true)
@@ -208,7 +208,7 @@ class CallInst private constructor(
          * @return A new CallInst for an indirect function call
          * @throws IllegalArgumentException if argument validation fails
          */
-        fun createIndirectCall(name: String, returnType: Type, funcPtr: Value, args: List<Value>): CallInst {
+        fun createIndirectCall(name: String?, returnType: Type, funcPtr: Value, args: List<Value>): CallInst {
             if (!funcPtr.type.isPointerType()) {
                 throw IllegalArgumentException("Function pointer must have pointer type")
             }

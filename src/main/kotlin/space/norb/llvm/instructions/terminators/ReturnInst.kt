@@ -13,7 +13,7 @@ import space.norb.llvm.visitors.IRVisitor
  * It can optionally return a value.
  */
 class ReturnInst(
-    name: String,
+    name: String?,
     type: Type,
     returnValue: Value? = null
 ) : TerminatorInst(name, type, returnValue?.let { listOf(it) } ?: emptyList()) {
@@ -44,7 +44,7 @@ class ReturnInst(
          * @param type The type of the instruction (should be void)
          * @return A void return instruction
          */
-        fun createVoid(name: String, type: Type): ReturnInst {
+        fun createVoid(name: String?, type: Type): ReturnInst {
             return ReturnInst(name, type, null)
         }
         
@@ -56,7 +56,7 @@ class ReturnInst(
          * @param returnValue The value to return
          * @return A return instruction with a value
          */
-        fun createWithValue(name: String, type: Type, returnValue: Value): ReturnInst {
+        fun createWithValue(name: String?, type: Type, returnValue: Value): ReturnInst {
             return ReturnInst(name, type, returnValue)
         }
     }

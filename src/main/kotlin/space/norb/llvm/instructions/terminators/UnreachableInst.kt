@@ -19,7 +19,7 @@ import space.norb.llvm.visitors.IRVisitor
  * The unreachable instruction has no successors.
  */
 class UnreachableInst private constructor(
-    name: String,
+    name: String?,
     type: Type
 ) : TerminatorInst(name, type, emptyList()) {
     
@@ -37,7 +37,7 @@ class UnreachableInst private constructor(
          * @param type The type of the instruction (should be void)
          * @return An unreachable instruction
          */
-        fun create(name: String, type: Type): UnreachableInst {
+        fun create(name: String?, type: Type): UnreachableInst {
             return UnreachableInst(name, type)
         }
     }

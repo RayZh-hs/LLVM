@@ -145,7 +145,7 @@ class IRBuilder(val module: Module) {
         return instruction
     }
     
-    fun createFunction(name: String, type: FunctionType): Function {
+    fun createFunction(name: String?, type: FunctionType): Function {
         return Function(name, type, module)
     }
     
@@ -153,7 +153,7 @@ class IRBuilder(val module: Module) {
      * Create a function with custom parameter names.
      * This overload merges the parameter names into the type and delegates to the constructor.
      */
-    fun createFunction(name: String, type: FunctionType, paramNames: List<String>): Function {
+    fun createFunction(name: String?, type: FunctionType, paramNames: List<String>): Function {
         val updatedType = type.copy(paramNames = paramNames)
         return Function(name, updatedType, module)
     }
@@ -162,7 +162,7 @@ class IRBuilder(val module: Module) {
      * Convenience overload to create a function with return type, parameter types, and optional parameter names.
      */
     fun createFunction(
-        name: String,
+        name: String?,
         returnType: Type,
         paramTypes: List<Type>,
         paramNames: List<String>? = null,
@@ -173,7 +173,7 @@ class IRBuilder(val module: Module) {
     }
     
     @Deprecated("Use Function.insertBasicBlock instead", ReplaceWith("function.insertBasicBlock(name)"))
-    fun insertBasicBlock(name: String, function: Function): BasicBlock {
+    fun insertBasicBlock(name: String?, function: Function): BasicBlock {
         val block = BasicBlock(name, function)
         // Automatically add the block to the function's basic blocks list
         if (function.basicBlocks.isEmpty()) {
@@ -383,7 +383,7 @@ class IRBuilder(val module: Module) {
     fun insertCall(function: Function, args: List<Value>, name: String? = null): CallInst {
         val call = if (function.returnType == VoidType) {
             require(name.isNullOrEmpty()) { "Calls to void-returning functions cannot have result names" }
-            CallInst.createDirectCall("", function, args)
+            CallInst.createDirectCall(null, function, args)
         } else {
             val rename = name ?: Renamer.another()
             CallInst.createDirectCall(rename, function, args)
@@ -399,7 +399,7 @@ class IRBuilder(val module: Module) {
     fun insertIndirectCall(funcPtr: Value, args: List<Value>, returnType: Type, name: String? = null): CallInst {
         val call = if (returnType == VoidType) {
             require(name.isNullOrEmpty()) { "Calls to void-returning functions cannot have result names" }
-            CallInst.createIndirectCall("", returnType, funcPtr, args)
+            CallInst.createIndirectCall(null, returnType, funcPtr, args)
         } else {
             val rename = name ?: Renamer.another()
             CallInst.createIndirectCall(rename, returnType, funcPtr, args)

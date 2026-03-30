@@ -27,7 +27,7 @@ import space.norb.llvm.types.IntegerType
  * @param value The source value to sign-extend (must be integer type)
  */
 class SExtInst(
-    name: String,
+    name: String?,
     type: Type,
     value: Value
 ) : CastInst(name, type, value) {
@@ -91,7 +91,7 @@ class SExtInst(
          * @return A new SExtInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destType: IntegerType): SExtInst {
+        fun create(name: String?, value: Value, destType: IntegerType): SExtInst {
             return SExtInst(name, destType, value)
         }
         
@@ -104,7 +104,7 @@ class SExtInst(
          * @return A new SExtInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destBits: Int): SExtInst {
+        fun create(name: String?, value: Value, destBits: Int): SExtInst {
             val destType = IntegerType(destBits)
             return SExtInst(name, destType, value)
         }

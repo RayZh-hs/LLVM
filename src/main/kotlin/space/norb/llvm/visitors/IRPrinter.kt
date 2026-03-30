@@ -76,6 +76,11 @@ import space.norb.llvm.enums.LinkageType
 class IRPrinter : IRVisitor<Unit> {
     private val output = StringBuilder()
     private var indentLevel = 0
+
+    private fun requireName(name: String?, kind: String): String =
+        requireNotNull(name) { "$kind must have a name to be printed" }
+
+    private fun formatLocalName(name: String?): String = "%${name ?: "unnamed"}"
     
     fun print(module: Module): String {
         visitModule(module)
@@ -183,7 +188,7 @@ class IRPrinter : IRVisitor<Unit> {
                 } else {
                     param.type.toString()
                 }
-                "$paramTypeStr %${param.name}" // Include parameter names with % prefix
+                "$paramTypeStr ${formatLocalName(param.name)}" // Include parameter names with % prefix
             }
             "$namedParams, ..."
         } else if (function.type.isVarArg) {
@@ -197,7 +202,7 @@ class IRPrinter : IRVisitor<Unit> {
                 } else {
                     param.type.toString()
                 }
-                "$paramTypeStr %${param.name}" // Include parameter names with % prefix
+                "$paramTypeStr ${formatLocalName(param.name)}" // Include parameter names with % prefix
             }
         }
         
@@ -254,10 +259,10 @@ class IRPrinter : IRVisitor<Unit> {
                 }
             }
             val metadataStr = formatMetadata(function)
-            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($declareParamsStr)${metadataStr}")
+            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($declareParamsStr)${metadataStr}")
         } else {
             val metadataStr = formatMetadata(function)
-            output.appendLine("${linkageStr}$returnTypeStr @${function.name}($paramsStr)${metadataStr} {")
+            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($paramsStr)${metadataStr} {")
             val previousIndent = indentLevel
             indentLevel = 0
             function.basicBlocks.forEachIndexed { index, block ->
@@ -272,7 +277,7 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     override fun visitBasicBlock(block: BasicBlock) {
-        output.appendLine("${indent()}${block.name}:")
+        output.appendLine("${indent()}${requireName(block.name, "Basic block")}:")
         indentLevel++
         block.instructions.forEach { it.accept(this) }
         indentLevel--
@@ -284,7 +289,7 @@ class IRPrinter : IRVisitor<Unit> {
         } else {
             argument.type.toString()
         }
-        output.append("$typeStr ${argument.name}")
+        output.append("$typeStr ${formatLocalName(argument.name)}")
     }
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable) {
@@ -322,7 +327,7 @@ class IRPrinter : IRVisitor<Unit> {
         }
         
         val metadataStr = formatMetadata(globalVariable, includeComma = true)
-        output.appendLine("@${globalVariable.name} = ${linkageStr}${constantStr}${globalKeyword}${typeStr}${initializerStr}${metadataStr}")
+        output.appendLine("@${requireName(globalVariable.name, "Global variable")} = ${linkageStr}${constantStr}${globalKeyword}${typeStr}${initializerStr}${metadataStr}")
     }
     
     override fun visitConstant(constant: Constant) {
@@ -511,7 +516,7 @@ class IRPrinter : IRVisitor<Unit> {
         }
         
         val sourceValueName = if (inst.value is space.norb.llvm.structure.Function) {
-            "@${inst.value.name}"
+            "@${requireName(inst.value.name, "Global value")}" 
         } else {
             formatValueName(inst.value)
         }
@@ -547,7 +552,7 @@ class IRPrinter : IRVisitor<Unit> {
         // Format the callee name (will use @ for direct functions, % for indirect)
         val calleeName = formatValueName(callee)
 
-        val resultPrefix = if (inst.producesValue()) "%${inst.name} = " else ""
+        val resultPrefix = if (inst.producesValue()) "${formatLocalName(inst.name)} = " else ""
         appendInstructionLine(inst, "${indent()}${resultPrefix}call $returnTypeStr $calleeName($argsStr)")
     }
     
@@ -640,7 +645,7 @@ class IRPrinter : IRVisitor<Unit> {
         return when {
             value is space.norb.llvm.structure.Function -> {
                 // Direct function calls should use @ prefix
-                "@${value.name}"
+                "@${requireName(value.name, "Function")}"
             }
             value is Constant -> {
                 when (value) {
@@ -657,14 +662,14 @@ class IRPrinter : IRVisitor<Unit> {
                         // Format floating point constants in LLVM IR format
                         formatFloatConstant(value)
                     }
-                    is space.norb.llvm.values.globals.GlobalVariable -> "@${value.name}"
+                    is space.norb.llvm.values.globals.GlobalVariable -> "@${requireName(value.name, "Global variable")}"
                     else -> {
                         // For other constants, if they have a name use it, otherwise use toString
-                        if (value.name.isNotEmpty()) "%${value.name}" else value.toString()
+                        if (!value.name.isNullOrEmpty()) formatLocalName(value.name) else value.toString()
                     }
                 }
             }
-            value.name.isNotEmpty() -> "%${value.name}"
+            !value.name.isNullOrEmpty() -> formatLocalName(value.name)
             else -> "0" // Default for unnamed values
         }
     }
@@ -690,6 +695,6 @@ class IRPrinter : IRVisitor<Unit> {
     }
     
     private fun formatBlockName(block: BasicBlock): String {
-        return "%${block.name}"
+        return formatLocalName(block.name)
     }
 }

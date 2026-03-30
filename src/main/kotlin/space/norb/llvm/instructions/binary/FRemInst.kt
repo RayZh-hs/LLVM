@@ -21,7 +21,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = frem float %a, %b
  */
 class FRemInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -36,7 +36,7 @@ class FRemInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): FRemInst {
+        fun create(name: String?, lhs: Value, rhs: Value): FRemInst {
             if (!lhs.type.isFloatingPointType()) {
                 throw IllegalArgumentException("FRemInst only supports floating-point types, got ${lhs.type}")
             }

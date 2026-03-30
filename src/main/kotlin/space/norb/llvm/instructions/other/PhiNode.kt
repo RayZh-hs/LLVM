@@ -181,10 +181,11 @@ class PhiNode private constructor(
      * Gets the index of the incoming value from the specified block.
      *
      * @param block The basic block to search for
-     * @return The index of the incoming value, or -1 if not found
+     * @return The index of the incoming value, or `null` if not found
      */
-    fun getIncomingValueIndexForBlock(block: Value): Int {
-        return incomingValues.indexOfFirst { it.second == block }
+    fun getIncomingValueIndexForBlock(block: Value): Int? {
+        val index = incomingValues.indexOfFirst { it.second == block }
+        return index.takeIf { it >= 0 }
     }
     
     /**
@@ -212,10 +213,8 @@ class PhiNode private constructor(
      */
     fun replaceIncomingValueForBlock(block: Value, newValue: Value): PhiNode {
         val index = getIncomingValueIndexForBlock(block)
-        if (index == -1) {
-            throw IllegalArgumentException("No incoming value found for block: ${block.name}")
-        }
-        
+            ?: throw IllegalArgumentException("No incoming value found for block: ${block.name}")
+
         val newIncomingValues = incomingValues.toMutableList()
         newIncomingValues[index] = Pair(newValue, block)
         return PhiNode(name, type, newIncomingValues)

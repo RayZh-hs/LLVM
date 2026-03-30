@@ -96,10 +96,11 @@ abstract class User(
      * Gets the index of the specified operand value.
      *
      * @param value The operand value to find
-     * @return The index of the operand, or -1 if not found
+     * @return The index of the operand, or `null` if not found
      */
-    fun getOperandIndex(value: Value): Int {
-        return operands.indexOf(value)
+    fun getOperandIndex(value: Value): Int? {
+        val index = operands.indexOf(value)
+        return index.takeIf { it >= 0 }
     }
     
     // Placeholder methods for Phase 2 - to be implemented when use-def chains are established

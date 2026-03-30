@@ -183,10 +183,8 @@ class PhiNode private constructor(
      * @param block The basic block to search for
      * @return The index of the incoming value, or `null` if not found
      */
-    fun getIncomingValueIndexForBlock(block: Value): Int? {
-        val index = incomingValues.indexOfFirst { it.second == block }
-        return index.takeIf { it >= 0 }
-    }
+    fun getIncomingValueIndexForBlock(block: Value): Int? =
+        incomingValues.indexOfFirst { it.second == block }.takeIf { it >= 0 }
     
     /**
      * Adds a new incoming value to this PHI node.

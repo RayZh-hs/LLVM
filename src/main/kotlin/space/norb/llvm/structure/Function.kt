@@ -22,7 +22,7 @@ typealias FunctionId = ULong
  * @param isDeclaration Indicates whether this function is a declaration (i.e., it has no body) or a definition (i.e., it has a body with basic blocks).
  */
 class Function(
-    override val name: String,
+    override val name: String?,
     override val type: FunctionType,
     val module: Module,
     val linkage: LinkageType = LinkageType.EXTERNAL,
@@ -72,7 +72,7 @@ class Function(
     }
     
     override fun hashCode(): Int {
-        throw UnsupportedOperationException("Function hashCode is not supported due to potential mutability and complexity. Use Function.id instead.")
+        return id.hashCode()
     }
     
     override fun toString(): String {
@@ -111,7 +111,7 @@ class Function(
      *                        If this is the first block being added, it defaults to being the entrypoint.
      * @return The created BasicBlock
      */
-    fun insertBasicBlock(name: String, setAsEntrypoint: Boolean = false): BasicBlock {
+    fun insertBasicBlock(name: String?, setAsEntrypoint: Boolean = false): BasicBlock {
         val block = BasicBlock(name, this)
         
         // Check if this is the first block being added

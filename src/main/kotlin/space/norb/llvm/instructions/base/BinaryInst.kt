@@ -19,7 +19,7 @@ import space.norb.llvm.visitors.IRVisitor
  * result = opcode lhs, rhs
  */
 abstract class BinaryInst(
-    name: String,
+    name: String?,
     type: Type,
     val lhs: Value,
     val rhs: Value

@@ -16,7 +16,7 @@ import space.norb.llvm.visitors.IRVisitor
  * - A list of case-value/destination pairs
  */
 class SwitchInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     operands: List<Value>,
     private val caseCount: Int
@@ -100,7 +100,7 @@ class SwitchInst private constructor(
          * @return A switch instruction
          */
         fun create(
-            name: String,
+            name: String?,
             type: Type,
             condition: Value,
             defaultDestination: Value,

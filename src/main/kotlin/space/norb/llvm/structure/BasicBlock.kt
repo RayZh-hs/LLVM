@@ -20,7 +20,7 @@ typealias BasicBlockId = ULong
  * @param function The parent function to which this basic block belongs.
  */
 class BasicBlock(
-    override val name: String,
+    override val name: String?,
     val function: Function
 ) : Value {
     companion object {
@@ -51,7 +51,7 @@ class BasicBlock(
     }
 
     override fun hashCode(): Int {
-        throw UnsupportedOperationException("BasicBlock does not support hashCode() to prevent accidental usage in hash-based collections. Use the unique 'id' property for identity instead.")
+        return id.hashCode()
     }
 
     override fun toString(): String {
@@ -61,5 +61,9 @@ class BasicBlock(
     override fun getParent(): Any? {
         // Basic blocks belong to functions
         return function
+    }
+
+    fun getSuccessors(): List<BasicBlock> {
+        return terminator?.getSuccessors() ?: emptyList()
     }
 }

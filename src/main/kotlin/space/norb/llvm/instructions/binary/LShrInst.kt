@@ -23,7 +23,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = lshr <4 x i32> %a, %b ; Vector logical shift right
  */
 class LShrInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -38,7 +38,7 @@ class LShrInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): LShrInst {
+        fun create(name: String?, lhs: Value, rhs: Value): LShrInst {
             return LShrInst(name, lhs.type, lhs, rhs)
         }
     }

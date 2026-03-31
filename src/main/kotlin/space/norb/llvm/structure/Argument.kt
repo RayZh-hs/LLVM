@@ -16,7 +16,7 @@ import space.norb.llvm.visitors.IRVisitor
  * @param index The position of the argument in the function's parameter list, starting from 0.
  */
 class Argument(
-    override val name: String,
+    override val name: String?,
     override val type: Type,
     val function: Function,
     val index: Int
@@ -30,7 +30,7 @@ class Argument(
     }
     
     override fun hashCode(): Int {
-        return 31 * name.hashCode() + type.hashCode() + function.hashCode() + index
+        return 31 * (name?.hashCode() ?: 0) + type.hashCode() + function.hashCode() + index
     }
     
     override fun toString(): String {

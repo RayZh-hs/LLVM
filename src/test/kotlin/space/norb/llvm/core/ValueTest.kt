@@ -24,7 +24,7 @@ class ValueTest {
      * Mock implementation of Value for testing purposes.
      */
     private data class MockValue(
-        override val name: String,
+        override val name: String?,
         override val type: Type
     ) : Value {
         override fun <T> accept(visitor: space.norb.llvm.visitors.IRVisitor<T>): T {
@@ -55,13 +55,13 @@ class ValueTest {
     }
 
     @Test
-    @DisplayName("Value should handle empty name")
-    fun testValueEmptyName() {
-        val testName = ""
+    @DisplayName("Value should handle null name")
+    fun testValueNullName() {
+        val testName: String? = null
         val testType = VoidType
         val value = MockValue(testName, testType)
         
-        assertEquals(testName, value.name, "Value should handle empty name")
+        assertNull(value.name, "Value should expose null for unnamed values")
     }
 
     @Test
@@ -148,5 +148,24 @@ class ValueTest {
         val globalVariable = GlobalVariable.create("testGlobal", module)
         
         assertEquals(module, globalVariable.getParent(), "GlobalVariable getParent should return the containing module")
+    }
+    @Test
+    @DisplayName("Instruction getParent should return basic block")
+    fun testInstructionGetParent() {
+        val module = Module("testModule")
+        val functionType = FunctionType(IntegerType.I32, listOf())
+        val function = Function("testFunction", functionType, module)
+        val basicBlock = BasicBlock("entry", function)
+        val instruction = AllocaInst("alloca", IntegerType.I32)
+
+        assertNull(instruction.getParent(), "Instruction getParent should return null when it is not attached to a basic block")
+    }
+
+    @Test
+    @DisplayName("MockValue getParent should return null")
+    fun testMockValueGetParent() {
+        val mockValue = MockValue("test", IntegerType.I32)
+        
+        assertNull(mockValue.getParent(), "MockValue getParent should return null by default")
     }
 }

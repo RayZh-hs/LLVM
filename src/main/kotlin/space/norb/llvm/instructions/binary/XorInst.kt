@@ -26,7 +26,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %toggled = xor i32 %flags, 1  ; Toggle the lowest bit
  */
 class XorInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -61,7 +61,7 @@ class XorInst private constructor(
          * @return A new XorInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): XorInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): XorInst {
             return XorInst(name, type, lhs, rhs)
         }
         
@@ -74,7 +74,7 @@ class XorInst private constructor(
          * @return A new XorInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): XorInst {
+        fun create(name: String?, lhs: Value, rhs: Value): XorInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

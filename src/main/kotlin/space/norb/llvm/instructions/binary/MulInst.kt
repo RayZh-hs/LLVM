@@ -23,7 +23,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = mul float %x, %y ; Floating-point multiplication
  */
 class MulInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -58,7 +58,7 @@ class MulInst private constructor(
          * @return A new MulInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): MulInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): MulInst {
             return MulInst(name, type, lhs, rhs)
         }
         
@@ -71,7 +71,7 @@ class MulInst private constructor(
          * @return A new MulInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): MulInst {
+        fun create(name: String?, lhs: Value, rhs: Value): MulInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

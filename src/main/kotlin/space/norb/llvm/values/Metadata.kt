@@ -50,7 +50,7 @@ abstract class Metadata : Value {
      * @return Unique identifier string
      */
     override fun getIdentifier(): String {
-        return if (name.isNotEmpty()) name else "metadata_${hashCode()}"
+        return name ?: "metadata_${hashCode()}"
     }
     
     /**
@@ -93,11 +93,11 @@ abstract class Metadata : Value {
  * string-based information.
  *
  * @property value The string value of this metadata
- * @property name The name of this metadata (may be empty for unnamed metadata)
+ * @property name The name of this metadata (`null` for unnamed metadata)
  */
 data class MDString(
     val value: String,
-    override val name: String = ""
+    override val name: String? = null
 ) : Metadata() {
     
     override fun toIRString(): String = "!\"$value\""
@@ -125,12 +125,12 @@ data class MDString(
  * complex structures like debug information, type information, etc.
  *
  * @property operands The list of metadata operands
- * @property name The name of this metadata (may be empty for unnamed metadata)
+ * @property name The name of this metadata (`null` for unnamed metadata)
  * @property distinct Whether this metadata node is distinct
  */
 data class MDNode(
     val operands: List<Metadata>,
-    override val name: String = "",
+    override val name: String? = null,
     val distinct: Boolean = false
 ) : Metadata() {
     
@@ -179,11 +179,11 @@ data class MDNode(
  * maintaining their value semantics.
  *
  * @property value The constant value wrapped as metadata
- * @property name The name of this metadata (may be empty for unnamed metadata)
+ * @property name The name of this metadata (`null` for unnamed metadata)
  */
 data class ConstantAsMetadata(
     val value: space.norb.llvm.core.Constant,
-    override val name: String = ""
+    override val name: String? = null
 ) : Metadata() {
     
     override fun toIRString(): String = value.toString()

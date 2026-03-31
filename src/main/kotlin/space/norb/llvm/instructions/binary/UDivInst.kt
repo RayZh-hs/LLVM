@@ -24,7 +24,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = udiv <4 x i32> %a, %b ; Vector unsigned division
  */
 class UDivInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -58,7 +58,7 @@ class UDivInst private constructor(
          * @return A new UDivInst instance
          * @throws IllegalArgumentException if types don't match or aren't integers
          */
-        fun create(name: String, lhs: Value, rhs: Value): UDivInst {
+        fun create(name: String?, lhs: Value, rhs: Value): UDivInst {
             // Type checking is handled by BinaryInst base class
             // Additional check for integer types could be added here
             if (!lhs.type.isIntegerType()) {

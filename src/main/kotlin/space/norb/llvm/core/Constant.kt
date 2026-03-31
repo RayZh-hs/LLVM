@@ -23,11 +23,11 @@ import space.norb.llvm.visitors.IRVisitor
  * - ArrayConstant for array constants
  * - StructConstant for struct constants
  *
- * @param name The name of this constant (may be empty for unnamed constants)
+ * @param name The name of this constant (`null` for unnamed constants)
  * @param type The LLVM type of this constant
  */
 abstract class Constant(
-    override val name: String,
+    override val name: String?,
     override val type: Type
 ) : Value {
     
@@ -103,7 +103,7 @@ abstract class Constant(
      * @return Unique identifier string
      */
     override fun getIdentifier(): String {
-        return if (name.isNotEmpty()) name else "const_${hashCode()}"
+        return name ?: "const_${hashCode()}"
     }
     
     // Placeholder methods for Phase 1 - to be implemented in later phases

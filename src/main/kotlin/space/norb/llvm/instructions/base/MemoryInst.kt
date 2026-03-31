@@ -23,7 +23,7 @@ import space.norb.llvm.types.PointerType
  * of the type of data they point to.
  */
 abstract class MemoryInst(
-    name: String,
+    name: String?,
     type: Type,
     operands: List<Value>
 ) : Instruction(name, type, operands) {

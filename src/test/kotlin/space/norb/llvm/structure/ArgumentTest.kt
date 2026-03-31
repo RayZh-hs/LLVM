@@ -162,12 +162,12 @@ class ArgumentTest {
     }
     
     @Test
-    @DisplayName("Argument should handle empty name")
-    fun testArgumentEmptyName() {
-        val name = ""
+    @DisplayName("Argument should handle null name")
+    fun testArgumentNullName() {
+        val name: String? = null
         val argument = Argument(name, IntegerType.I32, function, 0)
         
-        assertEquals(name, argument.name, "Argument should handle empty name")
+        assertNull(argument.name, "Argument should expose null for unnamed values")
     }
     
     @Test

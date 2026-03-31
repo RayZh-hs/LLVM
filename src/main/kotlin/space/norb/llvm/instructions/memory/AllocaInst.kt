@@ -25,7 +25,7 @@ import space.norb.llvm.types.PointerType
  * - Type information is preserved for type checking and validation
  */
 class AllocaInst(
-    name: String,
+    name: String?,
     allocatedType: Type,
     arraySize: Value? = null
 ) : MemoryInst(name,

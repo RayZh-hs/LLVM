@@ -42,7 +42,7 @@ import space.norb.llvm.types.IntegerType
  * - Pure operation with no side effects
  */
 class ICmpInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     val predicate: IcmpPredicate,
     lhs: Value,
@@ -219,7 +219,7 @@ class ICmpInst private constructor(
          * @return A new ICmpInst
          * @throws IllegalArgumentException if operand validation fails
          */
-        fun create(name: String, predicate: IcmpPredicate, lhs: Value, rhs: Value): ICmpInst {
+        fun create(name: String?, predicate: IcmpPredicate, lhs: Value, rhs: Value): ICmpInst {
             // ICmp always returns i1 (boolean) type
             val resultType = Type.getIntegerType(1)
             return ICmpInst(name, resultType, predicate, lhs, rhs)
@@ -233,7 +233,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for equality comparison
          */
-        fun createEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.EQ, lhs, rhs)
         }
         
@@ -245,7 +245,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for not-equal comparison
          */
-        fun createNotEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createNotEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.NE, lhs, rhs)
         }
         
@@ -257,7 +257,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for unsigned greater-than comparison
          */
-        fun createUnsignedGreater(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createUnsignedGreater(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.UGT, lhs, rhs)
         }
         
@@ -269,7 +269,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for unsigned greater-or-equal comparison
          */
-        fun createUnsignedGreaterEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createUnsignedGreaterEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.UGE, lhs, rhs)
         }
         
@@ -281,7 +281,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for unsigned less-than comparison
          */
-        fun createUnsignedLess(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createUnsignedLess(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.ULT, lhs, rhs)
         }
         
@@ -293,7 +293,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for unsigned less-or-equal comparison
          */
-        fun createUnsignedLessEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createUnsignedLessEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.ULE, lhs, rhs)
         }
         
@@ -305,7 +305,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for signed greater-than comparison
          */
-        fun createSignedGreater(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createSignedGreater(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.SGT, lhs, rhs)
         }
         
@@ -317,7 +317,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for signed greater-or-equal comparison
          */
-        fun createSignedGreaterEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createSignedGreaterEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.SGE, lhs, rhs)
         }
         
@@ -329,7 +329,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for signed less-than comparison
          */
-        fun createSignedLess(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createSignedLess(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.SLT, lhs, rhs)
         }
         
@@ -341,7 +341,7 @@ class ICmpInst private constructor(
          * @param rhs The right-hand operand
          * @return A new ICmpInst for signed less-or-equal comparison
          */
-        fun createSignedLessEqual(name: String, lhs: Value, rhs: Value): ICmpInst {
+        fun createSignedLessEqual(name: String?, lhs: Value, rhs: Value): ICmpInst {
             return create(name, IcmpPredicate.SLE, lhs, rhs)
         }
     }

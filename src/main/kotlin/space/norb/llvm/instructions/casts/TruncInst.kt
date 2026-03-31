@@ -27,7 +27,7 @@ import space.norb.llvm.types.IntegerType
  * @param value The source value to truncate (must be integer type)
  */
 class TruncInst(
-    name: String,
+    name: String?,
     type: Type,
     value: Value
 ) : CastInst(name, type, value) {
@@ -91,7 +91,7 @@ class TruncInst(
          * @return A new TruncInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destType: IntegerType): TruncInst {
+        fun create(name: String?, value: Value, destType: IntegerType): TruncInst {
             return TruncInst(name, destType, value)
         }
         
@@ -104,7 +104,7 @@ class TruncInst(
          * @return A new TruncInst instance
          * @throws IllegalArgumentException if validation fails
          */
-        fun create(name: String, value: Value, destBits: Int): TruncInst {
+        fun create(name: String?, value: Value, destBits: Int): TruncInst {
             val destType = IntegerType(destBits)
             return TruncInst(name, destType, value)
         }

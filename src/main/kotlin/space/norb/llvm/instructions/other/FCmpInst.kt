@@ -29,7 +29,7 @@ import space.norb.llvm.types.IntegerType
  * - Operands must be floating-point types
  */
 class FCmpInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     val predicate: FcmpPredicate,
     lhs: Value,
@@ -60,7 +60,7 @@ class FCmpInst private constructor(
          * @param rhs The right operand
          * @return A new FCmpInst instance
          */
-        fun create(name: String, predicate: FcmpPredicate, lhs: Value, rhs: Value): FCmpInst {
+        fun create(name: String?, predicate: FcmpPredicate, lhs: Value, rhs: Value): FCmpInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("FCmp operands must have the same type: ${lhs.type} vs ${rhs.type}")
             }

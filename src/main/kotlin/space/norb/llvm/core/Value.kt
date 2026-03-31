@@ -9,7 +9,7 @@ package space.norb.llvm.core
  *
  * Values in LLVM have:
  * - A type that determines what kind of value it is
- * - A name for identification (may be empty for unnamed values)
+ * - An optional name for identification (`null` for unnamed values)
  * - Methods for querying properties and relationships
  *
  * This interface is designed to be extended by:
@@ -21,10 +21,10 @@ package space.norb.llvm.core
  */
 interface Value {
     /**
-     * The name of this value. May be empty for unnamed values.
+     * The name of this value. `null` means the value is unnamed.
      * In LLVM IR, values can be named (e.g., %x, %result) or unnamed.
      */
-    val name: String
+    val name: String?
     
     /**
      * The LLVM type of this value.
@@ -55,7 +55,7 @@ interface Value {
      *
      * @return Unique identifier string
      */
-    fun getIdentifier(): String = if (name.isNotEmpty()) name else "unnamed"
+    fun getIdentifier(): String = name ?: "unnamed"
     
     /**
      * Accepts a visitor for this value.

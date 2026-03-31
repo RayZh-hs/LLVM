@@ -25,7 +25,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = srem <4 x i32> %a, %b ; Vector signed remainder
  */
 class SRemInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -70,7 +70,7 @@ class SRemInst private constructor(
          * @return A new SRemInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): SRemInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): SRemInst {
             return SRemInst(name, type, lhs, rhs)
         }
         
@@ -83,7 +83,7 @@ class SRemInst private constructor(
          * @return A new SRemInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): SRemInst {
+        fun create(name: String?, lhs: Value, rhs: Value): SRemInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

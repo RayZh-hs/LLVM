@@ -24,7 +24,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = urem <4 x i32> %a, %b ; Vector unsigned remainder
  */
 class URemInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -69,7 +69,7 @@ class URemInst private constructor(
          * @return A new URemInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): URemInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): URemInst {
             return URemInst(name, type, lhs, rhs)
         }
         
@@ -82,7 +82,7 @@ class URemInst private constructor(
          * @return A new URemInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): URemInst {
+        fun create(name: String?, lhs: Value, rhs: Value): URemInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

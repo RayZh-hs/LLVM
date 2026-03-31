@@ -11,7 +11,7 @@ import space.norb.llvm.structure.BasicBlock
  * Base class for all LLVM instructions.
  */
 abstract class Instruction(
-    override val name: String,
+    override val name: String?,
     override val type: Type,
     operands: List<Value>
 ) : User(name, type, operands), MetadataCapable {

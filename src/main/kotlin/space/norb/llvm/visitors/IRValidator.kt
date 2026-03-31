@@ -76,7 +76,7 @@ class IRValidator : IRVisitor<Boolean> {
     }
     
     override fun visitFunction(function: Function): Boolean {
-        if (function.name.isEmpty()) {
+        if (function.name.isNullOrEmpty()) {
             addError("Function name cannot be empty")
         }
         
@@ -98,7 +98,7 @@ class IRValidator : IRVisitor<Boolean> {
     }
     
     override fun visitBasicBlock(block: BasicBlock): Boolean {
-        if (block.name.isEmpty()) {
+        if (block.name.isNullOrEmpty()) {
             addError("Basic block name cannot be empty")
         }
         
@@ -117,14 +117,14 @@ class IRValidator : IRVisitor<Boolean> {
     }
     
     override fun visitArgument(argument: Argument): Boolean {
-        if (argument.name.isEmpty()) {
+        if (argument.name.isNullOrEmpty()) {
             addError("Argument name cannot be empty")
         }
         return errors.isEmpty()
     }
     
     override fun visitGlobalVariable(globalVariable: GlobalVariable): Boolean {
-        if (globalVariable.name.isEmpty()) {
+        if (globalVariable.name.isNullOrEmpty()) {
             addError("Global variable name cannot be empty")
         }
         return errors.isEmpty()
@@ -200,7 +200,7 @@ class IRValidator : IRVisitor<Boolean> {
     }
     
     override fun visitAllocaInst(inst: AllocaInst): Boolean {
-        if (inst.name.isEmpty()) {
+        if (inst.name.isNullOrEmpty()) {
             addError("Alloca instruction must have a name")
         }
         

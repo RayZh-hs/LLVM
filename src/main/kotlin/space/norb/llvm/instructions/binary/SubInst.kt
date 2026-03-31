@@ -23,7 +23,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = sub float %x, %y ; Floating-point subtraction
  */
 class SubInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -58,7 +58,7 @@ class SubInst private constructor(
          * @return A new SubInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, type: Type, lhs: Value, rhs: Value): SubInst {
+        fun create(name: String?, type: Type, lhs: Value, rhs: Value): SubInst {
             return SubInst(name, type, lhs, rhs)
         }
         
@@ -71,7 +71,7 @@ class SubInst private constructor(
          * @return A new SubInst instance
          * @throws IllegalArgumentException if operand types are incompatible
          */
-        fun create(name: String, lhs: Value, rhs: Value): SubInst {
+        fun create(name: String?, lhs: Value, rhs: Value): SubInst {
             if (lhs.type != rhs.type) {
                 throw IllegalArgumentException("Operand types must match: ${lhs.type} vs ${rhs.type}")
             }

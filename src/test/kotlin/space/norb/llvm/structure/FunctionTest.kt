@@ -220,13 +220,13 @@ class FunctionTest {
     }
     
     @Test
-    @DisplayName("Function should handle empty name")
-    fun testFunctionEmptyName() {
-        val name = ""
+    @DisplayName("Function should handle null name")
+    fun testFunctionNullName() {
+        val name: String? = null
         val functionType = FunctionType(IntegerType.I32, listOf(IntegerType.I32))
         val function = Function(name, functionType, module)
         
-        assertEquals(name, function.name, "Function should handle empty name")
+        assertNull(function.name, "Function should expose null for unnamed values")
     }
     
     @Test

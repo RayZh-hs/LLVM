@@ -22,7 +22,7 @@ class CFGSimplifyPassTest {
                     sb.append("    ${inst::class.simpleName}\n")
                 }
                 sb.append("    Terminator: ${block.terminator!!::class.simpleName}\n")
-                sb.append("    Next blocks: ${block.terminator!!.getSuccessors().joinToString { it.name }}\n")
+                sb.append("    Next blocks: ${block.terminator!!.getSuccessors().joinToString { it.name ?: "<unnamed>" }}\n")
             }
         }
         print(sb.toString())

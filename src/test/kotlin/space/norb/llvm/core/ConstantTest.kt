@@ -15,7 +15,7 @@ class ConstantTest {
      * Mock implementation of Constant for testing purposes.
      */
     private data class MockConstant(
-        override val name: String,
+        override val name: String?,
         override val type: Type,
         private val isNull: Boolean = false,
         private val isZero: Boolean = false,
@@ -206,13 +206,13 @@ class ConstantTest {
     }
 
     @Test
-    @DisplayName("Constant should handle empty name")
-    fun testConstantEmptyName() {
-        val name = ""
+    @DisplayName("Constant should handle null name")
+    fun testConstantNullName() {
+        val name: String? = null
         val type = IntegerType.I32
         val constant = MockConstant(name, type)
         
-        assertEquals(name, constant.name, "Constant should handle empty name")
+        assertNull(constant.name, "Constant should expose null for unnamed values")
     }
 
     @Test

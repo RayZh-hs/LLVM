@@ -36,15 +36,15 @@ object PointerCastingUtils {
      *
      * @param sourceType The source pointer type
      * @param targetType The target pointer type
-     * @return A pair indicating if the cast is possible and the resulting type
+     * @return The resulting pointer type, or `null` if the cast is not possible
      */
-    fun createPointerBitcast(sourceType: Type, targetType: Type): Pair<Boolean, Type> {
+    fun createPointerBitcast(sourceType: Type, targetType: Type): Type? {
         if (!canCastPointerTo(sourceType, targetType)) {
-            return Pair(false, sourceType)
+            return null
         }
         
         // In un-typed mode, all pointers are of the same type
-        return Pair(true, PointerType)
+        return PointerType
     }
     
     /**

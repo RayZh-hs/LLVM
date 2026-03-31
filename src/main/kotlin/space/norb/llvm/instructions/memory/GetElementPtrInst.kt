@@ -57,7 +57,7 @@ import space.norb.llvm.values.constants.IntConstant
  * ```
  */
 class GetElementPtrInst(
-    name: String,
+    name: String?,
     elementType: Type,
     pointer: Value,
     indices: List<Value>,
@@ -235,7 +235,7 @@ class GetElementPtrInst(
          * Creates a regular GEP instruction.
          */
         fun create(
-            name: String,
+            name: String?,
             elementType: Type,
             pointer: Value,
             indices: List<Value>
@@ -248,7 +248,7 @@ class GetElementPtrInst(
          * In-bounds GEP operations provide stronger guarantees about pointer arithmetic.
          */
         fun createInBounds(
-            name: String,
+            name: String?,
             elementType: Type,
             pointer: Value,
             indices: List<Value>
@@ -261,7 +261,7 @@ class GetElementPtrInst(
          * Convenience method for the common case of array[element] access.
          */
         fun createArrayIndex(
-            name: String,
+            name: String?,
             arrayType: ArrayType,
             arrayPointer: Value,
             elementIndex: Value
@@ -277,7 +277,7 @@ class GetElementPtrInst(
          * Convenience method for the common case of struct.field access.
          */
         fun createStructField(
-            name: String,
+            name: String?,
             structType: StructType,
             structPointer: Value,
             fieldIndex: Int,

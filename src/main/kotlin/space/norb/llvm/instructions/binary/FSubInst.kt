@@ -21,7 +21,7 @@ import space.norb.llvm.visitors.IRVisitor
  * %result = fsub float %a, %b
  */
 class FSubInst private constructor(
-    name: String,
+    name: String?,
     type: Type,
     lhs: Value,
     rhs: Value
@@ -36,7 +36,7 @@ class FSubInst private constructor(
     override fun isAssociative(): Boolean = false
     
     companion object {
-        fun create(name: String, lhs: Value, rhs: Value): FSubInst {
+        fun create(name: String?, lhs: Value, rhs: Value): FSubInst {
             if (!lhs.type.isFloatingPointType()) {
                 throw IllegalArgumentException("FSubInst only supports floating-point types, got ${lhs.type}")
             }

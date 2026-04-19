@@ -40,7 +40,8 @@ class LoadInst(
      * The pointer operand from which to load the value.
      * In un-typed mode, this should be a PointerType.
      */
-    val pointer: Value = pointer
+    val pointer: Value
+        get() = getOperand(0)
     
     /**
      * The expected pointer type for this load operation.

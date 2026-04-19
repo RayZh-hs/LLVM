@@ -52,12 +52,14 @@ class ICmpInst private constructor(
     /**
      * The left-hand side operand of the comparison.
      */
-    val lhs: Value = lhs
+    val lhs: Value
+        get() = getOperand(0)
     
     /**
      * The right-hand side operand of the comparison.
      */
-    val rhs: Value = rhs
+    val rhs: Value
+        get() = getOperand(1)
     
     init {
         // Validate that result type is i1 (boolean)

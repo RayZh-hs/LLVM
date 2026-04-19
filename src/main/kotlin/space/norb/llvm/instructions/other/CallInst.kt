@@ -49,12 +49,14 @@ class CallInst private constructor(
      * For direct calls, this is a Function value.
      * For indirect calls, this is a pointer value.
      */
-    val callee: Value = callee
+    val callee: Value
+        get() = getOperand(0)
     
     /**
      * The arguments passed to the function.
      */
-    val arguments: List<Value> = args
+    val arguments: List<Value>
+        get() = getOperandsList().drop(1)
     
     /**
      * The function type of the callee.

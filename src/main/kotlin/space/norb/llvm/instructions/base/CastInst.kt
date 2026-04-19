@@ -28,8 +28,11 @@ import space.norb.llvm.visitors.IRVisitor
 abstract class CastInst(
     name: String?,
     override val type: Type,
-    val value: Value
+    value: Value
 ) : Instruction(name, type, listOf(value)) {
+    val value: Value
+        get() = getOperand(0)
+
     
     init {
         // Validate that we're not casting to same type, except for function-to-pointer casts

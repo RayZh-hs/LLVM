@@ -40,8 +40,14 @@ import space.norb.llvm.structure.BasicBlockId
 class PhiNode private constructor(
     name: String?,
     type: Type,
-    val incomingValues: List<Pair<Value, BasicBlock>>
+    incomingValues: List<Pair<Value, BasicBlock>>,
+    private val allowEmptyIncoming: Boolean = false
 ) : OtherInst(name, type, incomingValues.flatMap { listOf(it.first, it.second) }) {
+    val incomingValues: List<Pair<Value, BasicBlock>>
+        get() = getOperandsList()
+            .chunked(2)
+            .map { operands -> operands[0] to operands[1] as BasicBlock }
+
     /**
      * The list of incoming values (without their source blocks).
      */
@@ -54,15 +60,15 @@ class PhiNode private constructor(
     
     init {
         // Validate that we have at least one incoming value
-        if (incomingValues.isEmpty()) {
+        if (!allowEmptyIncoming && incomingValues.isEmpty()) {
             throw IllegalArgumentException("PhiNode must have at least one incoming value")
         }
         
         // Validate that all incoming values have compatible types
-        val firstValueType = incomingValues[0].first.type
+        val firstValueType = incomingValues.firstOrNull()?.first?.type
         for ((value, block) in incomingValues) {
             // Validate value type compatibility
-            if (!areTypesCompatible(firstValueType, value.type)) {
+            if (firstValueType != null && !areTypesCompatible(firstValueType, value.type)) {
                 throw IllegalArgumentException(
                     "All incoming values must have compatible types: expected $firstValueType, got ${value.type}"
                 )
@@ -194,6 +200,19 @@ class PhiNode private constructor(
         val newIncomingValues = incomingValues + Pair(value, block)
         return PhiNode(name, type, newIncomingValues)
     }
+
+    fun addIncomingMutable(value: Value, block: BasicBlock) {
+        if (!areTypesCompatible(type, value.type)) {
+            throw IllegalArgumentException(
+                "All incoming values must have compatible types: expected $type, got ${value.type}"
+            )
+        }
+        if (hasIncomingValueForBlock(block)) {
+            throw IllegalArgumentException("Duplicate incoming block: ${block.name}")
+        }
+        addOperand(value)
+        addOperand(block)
+    }
     
     /**
      * Creates a new PHI node with the incoming value from the specified block replaced.
@@ -261,6 +280,10 @@ class PhiNode private constructor(
          */
         fun create(name: String?, type: Type, incomingValues: List<Pair<Value, BasicBlock>>): PhiNode {
             return PhiNode(name, type, incomingValues)
+        }
+
+        fun createPlaceholder(name: String?, type: Type): PhiNode {
+            return PhiNode(name, type, emptyList(), allowEmptyIncoming = true)
         }
         
         /**

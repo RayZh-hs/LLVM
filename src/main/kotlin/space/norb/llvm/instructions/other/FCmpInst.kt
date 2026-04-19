@@ -35,6 +35,12 @@ class FCmpInst private constructor(
     lhs: Value,
     rhs: Value
 ) : OtherInst(name, type, listOf(lhs, rhs)) {
+    val lhs: Value
+        get() = getOperand(0)
+
+    val rhs: Value
+        get() = getOperand(1)
+
     
     override fun <T> accept(visitor: IRVisitor<T>): T = visitor.visitFCmpInst(this)
     
@@ -43,12 +49,12 @@ class FCmpInst private constructor(
     /**
      * Gets the left operand.
      */
-    fun getLeftOperand(): Value = operands[0]
+    fun getLeftOperand(): Value = lhs
     
     /**
      * Gets the right operand.
      */
-    fun getRightOperand(): Value = operands[1]
+    fun getRightOperand(): Value = rhs
     
     companion object {
         /**

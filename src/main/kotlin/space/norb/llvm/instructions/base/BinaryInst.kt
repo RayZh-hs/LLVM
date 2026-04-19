@@ -21,9 +21,15 @@ import space.norb.llvm.visitors.IRVisitor
 abstract class BinaryInst(
     name: String?,
     type: Type,
-    val lhs: Value,
-    val rhs: Value
+    lhs: Value,
+    rhs: Value
 ) : Instruction(name, type, listOf(lhs, rhs)) {
+    val lhs: Value
+        get() = getOperand(0)
+
+    val rhs: Value
+        get() = getOperand(1)
+
     
     init {
         // Validate that both operands have compatible types

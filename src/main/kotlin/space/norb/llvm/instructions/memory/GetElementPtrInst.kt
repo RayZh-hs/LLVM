@@ -77,13 +77,15 @@ class GetElementPtrInst(
      * The base pointer operand for GEP calculation.
      * In un-typed mode, this should be a PointerType.
      */
-    val pointer: Value = pointer
+    val pointer: Value
+        get() = getOperand(0)
     
     /**
      * The list of indices for GEP calculation.
      * Each index is used to navigate through the element type structure.
      */
-    val indices: List<Value> = indices
+    val indices: List<Value>
+        get() = getOperandsList().drop(1)
     
     init {
         // Validate the instruction during construction

@@ -19,8 +19,8 @@ import space.norb.llvm.values.constants.IntConstant
  *
  * IR output example:
  * ```
- * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5  ; Uses un-typed pointer
- * %fgep = getelementptr float, ptr %fptr, i64 3                 ; Uses un-typed pointer
+ * %gep = getelementptr [10 x i32], ptr %array, i64 0, i64 5                ; Uses un-typed pointer
+ * %fgep = getelementptr float, ptr %fptr, i64 3                            ; Uses un-typed pointer
  * %inbounds = getelementptr inbounds [10 x i32], ptr %array, i64 0, i64 5  ; In-bounds GEP
  * ```
  *
@@ -77,13 +77,15 @@ class GetElementPtrInst(
      * The base pointer operand for GEP calculation.
      * In un-typed mode, this should be a PointerType.
      */
-    val pointer: Value = pointer
+    val pointer: Value
+        get() = getOperand(0)
     
     /**
      * The list of indices for GEP calculation.
      * Each index is used to navigate through the element type structure.
      */
-    val indices: List<Value> = indices
+    val indices: List<Value>
+        get() = getOperandsList().drop(1)
     
     init {
         // Validate the instruction during construction

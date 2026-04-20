@@ -20,9 +20,8 @@ import space.norb.llvm.types.PointerType
  * 
  * Examples:
  * ```
- * %ptr_cast = bitcast i32* %ptr to i8*      ; Cast between pointer types
  * %int_cast = bitcast i32 %val to float    ; Cast between same-sized types
- * %ptr_to_int = bitcast ptr %ptr to i64     ; Cast pointer to integer
+ * %ptr_to_int = bitcast ptr %ptr to i64    ; Cast pointer to integer
  * ```
  * 
  * @param name The name of the instruction result

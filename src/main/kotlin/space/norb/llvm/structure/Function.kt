@@ -8,8 +8,18 @@ import space.norb.llvm.types.FunctionType
 import space.norb.llvm.visitors.IRVisitor
 import space.norb.llvm.enums.LinkageType
 
+typealias FunctionId = ULong
+
 /**
- * Function in LLVM IR.
+ * Function
+ *
+ * Represents a function in LLVM IR. Each function has a name, type, and is associated with a parent module.
+ *
+ * @param name The name of the function, which serves as its identifier within the module.
+ * @param type The function type, which includes the return type and parameter types.
+ * @param module The parent module to which this function belongs.
+ * @param linkage The linkage type of the function, which determines its visibility and linkage behavior.
+ * @param isDeclaration Indicates whether this function is a declaration (i.e., it has no body) or a definition (i.e., it has a body with basic blocks).
  */
 class Function(
     override val name: String?,
@@ -18,12 +28,26 @@ class Function(
     val linkage: LinkageType = LinkageType.EXTERNAL,
     val isDeclaration: Boolean = false
 ) : Value, MetadataCapable {
+    companion object {
+        private var functionId: FunctionId = 0UL
+        private var functionIdHashmap = mutableMapOf<FunctionId, Function>()
+        private fun register(function: Function): FunctionId {
+            val id = functionId++
+            functionIdHashmap[id] = function
+            return id
+        }
+
+        @Suppress("Unused")
+        fun fromId(id: FunctionId) = functionIdHashmap[id]
+    }
+
     val returnType: Type = type.returnType
     val parameters: List<Argument> = type.paramTypes.mapIndexed { index, paramType ->
         Argument(type.getParameterName(index), paramType, this, index)
     }
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null
+    val id: FunctionId = register(this)
     
     private val metadataAttachments = mutableMapOf<String, Metadata>()
 
@@ -44,27 +68,18 @@ class Function(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Function) return false
-        return name == other.name &&
-            type == other.type &&
-            module == other.module &&
-            linkage == other.linkage &&
-            isDeclaration == other.isDeclaration
+        return id == other.id
     }
     
     override fun hashCode(): Int {
-        var result = (name?.hashCode() ?: 0)
-        result = 31 * result + type.hashCode()
-        result = 31 * result + module.hashCode()
-        result = 31 * result + linkage.hashCode()
-        result = 31 * result + isDeclaration.hashCode()
-        return result
+        return id.hashCode()
     }
     
     override fun toString(): String {
         return "Function(name=$name, type=$type, module=${module.name})"
     }
     
-    override fun getParent(): Any? {
+    override fun getParent(): Any {
         // Functions belong to modules
         return module
     }

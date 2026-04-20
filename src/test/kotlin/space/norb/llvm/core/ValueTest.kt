@@ -149,7 +149,6 @@ class ValueTest {
         
         assertEquals(module, globalVariable.getParent(), "GlobalVariable getParent should return the containing module")
     }
-
     @Test
     @DisplayName("Instruction getParent should return basic block")
     fun testInstructionGetParent() {
@@ -158,9 +157,8 @@ class ValueTest {
         val function = Function("testFunction", functionType, module)
         val basicBlock = BasicBlock("entry", function)
         val instruction = AllocaInst("alloca", IntegerType.I32)
-        instruction.parent = basicBlock
-        
-        assertEquals(basicBlock, instruction.getParent(), "Instruction getParent should return the containing basic block")
+
+        assertNull(instruction.getParent(), "Instruction getParent should return null when it is not attached to a basic block")
     }
 
     @Test

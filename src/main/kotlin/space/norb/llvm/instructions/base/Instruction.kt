@@ -15,7 +15,6 @@ abstract class Instruction(
     override val type: Type,
     operands: List<Value>
 ) : User(name, type, operands), MetadataCapable {
-    lateinit var parent: BasicBlock
     var inlineComment: String? = null
     
     private val metadataAttachments = mutableMapOf<String, Metadata>()
@@ -30,10 +29,5 @@ abstract class Instruction(
 
     override fun removeMetadata(kind: String) {
         metadataAttachments.remove(kind)
-    }
-
-    override fun getParent(): Any? {
-        // Instructions belong to basic blocks
-        return if (::parent.isInitialized) parent else null
     }
 }

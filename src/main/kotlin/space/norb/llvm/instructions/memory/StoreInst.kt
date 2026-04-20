@@ -14,7 +14,7 @@ import space.norb.llvm.types.PointerType
  *
  * IR output example:
  * ```
- * store i32 42, ptr %ptr      ; Stores to un-typed pointer ptr
+ * store i32 42, ptr %ptr       ; Stores to un-typed pointer ptr
  * store float 3.14, ptr %fptr  ; Stores to un-typed pointer ptr
  * ```
  *
@@ -41,13 +41,15 @@ class StoreInst(
      * The value to be stored.
      * The type of this value should match storedType.
      */
-    val value: Value = value
+    val value: Value
+        get() = getOperand(0)
     
     /**
      * The pointer operand to which to store the value.
      * In un-typed mode, this should be a PointerType.
      */
-    val pointer: Value = pointer
+    val pointer: Value
+        get() = getOperand(1)
     
     /**
      * The expected pointer type for this store operation.

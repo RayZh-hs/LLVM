@@ -47,3 +47,4 @@ bin/
 
 ### Env ###
 .env
+mise.local.toml

@@ -1,2 +1,55 @@
 [tools]
 java = "temurin-21"
+
+[tasks.build]
+description = "Build the Kotlin LLVM library."
+run = "./gradlew build"
+
+[tasks.test]
+description = "Run the test suite."
+run = "./gradlew test"
+
+[tasks.publish-local]
+description = "Publish space.norb:llvm to the local Maven cache."
+run = "./gradlew publishToMavenLocal"
+
+[tasks.check-maven-publish-env]
+description = "Check Maven Central and GPG publishing prerequisites."
+hide = true
+run = '''
+if [ -z "${MAVEN_CENTRAL_USERNAME:-}" ]; then
+  echo "MAVEN_CENTRAL_USERNAME is required." >&2
+  exit 1
+fi
+
+if [ -z "${MAVEN_CENTRAL_PASSWORD:-}" ]; then
+  echo "MAVEN_CENTRAL_PASSWORD is required." >&2
+  exit 1
+fi
+
+if ! command -v gpg >/dev/null 2>&1; then
+  echo "gpg is required for release signing." >&2
+  exit 1
+fi
+
+if ! gpg --list-secret-keys >/dev/null 2>&1; then
+  echo "No local GPG secret key is available for release signing." >&2
+  exit 1
+fi
+'''
+
+[tasks.publish-central]
+description = "Build, sign, and publish the current release version to Maven Central."
+depends = ["check-maven-publish-env"]
+run = '''
+if [ -z "${GPG_TTY:-}" ] && tty -s; then
+  export GPG_TTY="$(tty)"
+fi
+
+./gradlew clean build publishAggregationToCentralPortal
+'''
+
+[tasks.publish-snapshot]
+description = "Build and publish the current -SNAPSHOT version to Maven Central snapshots."
+depends = ["check-maven-publish-env"]
+run = "./gradlew clean build publishAggregationToCentralPortalSnapshots"

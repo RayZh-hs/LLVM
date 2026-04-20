@@ -134,6 +134,52 @@ class Mem2RegPassTest {
     }
 
     @Test
+    fun `uses unique names for multiple phis from one slot`() {
+        val module = Module("test")
+        val builder = IRBuilder(module)
+        val function = module.registerFunction("two_joins", FunctionType(IntegerType.I32, listOf(IntegerType.I1)))
+        val condition = function.parameters[0]
+        val entry = function.insertBasicBlock("entry")
+        val firstThen = function.insertBasicBlock("first_then")
+        val firstJoin = function.insertBasicBlock("first_join")
+        val secondThen = function.insertBasicBlock("second_then")
+        val secondJoin = function.insertBasicBlock("second_join")
+
+        builder.positionAtEnd(entry)
+        val slot = builder.insertAlloca(IntegerType.I32, "slot")
+        builder.insertStore(IntConstant(0L, IntegerType.I32), slot)
+        builder.insertCondBr(condition, firstThen, firstJoin)
+
+        builder.positionAtEnd(firstThen)
+        builder.insertStore(IntConstant(1L, IntegerType.I32), slot)
+        builder.insertBr(firstJoin)
+
+        builder.positionAtEnd(firstJoin)
+        builder.insertCondBr(condition, secondThen, secondJoin)
+
+        builder.positionAtEnd(secondThen)
+        builder.insertStore(IntConstant(2L, IntegerType.I32), slot)
+        builder.insertBr(secondJoin)
+
+        builder.positionAtEnd(secondJoin)
+        val loaded = builder.insertLoad(IntegerType.I32, slot, "loaded")
+        builder.insertRet(loaded)
+
+        Mem2RegPass.run(module, createAnalysisManager(module))
+
+        val phiNames = function.basicBlocks
+            .flatMap { it.instructions }
+            .filterIsInstance<PhiNode>()
+            .mapNotNull { it.name }
+
+        assertEquals(2, phiNames.size)
+        assertEquals(phiNames.toSet().size, phiNames.size)
+        assertTrue(phiNames.all { it.startsWith("slot.phi") })
+        assertNoMemoryTraffic(function)
+        ValidationPass.run(module, AnalysisManager(module))
+    }
+
+    @Test
     fun `does not promote slot passed to call argument`() {
         val module = Module("test")
         val builder = IRBuilder(module)

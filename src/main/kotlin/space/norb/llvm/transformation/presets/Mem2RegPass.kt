@@ -249,17 +249,38 @@ object Mem2RegPass : IRPass() {
         if (phiBlocks.isEmpty()) return emptyMap()
 
         val placeholders = linkedMapOf<BasicBlockId, PhiNode>()
+        val usedNames = collectLocalNames(function)
         for (block in function.basicBlocks) {
             if (block.id !in phiBlocks) continue
 
             val insertionIndex = block.instructions.indexOfFirst { it !is PhiNode }
                 .let { if (it >= 0) it else block.instructions.size }
-            val phi = PhiNode.createPlaceholder(alloca.name, alloca.allocatedType)
+            val phi = PhiNode.createPlaceholder(nextPhiName(alloca.name ?: "mem2reg", usedNames), alloca.allocatedType)
             block.instructions.add(insertionIndex, phi)
             placeholders[block.id] = phi
         }
 
         return placeholders
+    }
+
+    private fun collectLocalNames(function: Function): MutableSet<String> {
+        val names = linkedSetOf<String>()
+        function.parameters.mapNotNullTo(names) { it.name }
+        for (block in function.basicBlocks) {
+            block.instructions.mapNotNullTo(names) { it.name }
+        }
+        return names
+    }
+
+    private fun nextPhiName(baseName: String, usedNames: MutableSet<String>): String {
+        var index = 0
+        while (true) {
+            val candidate = if (index == 0) "$baseName.phi" else "$baseName.phi.$index"
+            if (usedNames.add(candidate)) {
+                return candidate
+            }
+            index++
+        }
     }
 
     private fun renamePromotedValue(

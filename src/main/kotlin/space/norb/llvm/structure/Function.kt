@@ -48,6 +48,7 @@ class Function(
     val basicBlocks: MutableList<BasicBlock> = mutableListOf()
     var entryBlock: BasicBlock? = null
     val id: FunctionId = register(this)
+    val attributes: MutableSet<String> = linkedSetOf()
     
     private val metadataAttachments = mutableMapOf<String, Metadata>()
 
@@ -83,6 +84,19 @@ class Function(
         // Functions belong to modules
         return module
     }
+
+    fun addAttribute(attribute: String): Function {
+        require(attribute.isNotBlank()) { "Function attribute cannot be blank" }
+        attributes.add(attribute)
+        return this
+    }
+
+    fun removeAttribute(attribute: String): Function {
+        attributes.remove(attribute)
+        return this
+    }
+
+    fun hasAttribute(attribute: String): Boolean = attribute in attributes
 
     fun setBasicBlock(block: BasicBlock): Function {
         this.entryBlock = block

@@ -258,11 +258,13 @@ class IRPrinter : IRVisitor<Unit> {
                     paramTypeStr // No parameter names for declarations
                 }
             }
+            val attributeStr = formatFunctionAttributes(function)
             val metadataStr = formatMetadata(function)
-            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($declareParamsStr)${metadataStr}")
+            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($declareParamsStr)${attributeStr}${metadataStr}")
         } else {
+            val attributeStr = formatFunctionAttributes(function)
             val metadataStr = formatMetadata(function)
-            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($paramsStr)${metadataStr} {")
+            output.appendLine("${linkageStr}$returnTypeStr @${requireName(function.name, "Function")}($paramsStr)${attributeStr}${metadataStr} {")
             val previousIndent = indentLevel
             indentLevel = 0
             function.basicBlocks.forEachIndexed { index, block ->
@@ -696,5 +698,10 @@ class IRPrinter : IRVisitor<Unit> {
     
     private fun formatBlockName(block: BasicBlock): String {
         return formatLocalName(block.name)
+    }
+
+    private fun formatFunctionAttributes(function: Function): String {
+        if (function.attributes.isEmpty()) return ""
+        return function.attributes.joinToString(prefix = " ", separator = " ")
     }
 }

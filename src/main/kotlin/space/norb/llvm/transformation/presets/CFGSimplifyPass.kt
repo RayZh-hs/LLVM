@@ -43,7 +43,6 @@ object CFGSimplifyPass : IRPass() {
                     val dest = terminator.getDestination() as BasicBlock
                     if (dest.id == block.id) break // Avoid infinite loop on self-loop
                     if (predecessorMap[dest.id]!!.size <= 1) {
-                        print("Collapsing block ${dest.name} into ${block.name}\n")
                         // This means that the destination block is only reachable from this block
                         removedBlocks.add(dest.id)
                         terminator = dest.terminator!!

@@ -2,9 +2,6 @@ package space.norb.llvm.transformation.presets
 
 import org.junit.jupiter.api.Test
 import space.norb.llvm.analysis.AnalysisManager
-import space.norb.llvm.analysis.presets.DominatorTreeAnalysis
-import space.norb.llvm.analysis.presets.PredecessorAnalysis
-import space.norb.llvm.analysis.presets.UseDefAnalysis
 import space.norb.llvm.builder.IRBuilder
 import space.norb.llvm.enums.IcmpPredicate
 import space.norb.llvm.instructions.memory.AllocaInst
@@ -23,13 +20,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class Mem2RegPassTest {
-    private fun createAnalysisManager(module: Module): AnalysisManager =
-        AnalysisManager(module).apply {
-            register(PredecessorAnalysis)
-            register(UseDefAnalysis)
-            register(DominatorTreeAnalysis)
-        }
-
     @Test
     fun `promotes straight-line stack slot`() {
         val module = Module("test")
@@ -44,7 +34,7 @@ class Mem2RegPassTest {
         val sum = builder.insertAdd(loaded, IntConstant(2L, IntegerType.I32), "sum")
         builder.insertRet(sum)
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         assertFalse(module.toIRString().contains("alloca"))
         assertFalse(module.toIRString().contains("load"))
@@ -80,7 +70,7 @@ class Mem2RegPassTest {
         val loaded = builder.insertLoad(IntegerType.I32, slot, "loaded")
         builder.insertRet(loaded)
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         val phi = assertIs<PhiNode>(merge.instructions.first())
         assertEquals(2, phi.getNumIncomingValues())
@@ -121,7 +111,7 @@ class Mem2RegPassTest {
         val result = builder.insertLoad(IntegerType.I32, slot, "result")
         builder.insertRet(result)
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         val phi = assertIs<PhiNode>(header.instructions.first())
         assertEquals(2, phi.getNumIncomingValues())
@@ -165,7 +155,7 @@ class Mem2RegPassTest {
         val loaded = builder.insertLoad(IntegerType.I32, slot, "loaded")
         builder.insertRet(loaded)
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         val phiNames = function.basicBlocks
             .flatMap { it.instructions }
@@ -194,7 +184,7 @@ class Mem2RegPassTest {
         val loaded = builder.insertLoad(IntegerType.I32, slot, "loaded")
         builder.insertRet(loaded)
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         assertTrue(entry.instructions.any { it is AllocaInst && it == slot })
         assertTrue(entry.instructions.any { it is StoreInst && it.pointer == slot })
@@ -214,7 +204,7 @@ class Mem2RegPassTest {
         builder.insertStore(slot, slot)
         builder.insertRetVoid()
 
-        Mem2RegPass.run(module, createAnalysisManager(module))
+        Mem2RegPass.run(module, AnalysisManager(module))
 
         assertTrue(entry.instructions.any { it is AllocaInst && it == slot })
         assertTrue(entry.instructions.any { it is StoreInst && it.pointer == slot && it.value == slot })

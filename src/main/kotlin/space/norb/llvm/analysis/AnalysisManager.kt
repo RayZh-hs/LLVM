@@ -25,10 +25,10 @@ class AnalysisManager(private val module: Module) {
         registeredAnalyses[analysis.key] = analysis
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <R : AnalysisResult> get(analysisKey: KClass<out Analysis<R>>): R {
         // 1. Check cache
         if (analysisKey in cache) {
+            @Suppress("UNCHECKED_CAST")
             return cache[analysisKey] as R
         }
 
@@ -40,14 +40,45 @@ class AnalysisManager(private val module: Module) {
         // 3. Compute and cache
         computingStack.add(analysisKey)
         try {
-            val provider = registeredAnalyses[analysisKey]
-                ?: throw IllegalStateException("Analysis ${analysisKey.simpleName} not registered.")
+            val provider = getOrCreateAnalysis(analysisKey)
             val result = provider.compute(module, this)
             cache[analysisKey] = result
-            return result as R
+            return result
         } finally {
             computingStack.remove(analysisKey)
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <R : AnalysisResult> getOrCreateAnalysis(
+        analysisKey: KClass<out Analysis<R>>
+    ): Analysis<R> {
+        registeredAnalyses[analysisKey]?.let { return it as Analysis<R> }
+
+        val analysis = instantiateAnalysis(analysisKey)
+        registeredAnalyses[analysisKey] = analysis
+        registeredAnalyses[analysis.key] = analysis
+        return analysis
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <R : AnalysisResult> instantiateAnalysis(
+        analysisKey: KClass<out Analysis<R>>
+    ): Analysis<R> {
+        val javaClass = analysisKey.java
+        val objectInstance = runCatching {
+            javaClass.getDeclaredField("INSTANCE").apply { isAccessible = true }.get(null)
+        }.getOrNull()
+        if (objectInstance != null) {
+            return objectInstance as Analysis<R>
+        }
+
+        val constructor = runCatching { javaClass.getDeclaredConstructor() }.getOrNull()
+            ?: throw IllegalStateException(
+                "Analysis ${analysisKey.simpleName} is not registered and cannot be automatically instantiated."
+            )
+        constructor.isAccessible = true
+        return constructor.newInstance() as Analysis<R>
     }
 
     @Suppress("UNCHECKED_CAST")

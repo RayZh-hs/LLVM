@@ -12,9 +12,7 @@ import kotlin.test.assertTrue
 
 class FunctionDependencyAnalysisTest {
     private fun analyze(module: Module): FunctionDependencyGraph =
-        AnalysisManager(module).apply {
-            register(FunctionDependencyAnalysis)
-        }.get(FunctionDependencyAnalysis::class)
+        AnalysisManager(module).get(FunctionDependencyAnalysis::class)
 
     @Test
     fun `answers transitive function dependencies through condensed graph`() {

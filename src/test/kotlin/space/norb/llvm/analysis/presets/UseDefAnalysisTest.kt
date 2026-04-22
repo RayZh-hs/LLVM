@@ -29,9 +29,7 @@ class UseDefAnalysisTest {
         builder.positionAtEnd(exit)
         val ret = builder.insertRet(add)
 
-        val am = AnalysisManager(module)
-        am.register(UseDefAnalysis)
-        val chain = am.get(UseDefAnalysis::class)
+        val chain = AnalysisManager(module).get(UseDefAnalysis::class)
 
         assertContentEquals(listOf(lhs, rhs), chain.getDefs(add))
         assertContentEquals(listOf(add), chain.getUses(lhs))
@@ -57,9 +55,7 @@ class UseDefAnalysisTest {
         val add = builder.insertAdd(value, value, "twice")
         builder.insertRet(add)
 
-        val am = AnalysisManager(module)
-        am.register(UseDefAnalysis)
-        val chain = am.get(UseDefAnalysis::class)
+        val chain = AnalysisManager(module).get(UseDefAnalysis::class)
 
         assertContentEquals(listOf(value, value), chain.getDefs(add))
         assertContentEquals(listOf(add, add), chain.getUses(value))

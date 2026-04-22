@@ -2,6 +2,7 @@ package space.norb.llvm.transformation.presets
 
 import space.norb.llvm.analysis.AnalysisManager
 import space.norb.llvm.analysis.presets.PredecessorAnalysis
+import space.norb.llvm.instructions.base.TerminatorInst
 import space.norb.llvm.instructions.other.CommentAttachment
 import space.norb.llvm.instructions.terminators.BranchInst
 import space.norb.llvm.structure.BasicBlock
@@ -12,9 +13,19 @@ import space.norb.llvm.utils.Renamer
 
 object CFGSimplifyPass : IRPass() {
     private fun BasicBlock.devour(other: BasicBlock) {
-        this.instructions.add(CommentAttachment(name = Renamer.another(), comment = "Collapsed block ${other.name}"))
-        this.instructions.addAll(other.instructions)
-        this.terminator = other.terminator
+        val nextTerminator = requireNotNull(other.terminator) {
+            "Cannot merge basic block ${other.name} without a terminator"
+        }
+        val mergedInstructions = this.instructions
+            .filterNot { it is TerminatorInst }
+            .toMutableList()
+        mergedInstructions.add(CommentAttachment(name = Renamer.another(), comment = "Collapsed block ${other.name}"))
+        mergedInstructions.addAll(other.instructions.filterNot { it is TerminatorInst })
+        mergedInstructions.add(nextTerminator)
+
+        this.instructions.clear()
+        this.instructions.addAll(mergedInstructions)
+        this.terminator = nextTerminator
     }
 
     override fun run(module: Module, am: AnalysisManager): Module {

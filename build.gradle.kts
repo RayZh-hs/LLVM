@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "space.norb"
-version = "1.4.0-alpha"
+version = "1.4.0"
 
 repositories {
     mavenCentral()

@@ -213,6 +213,18 @@ class PhiNode private constructor(
         addOperand(value)
         addOperand(block)
     }
+
+    /**
+     * Removes the incoming value associated with the specified basic block.
+     *
+     * @param block The basic block whose incoming value to remove
+     */
+    fun removeIncomingForBlock(block: BasicBlock) {
+        val index = getIncomingValueIndexForBlock(block) ?: return
+        // Remove the higher index first so the lower index is not affected
+        removeOperand(index * 2 + 1) // block operand
+        removeOperand(index * 2)     // value operand
+    }
     
     /**
      * Creates a new PHI node with the incoming value from the specified block replaced.

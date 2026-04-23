@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import space.norb.llvm.structure.Module
 import space.norb.llvm.types.ArrayType
 import space.norb.llvm.types.IntegerType
 import space.norb.llvm.types.PointerType
@@ -68,5 +69,33 @@ class MemoryLayoutUtilsTest {
         val structWithPointer = StructType.AnonymousStructType(listOf(IntegerType(32), pointer))
         assertEquals(16, structWithPointer.getSizeInBytes())
         assertEquals(8, structWithPointer.getSizeInBytes(32))
+    }
+
+    @Test
+    fun `module-aware layout resolves opaque named structs by name`() {
+        val module = Module("layout-test")
+        module.registerNamedStructType("Pair", listOf(IntegerType.I32, IntegerType.I32))
+        val opaqueReference = StructType.NamedStructType("Pair")
+
+        assertThrows(IllegalArgumentException::class.java) {
+            opaqueReference.getSizeInBytes()
+        }
+        assertEquals(8, opaqueReference.getSizeInBytes(module))
+        assertEquals(Layout(8, 4), opaqueReference.computeLayout(module))
+    }
+
+    @Test
+    fun `data layout controls pointer size and abi alignment`() {
+        val dataLayout = DataLayout("e-p:32:32-i64:32-f64:32")
+
+        assertEquals(32, dataLayout.pointerSizeInBits)
+        assertEquals(4, dataLayout.getABITypeAlignment(PointerType))
+        assertEquals(32, dataLayout.getTypeSizeInBits(PointerType))
+        assertEquals(4, dataLayout.getABITypeAlignment(IntegerType.I64))
+        assertEquals(64, dataLayout.getTypeSizeInBits(IntegerType.I64))
+
+        val structType = StructType.AnonymousStructType(listOf(IntegerType.I8, IntegerType.I64))
+        assertEquals(12, structType.getSizeInBytes(dataLayout))
+        assertEquals(Layout(12, 4), structType.computeLayout(dataLayout))
     }
 }

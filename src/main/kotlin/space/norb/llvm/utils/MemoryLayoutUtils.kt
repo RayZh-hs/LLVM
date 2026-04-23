@@ -21,22 +21,24 @@ import space.norb.llvm.types.VoidType
  */
 data class Layout(val sizeInBytes: Long, val alignment: Int)
 
-const val DEFAULT_POINTER_WIDTH_BITS = 64
-
 /**
  * Computes the size of the given type in bytes, taking standard padding rules into account.
  *
  * @return The size in bytes
  * @throws IllegalArgumentException If the type cannot be sized (e.g., functions or opaque structs)
  */
-fun Type.getSizeInBytes(pointerWidthBits: Int = DEFAULT_POINTER_WIDTH_BITS): Long =
+fun Type.getSizeInBytes(pointerWidthBits: Int? = null): Long =
     computeLayout(pointerWidthBits).sizeInBytes
 
 /**
  * Computes the size of the given type in bytes, resolving opaque named structs through [module].
+ * 
+ * An explicit [pointerWidthBits] overrides the module data layout. If neither provides pointer
+ * sizing information, pointer-bearing layouts fail when the pointer size is needed.
  */
-fun Type.getSizeInBytes(module: Module, pointerWidthBits: Int = DEFAULT_POINTER_WIDTH_BITS): Long =
-    computeLayout(module, pointerWidthBits).sizeInBytes
+fun Type.getSizeInBytes(module: Module, pointerWidthBits: Int? = null): Long {
+    return computeLayout(module, pointerWidthBits).sizeInBytes
+}
 
 /**
  * Computes the size of the given type in bytes using a parsed target data layout.
@@ -47,38 +49,34 @@ fun Type.getSizeInBytes(dataLayout: DataLayout, module: Module? = null): Long =
 /**
  * Computes both size and alignment for the receiver type.
  */
-fun Type.computeLayout(pointerWidthBits: Int = DEFAULT_POINTER_WIDTH_BITS): Layout {
-    require(pointerWidthBits == 32 || pointerWidthBits == 64) {
-        "Only 32-bit and 64-bit pointer sizes are supported (got $pointerWidthBits)"
-    }
-
-    return computeLayoutInternal(pointerWidthBits, null, null)
+fun Type.computeLayout(pointerWidthBits: Int? = null): Layout {
+    validatePointerWidth(pointerWidthBits)
+    return computeLayoutInternal(pointerWidthBits, pointerWidthBits?.div(8), null, null)
 }
 
 /**
  * Computes both size and alignment for the receiver type, resolving opaque named structs through [module].
+ *
+ * An explicit [pointerWidthBits] overrides the module data layout.
  */
-fun Type.computeLayout(module: Module, pointerWidthBits: Int = DEFAULT_POINTER_WIDTH_BITS): Layout {
-    require(pointerWidthBits == 32 || pointerWidthBits == 64) {
-        "Only 32-bit and 64-bit pointer sizes are supported (got $pointerWidthBits)"
-    }
-
-    return computeLayoutInternal(pointerWidthBits, module, null)
+fun Type.computeLayout(module: Module, pointerWidthBits: Int? = null): Layout {
+    val dataLayout = module.dataLayout?.let { DataLayout(it) }
+    val resolvedPointerWidthBits = resolvePointerWidth(pointerWidthBits, dataLayout)
+    val resolvedPointerAlignment = resolvePointerAlignment(pointerWidthBits, dataLayout)
+    return computeLayoutInternal(resolvedPointerWidthBits, resolvedPointerAlignment, module, dataLayout)
 }
 
 /**
  * Computes both size and alignment for the receiver type using a parsed target data layout.
  */
 fun Type.computeLayout(dataLayout: DataLayout, module: Module? = null): Layout {
-    require(dataLayout.pointerSizeInBits > 0 && dataLayout.pointerSizeInBits % 8 == 0) {
-        "Pointer size must be a positive multiple of 8 bits (got ${dataLayout.pointerSizeInBits})"
-    }
-
-    return computeLayoutInternal(dataLayout.pointerSizeInBits, module, dataLayout)
+    val resolvedPointerWidthBits = resolvePointerWidth(null, dataLayout)
+    return computeLayoutInternal(resolvedPointerWidthBits, dataLayout.pointerABIAlignment, module, dataLayout)
 }
 
 internal fun Type.computeLayoutInternal(
-    pointerWidthBits: Int,
+    pointerWidthBits: Int?,
+    pointerAlignmentBytes: Int?,
     module: Module?,
     dataLayout: DataLayout?
 ): Layout {
@@ -91,10 +89,10 @@ internal fun Type.computeLayoutInternal(
         }
         is FloatingPointType.FloatType -> Layout(4, dataLayout?.floatingPointABIAlignment(32, 4) ?: 4)
         is FloatingPointType.DoubleType -> Layout(8, dataLayout?.floatingPointABIAlignment(64, 8) ?: 8)
-        is PointerType -> pointerLayout(pointerWidthBits, dataLayout)
-        is ArrayType -> computeArrayLayout(this, pointerWidthBits, module, dataLayout)
+        is PointerType -> pointerLayout(pointerWidthBits, pointerAlignmentBytes)
+        is ArrayType -> computeArrayLayout(this, pointerWidthBits, pointerAlignmentBytes, module, dataLayout)
         is StructType.AnonymousStructType ->
-            computeStructLayout(this.elementTypes, this.isPacked, pointerWidthBits, module, dataLayout)
+            computeStructLayout(this.elementTypes, this.isPacked, pointerWidthBits, pointerAlignmentBytes, module, dataLayout)
         is StructType.NamedStructType -> {
             val resolvedStruct = if (this.elementTypes == null && module != null) {
                 module.getNamedStructType(this.name) ?: this
@@ -103,7 +101,14 @@ internal fun Type.computeLayoutInternal(
             }
             val elements = resolvedStruct.elementTypes
                 ?: throw IllegalArgumentException("Cannot compute size of opaque named struct: ${this.name}")
-            computeStructLayout(elements, resolvedStruct.isPacked, pointerWidthBits, module, dataLayout)
+            computeStructLayout(
+                elements,
+                resolvedStruct.isPacked,
+                pointerWidthBits,
+                pointerAlignmentBytes,
+                module,
+                dataLayout
+            )
         }
         is FunctionType -> throw IllegalArgumentException("Cannot compute size of function type: $this")
         is VoidType, is LabelType, is MetadataType ->
@@ -123,19 +128,53 @@ private fun nextPowerOfTwo(v: Int): Int {
     return n + 1
 }
 
-private fun pointerLayout(pointerWidthBits: Int, dataLayout: DataLayout?): Layout {
-    val pointerBytes = pointerWidthBits / 8
-    return Layout(pointerBytes.toLong(), dataLayout?.pointerABIAlignment ?: pointerBytes)
+private fun validatePointerWidth(pointerWidthBits: Int?) {
+    if (pointerWidthBits == null) return
+    require(pointerWidthBits == 32 || pointerWidthBits == 64) {
+        "Only 32-bit and 64-bit pointer sizes are supported (got $pointerWidthBits)"
+    }
+}
+
+private fun resolvePointerWidth(pointerWidthBits: Int?, dataLayout: DataLayout?): Int? {
+    validatePointerWidth(pointerWidthBits)
+
+    val layoutPointerWidth = dataLayout?.pointerSizeInBits
+    validatePointerWidth(layoutPointerWidth)
+
+    return pointerWidthBits ?: layoutPointerWidth
+}
+
+private fun resolvePointerAlignment(pointerWidthBits: Int?, dataLayout: DataLayout?): Int? {
+    return if (pointerWidthBits != null) {
+        pointerWidthBits / 8
+    } else {
+        dataLayout?.pointerABIAlignment
+    }
+}
+
+private fun pointerLayout(pointerWidthBits: Int?, pointerAlignmentBytes: Int?): Layout {
+    val resolvedPointerWidthBits = pointerWidthBits
+        ?: throw IllegalArgumentException(
+            "Pointer size must be specified explicitly or provided by the data layout"
+        )
+    val pointerBytes = resolvedPointerWidthBits / 8
+    return Layout(pointerBytes.toLong(), pointerAlignmentBytes ?: pointerBytes)
 }
 
 private fun computeArrayLayout(
     arrayType: ArrayType,
-    pointerWidthBits: Int,
+    pointerWidthBits: Int?,
+    pointerAlignmentBytes: Int?,
     module: Module?,
     dataLayout: DataLayout?
 ): Layout {
     require(arrayType.numElements >= 0) { "Array element count must be non-negative" }
-    val elementLayout = arrayType.elementType.computeLayoutInternal(pointerWidthBits, module, dataLayout)
+    val elementLayout = arrayType.elementType.computeLayoutInternal(
+        pointerWidthBits,
+        pointerAlignmentBytes,
+        module,
+        dataLayout
+    )
     val stride = alignTo(elementLayout.sizeInBytes, elementLayout.alignment.toLong())
     return Layout(stride * arrayType.numElements, elementLayout.alignment)
 }
@@ -143,7 +182,8 @@ private fun computeArrayLayout(
 private fun computeStructLayout(
     elementTypes: List<Type>,
     isPacked: Boolean,
-    pointerWidthBits: Int,
+    pointerWidthBits: Int?,
+    pointerAlignmentBytes: Int?,
     module: Module?,
     dataLayout: DataLayout?
 ): Layout {
@@ -153,7 +193,12 @@ private fun computeStructLayout(
     var structAlignment = if (isPacked) 1 else 1
 
     for (elementType in elementTypes) {
-        val elementLayout = elementType.computeLayoutInternal(pointerWidthBits, module, dataLayout)
+        val elementLayout = elementType.computeLayoutInternal(
+            pointerWidthBits,
+            pointerAlignmentBytes,
+            module,
+            dataLayout
+        )
         val elementAlignment = if (isPacked) 1 else elementLayout.alignment
 
         offset = alignTo(offset, elementAlignment.toLong())

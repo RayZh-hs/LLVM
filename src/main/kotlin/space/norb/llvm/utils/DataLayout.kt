@@ -6,16 +6,16 @@ import space.norb.llvm.core.Type
  * Parsed subset of an LLVM target data layout string.
  *
  * This class currently models the layout properties this library needs for type
- * sizing: default pointer size/alignment plus ABI alignments for integer and
+ * sizing: optional pointer size/alignment plus ABI alignments for integer and
  * floating-point types. Alignment values returned by this API are in bytes.
  */
 class DataLayout(layout: String = "") {
     val layout: String = layout
 
-    var pointerSizeInBits: Int = DEFAULT_POINTER_WIDTH_BITS
+    var pointerSizeInBits: Int? = null
         private set
 
-    var pointerABIAlignment: Int = DEFAULT_POINTER_WIDTH_BITS / 8
+    var pointerABIAlignment: Int? = null
         private set
 
     private val integerABIAlignments: MutableMap<Int, Int> = mutableMapOf()
@@ -65,9 +65,8 @@ class DataLayout(layout: String = "") {
 
         if (sizeInBits > 0 && sizeInBits % 8 == 0) {
             pointerSizeInBits = sizeInBits
+            pointerABIAlignment = alignmentInBits.toByteAlignment()
         }
-
-        alignmentInBits.toByteAlignment()?.let { pointerABIAlignment = it }
     }
 
     private fun parseABIAlignment(

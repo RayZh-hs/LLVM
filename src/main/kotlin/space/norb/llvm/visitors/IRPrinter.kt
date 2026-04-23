@@ -122,6 +122,16 @@ class IRPrinter : IRVisitor<Unit> {
     
     override fun visitModule(module: Module) {
         output.appendLine("; Module: ${module.name}")
+
+        module.targetTriple?.let {
+            output.appendLine("target triple = \"$it\"")
+        }
+        module.dataLayout?.let {
+            output.appendLine("target datalayout = \"$it\"")
+        }
+        if (module.targetTriple != null || module.dataLayout != null) {
+            output.appendLine()
+        }
         
         // Emit struct definitions first
         emitStructDefinitions(module)

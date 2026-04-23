@@ -63,12 +63,18 @@ class MemoryLayoutUtilsTest {
     @Test
     fun `pointer size respects target layout`() {
         val pointer = PointerType
-        assertEquals(8, pointer.getSizeInBytes())
+        assertThrows(IllegalArgumentException::class.java) {
+            pointer.getSizeInBytes()
+        }
         assertEquals(4, pointer.getSizeInBytes(32))
+        assertEquals(8, pointer.getSizeInBytes(64))
 
         val structWithPointer = StructType.AnonymousStructType(listOf(IntegerType(32), pointer))
-        assertEquals(16, structWithPointer.getSizeInBytes())
+        assertThrows(IllegalArgumentException::class.java) {
+            structWithPointer.getSizeInBytes()
+        }
         assertEquals(8, structWithPointer.getSizeInBytes(32))
+        assertEquals(16, structWithPointer.getSizeInBytes(64))
     }
 
     @Test
@@ -82,6 +88,40 @@ class MemoryLayoutUtilsTest {
         }
         assertEquals(8, opaqueReference.getSizeInBytes(module))
         assertEquals(Layout(8, 4), opaqueReference.computeLayout(module))
+    }
+
+    @Test
+    fun `module-aware layout throws for pointer-bearing types when neither arg nor data layout provides pointer size`() {
+        val module = Module("layout-test")
+        val pointerStruct = StructType.AnonymousStructType(listOf(IntegerType.I32, PointerType))
+
+        assertThrows(IllegalArgumentException::class.java) {
+            PointerType.getSizeInBytes(module)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            pointerStruct.computeLayout(module)
+        }
+    }
+
+    @Test
+    fun `explicit pointer size overrides module data layout`() {
+        val module = Module("layout-test")
+        module.dataLayout = "e-p:32:32-i64:32-f64:32"
+
+        assertEquals(4, PointerType.getSizeInBytes(module))
+        assertEquals(8, PointerType.getSizeInBytes(module, 64))
+        assertEquals(Layout(8, 8), PointerType.computeLayout(module, 64))
+    }
+
+    @Test
+    fun `explicit pointer size fills in missing module pointer layout`() {
+        val module = Module("layout-test")
+        module.dataLayout = "e-i64:32-f64:32"
+
+        assertThrows(IllegalArgumentException::class.java) {
+            PointerType.getSizeInBytes(module)
+        }
+        assertEquals(4, PointerType.getSizeInBytes(module, 32))
     }
 
     @Test

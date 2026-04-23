@@ -148,13 +148,13 @@ sealed class StructType : Type() {
      */
     data class NamedStructType(
         val name: String,
-        val elementTypes: List<Type>? = null, // null for opaque structs
-        val isPacked: Boolean = false
+        var elementTypes: List<Type>? = null, // null for opaque structs
+        var isPacked: Boolean = false
     ) : StructType() {
         
         init {
             require(name.isNotBlank()) { "Struct name cannot be blank" }
-            require(elementTypes == null || elementTypes.isNotEmpty()) { 
+            require(elementTypes?.isNotEmpty() != false) {
                 "Element types must be null for opaque structs or non-empty for complete structs" 
             }
         }
@@ -168,6 +168,18 @@ sealed class StructType : Type() {
          * Checks if this named struct is complete (has element types defined).
          */
         fun isComplete(): Boolean = elementTypes != null
+
+        /**
+         * Completes this named struct in place.
+         */
+        fun complete(elementTypes: List<Type>, isPacked: Boolean = false): NamedStructType {
+            require(isOpaque()) { "Struct type '$name' is already complete" }
+            require(elementTypes.isNotEmpty()) { "Element types must be non-empty for complete structs" }
+
+            this.elementTypes = elementTypes
+            this.isPacked = isPacked
+            return this
+        }
         
         override fun toString(): String = toInlineString()
         

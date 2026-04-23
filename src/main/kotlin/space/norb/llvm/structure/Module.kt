@@ -195,10 +195,7 @@ class Module(val name: String) {
 
         require(existingStruct.isOpaque()) { "Struct type '$name' is already complete" }
 
-        // Create a new completed struct with the same name
-        val completedStruct = createNamedStructType(name, elementTypes, isPacked)
-        namedStructTypes[name] = completedStruct
-        return completedStruct
+        return existingStruct.complete(elementTypes, isPacked)
     }
 
     /**

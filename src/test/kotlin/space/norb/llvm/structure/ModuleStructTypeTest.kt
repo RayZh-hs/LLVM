@@ -128,13 +128,16 @@ class ModuleStructTypeTest {
         val completedStruct = module.completeOpaqueStructType("OpaquePoint", listOf(IntegerType.I64, IntegerType.I64))
         
         // Verify completion
+        assertSame(opaqueStruct, completedStruct)
         assertEquals("OpaquePoint", completedStruct.name)
         assertEquals(listOf(IntegerType.I64, IntegerType.I64), completedStruct.elementTypes!!)
         assertFalse(completedStruct.isPacked)
         assertTrue(completedStruct.isComplete())
         
-        // Verify it has the same name but is a new object
+        // Verify existing references now see the completed definition
         assertEquals(opaqueStruct.name, completedStruct.name)
+        assertTrue(opaqueStruct.isComplete())
+        assertEquals(listOf(IntegerType.I64, IntegerType.I64), opaqueStruct.elementTypes!!)
         
         // Verify it can be retrieved
         val retrieved = module.getNamedStructType("OpaquePoint")

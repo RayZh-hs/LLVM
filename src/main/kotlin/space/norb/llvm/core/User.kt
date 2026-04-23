@@ -27,6 +27,10 @@ abstract class User(
     
     // Convert the immutable list to a mutable list for internal manipulation
     protected val operands: MutableList<Value> = operands.toMutableList()
+
+    init {
+        this.operands.forEach { ValueUseRegistry.registerUse(it, this) }
+    }
     
     /**
      * Gets the number of operands this user has.
@@ -62,7 +66,12 @@ abstract class User(
      * @throws IndexOutOfBoundsException if index is out of bounds
      */
     fun setOperand(index: Int, value: Value) {
+        val oldValue = operands[index]
+        if (oldValue === value) return
+
+        ValueUseRegistry.unregisterUse(oldValue, this)
         operands[index] = value
+        ValueUseRegistry.registerUse(value, this)
     }
     
     /**
@@ -72,6 +81,7 @@ abstract class User(
      */
     protected fun addOperand(value: Value) {
         operands.add(value)
+        ValueUseRegistry.registerUse(value, this)
     }
     
     /**
@@ -82,7 +92,9 @@ abstract class User(
      * @throws IndexOutOfBoundsException if index is out of bounds
      */
     protected fun removeOperand(index: Int): Value {
-        return operands.removeAt(index)
+        val removed = operands.removeAt(index)
+        ValueUseRegistry.unregisterUse(removed, this)
+        return removed
     }
     
     /**
@@ -103,49 +115,31 @@ abstract class User(
         return index.takeIf { it >= 0 }
     }
     
-    // Placeholder methods for Phase 2 - to be implemented when use-def chains are established
-    
     /**
      * Replaces all uses of a value with another value.
-     * TODO: Deferred - requires use-def chain infrastructure.
-     * Dependencies: Value.useList tracking, User operand registration,
-     * and bidirectional use-def relationship management.
      *
      * @param oldValue The value to replace
      * @param newValue The value to replace with
      */
     fun replaceUsesOfWith(oldValue: Value, newValue: Value) {
-        // Phase 1 implementation: iterate through operands and replace matching values
         for (i in operands.indices) {
             if (operands[i] == oldValue) {
-                operands[i] = newValue
+                setOperand(i, newValue)
             }
         }
     }
     
     /**
      * Gets all users of this value.
-     * TODO: Deferred - requires use-def chain infrastructure.
-     * Dependencies: Value.useList tracking, User operand registration,
-     * and bidirectional use-def relationship management.
      *
      * @return List of all users that use this value
      */
-    fun getUsers(): List<User> {
-        // Phase 1 implementation: return empty list since use-def chains aren't established
-        return emptyList()
-    }
+    fun getUsers(): List<User> = getUses()
     
     /**
      * Checks if this value is used by any other value.
-     * TODO: Deferred - requires use-def chain infrastructure.
-     * Dependencies: Value.useList tracking, User operand registration,
-     * and bidirectional use-def relationship management.
      *
      * @return true if this value has any users, false otherwise
      */
-    fun hasUsers(): Boolean {
-        // Phase 1 implementation: return false since use-def chains aren't established
-        return false
-    }
+    fun hasUsers(): Boolean = hasUses()
 }

@@ -1,5 +1,34 @@
 package space.norb.llvm.core
 
+import java.util.IdentityHashMap
+
+internal object ValueUseRegistry {
+    private val uses: MutableMap<Value, MutableMap<User, Int>> = IdentityHashMap()
+
+    fun registerUse(value: Value, user: User) {
+        val users = uses.getOrPut(value) { IdentityHashMap() }
+        users[user] = (users[user] ?: 0) + 1
+    }
+
+    fun unregisterUse(value: Value, user: User) {
+        val users = uses[value] ?: return
+        val count = users[user] ?: return
+
+        if (count <= 1) {
+            users.remove(user)
+            if (users.isEmpty()) {
+                uses.remove(value)
+            }
+        } else {
+            users[user] = count - 1
+        }
+    }
+
+    fun getUses(value: Value): List<User> = uses[value]?.keys?.toList() ?: emptyList()
+
+    fun hasUses(value: Value): Boolean = uses[value]?.isNotEmpty() == true
+}
+
 /**
  * Core interface for all LLVM values.
  *
@@ -85,25 +114,20 @@ interface Value {
     
     /**
      * Checks if this value has any uses.
-     * TODO: Deferred - requires use-def chain infrastructure.
-     * Dependencies: Value.useList tracking, User operand registration,
-     * and bidirectional use-def relationship management.
      */
-    fun hasUses(): Boolean {
-        // Base implementation - concrete classes should override
-        // This should return true if there are any users of this value
-        return false
-    }
-    
+    fun hasUses(): Boolean = ValueUseRegistry.hasUses(this)
+
     /**
-     * Gets all uses of this value.
-     * TODO: Deferred - requires use-def chain infrastructure.
-     * Dependencies: Value.useList tracking, User operand registration,
-     * and bidirectional use-def relationship management.
+     * Gets all users that reference this value as an operand.
      */
-    fun getUses(): List<User> {
-        // Base implementation - concrete classes should override
-        // This should return a list of all users that use this value
-        return emptyList()
+    fun getUses(): List<User> = ValueUseRegistry.getUses(this)
+
+    /**
+     * Replaces every current use of this value with [newValue].
+     */
+    fun replaceAllUsesWith(newValue: Value) {
+        for (user in getUses().toList()) {
+            user.replaceUsesOfWith(this, newValue)
+        }
     }
 }

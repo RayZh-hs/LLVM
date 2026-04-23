@@ -172,6 +172,50 @@ class UserTest {
     }
 
     @Test
+    @DisplayName("Use tracking should follow operand changes")
+    fun testUseTrackingFollowsOperandChanges() {
+        val oldValue = MockValue("old", IntegerType.I32)
+        val newValue = MockValue("new", IntegerType.I32)
+        val user = MockUser("testUser", IntegerType.I32, listOf(oldValue))
+
+        assertTrue(oldValue.hasUses(), "Old value should be tracked as used")
+        assertEquals(listOf(user), oldValue.getUses(), "Old value should list the user")
+
+        user.setOperand(0, newValue)
+
+        assertFalse(oldValue.hasUses(), "Old value should no longer be used after replacement")
+        assertTrue(newValue.hasUses(), "New value should be tracked as used")
+        assertEquals(listOf(user), newValue.getUses(), "New value should list the user")
+    }
+
+    @Test
+    @DisplayName("User getUsers should reflect tracked uses")
+    fun testUserGetUsersReflectsTrackedUses() {
+        val producer = MockUser("producer", IntegerType.I32, emptyList())
+        val consumer = MockUser("consumer", IntegerType.I32, listOf(producer))
+
+        assertTrue(producer.hasUsers(), "Producer should report users")
+        assertEquals(listOf(consumer), producer.getUsers(), "Producer should list the consumer")
+    }
+
+    @Test
+    @DisplayName("replaceAllUsesWith should replace each current user")
+    fun testReplaceAllUsesWith() {
+        val oldValue = MockValue("old", IntegerType.I32)
+        val newValue = MockValue("new", IntegerType.I32)
+        val otherValue = MockValue("other", IntegerType.I32)
+        val user1 = MockUser("user1", IntegerType.I32, listOf(oldValue, otherValue))
+        val user2 = MockUser("user2", IntegerType.I32, listOf(oldValue, oldValue))
+
+        oldValue.replaceAllUsesWith(newValue)
+
+        assertEquals(listOf(newValue, otherValue), user1.getOperandsList())
+        assertEquals(listOf(newValue, newValue), user2.getOperandsList())
+        assertFalse(oldValue.hasUses(), "Old value should have no remaining uses")
+        assertEquals(setOf(user1, user2), newValue.getUses().toSet())
+    }
+
+    @Test
     @DisplayName("operands list should work with empty operands")
     fun testOperandsEmpty() {
         val name = "testUser"
